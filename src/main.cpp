@@ -1,15 +1,17 @@
 #include <Arduino.h>
-#include "display.h"
 #include "queue.h"
 #include "hr.h"
 #include "power.h"
+#include "speed.h"
 #include "config.h"
+#include "display.h"
 
 const int screen_height = 128;
 const int screen_width = 296;
 
 HR hr_monitor(DEVICE_NAME_HR);
-Power power_monitor("KICKR CORE 28DF");
+Power power_monitor(DEVICE_NAME_POWER);
+Speed speed_monitor(DEVICE_NAME_SPEED);
 
 void setup()
 {
@@ -25,16 +27,18 @@ void setup()
     power_monitor.init();
     Debug("POWER initialized");
     partial_update(String("POWER initialized"));
+
+    speed_monitor.init();
+    Debug("Speed initialized");
+    partial_update(String("Speed initialized"));
 }
 
 void loop()
 {
     long secs = millis() / 1000;
     hr_monitor.loop();
+    speed_monitor.loop();
     power_monitor.loop();
 
-    clear();
-    display_chart(hr_monitor.queue, 0);
-    display_chart(power_monitor.queue, screen_width / 2 + 2);
-    render(secs, hr_monitor.heart_rate, power_monitor.power);
+    render(secs, &hr_monitor, &power_monitor, &speed_monitor);
 }

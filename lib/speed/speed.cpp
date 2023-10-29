@@ -1,46 +1,44 @@
-#include "hr.h"
+#include "speed.h"
+// 01-4F-00-00-00-F7-3B
+// 01-5B-00-00-00-5C-5E
+// 01-62-00-00-00-11-75
+// 01-69-00-00-00-95-8E
+// 0x01 0x02 0x01 0x00 0x00 0x49 0x8
+// 0x01 0x03 0x01 0x00 0x00 0x9F 0x8D
+// 0x01 0x05 0x01 0x00 0x00 0xA8 0x98
+// 0x01 0x13 0x01 0x00 0x00 0x94 0x08
 
-int HR::interpret(uint8_t *pData, size_t length)
+// 0x01 0x48 0x01 0x00 0x00 0x6F 0x10
+bool IsBitSet(byte b, int pos)
 {
-    int hr = 0;
-    int i = 0;
-    contact = "";
+    return ((b >> pos) & 1) != 0;
+}
+int Speed::interpret(uint8_t *pData, size_t length)
+{
+    uint32_t revs_acc = 0;
+    uint16_t lwet = 0;
 
     uint8_t byte0 = pData[0];
-    boolean hrv_uint8 = (byte0 & 1) == 0;
-    uint8_t sensor_contact = (byte0 >> 1) & 3;
-    if (sensor_contact == 2)
-    {
-        contact = "No contact detected";
-        Serial.println(contact);
-    }
-    else if (sensor_contact == 3)
-    {
-        contact = "Contact detected";
-    }
-    else
-    {
-        contact = "Sensor contact not supported";
-        Serial.println(contact);
-    }
+    boolean cwr_uint8 = IsBitSet(byte0, 0);
+    boolean lwet_uint8 = IsBitSet(byte0, 0);
 
-    uint8_t ee_status = ((byte0 >> 3) & 1) == 1;
-    uint8_t rr_interval = ((byte0 >> 4) & 1) == 1;
+    revs_acc = (pData[4] << 24) | (pData[3] << 16) | (pData[2] << 8) | pData[1];
+    lwet = (pData[6] << 8) | pData[5];
 
-    if (hrv_uint8)
+    if (revs_acc > 0 && revs_acc - last_rv > 0)
     {
-        hr = pData[1];
-        i = 2;
-    }
-    else
-    {
-        hr = (pData[2] << 8) | pData[1];
-        i = 3;
-    }
+        // r:673 p:672 cdiff:1 w:2105 d:677 r: 3
+        int p = last_rv;
+        int t = last_tv;
+        last_rv = revs_acc;
+        last_tv = lwet;
+        int d = (lwet - t);
+        d = d == 0 ? 1 : d;
+        int cdiff = (revs_acc - p);
+        printf("r:%d p:%d cdiff:%d w:%d d:%d r: %f\n", last_rv, p, cdiff, cdiff * 2105, d, ((cdiff * 2105) / 100.f) / ((float_t)d / 1000.0f));
 
-    if (hr > 0)
-    {
-        lastv = hr;
+        lastv = (((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f));
+
         lastr = millis();
 
         if (minv > lastv || minv == 0)
@@ -51,37 +49,28 @@ int HR::interpret(uint8_t *pData, size_t length)
         count++;
         avgv = sumv / count;
         enqueue(queue, lastv);
-
-        if (HR_Z1_MIN < lastv && HR_Z1_MAX > lastv)
-            zonev = 1;
-        if (HR_Z2_MIN < lastv && HR_Z2_MAX > lastv)
-            zonev = 2;
-        if (HR_Z3_MIN < lastv && HR_Z3_MAX > lastv)
-            zonev = 3;
-        if (HR_Z4_MIN < lastv && HR_Z4_MAX > lastv)
-            zonev = 4;
-        if (HR_Z5_MIN < lastv && HR_Z5_MAX > lastv)
-            zonev = 5;
+    }
+    else
+    {
+        lastv = 0;
     }
 
-    return hr;
+    return lastv;
 }
 
-int HR::last() { return lastv; }
-int HR::avg() { return avgv; }
-int HR::min() { return minv; }
-int HR::max() { return maxv; }
-int HR::zone() { return zonev; }
+int Speed::last() { return lastv; }
+int Speed::avg() { return avgv; }
+int Speed::min() { return minv; }
+int Speed::max() { return maxv; }
 
-void HR::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
+void Speed::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
 {
     newHr = true;
 
-    heart_rate = interpret(pData, length);
-    return;
+    int speed = interpret(pData, length);
 
-    Serial.print("\nhr: ");
-    Serial.print(heart_rate);
+    Serial.print("\nspeed: ");
+    Serial.print(speed);
     Serial.print("; payload: ");
     for (size_t i = 0; i < length; i++)
     {
@@ -93,7 +82,7 @@ void HR::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8
     Serial.println(";");
 }
 
-bool HR::connect(BLEAddress address)
+bool Speed::connect(BLEAddress address)
 {
     auto *client = BLEDevice::createClient();
     client->connect(address, esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM);
@@ -133,7 +122,7 @@ bool HR::connect(BLEAddress address)
     return true;
 }
 
-void HR::onResult(BLEAdvertisedDevice device)
+void Speed::onResult(BLEAdvertisedDevice device)
 {
     Serial.printf("scan result: %s\n", device.getName());
     if (String(device.getName().c_str()).equalsIgnoreCase(name))
@@ -147,9 +136,9 @@ void HR::onResult(BLEAdvertisedDevice device)
     }
 }
 
-void HR::init()
+void Speed::init()
 {
-    Serial.println("init hr");
+    Serial.println("init speed sensor");
     BLEDevice::init("");
     auto *pBLEScan = BLEDevice::getScan();
     pBLEScan->setAdvertisedDeviceCallbacks(this);
@@ -160,7 +149,7 @@ void HR::init()
     Serial.println("start scan");
 }
 
-void HR::loop()
+void Speed::loop()
 {
     if (doConnect == true)
     {

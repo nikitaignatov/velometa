@@ -1,5 +1,11 @@
 #include "power.h"
 
+int Power::last() { return lastv; }
+int Power::avg() { return avgv; }
+int Power::min() { return minv; }
+int Power::max() { return maxv; }
+int Power::zone() { return zonev; }
+
 int Power::interpret(uint8_t *pData, size_t length)
 {
     // Configure the Cycle Power Measurement characteristic
@@ -56,12 +62,31 @@ int Power::interpret(uint8_t *pData, size_t length)
     uint8_t power_balance = pData[4] / 2;
     int crank = ((pData[6] << 8) | pData[5]);
     int ct = ((pData[8] << 8) | pData[7]) / 1024;
-    
-    
+
     if (power > 0)
     {
-        enqueue(queue, power);
+        lastv=power;
+        if (minv >lastv || minv == 0)
+            minv =lastv;
+        if (maxv <lastv)
+            maxv =lastv;
+        sumv += lastv;
+        count++;
+        avgv = sumv / count;
+        enqueue(queue, lastv);
     }
+    else
+    {
+        lastv=0;
+    }
+
+    if (POWER_Z1_MIN < lastv && POWER_Z1_MAX > lastv) zonev = 1;
+    if (POWER_Z2_MIN < lastv && POWER_Z2_MAX > lastv) zonev = 2;
+    if (POWER_Z3_MIN < lastv && POWER_Z3_MAX > lastv) zonev = 3;
+    if (POWER_Z4_MIN < lastv && POWER_Z4_MAX > lastv) zonev = 4;
+    if (POWER_Z5_MIN < lastv && POWER_Z5_MAX > lastv) zonev = 5;
+    if (POWER_Z6_MIN < lastv && POWER_Z6_MAX > lastv) zonev = 6;
+    if (POWER_Z7_MIN < lastv) zonev = 6;
 
     printf("%u\t%d\t%d\t%d\t%d\n", flags, power, power_balance, crank, ct);
     return power;
@@ -71,8 +96,9 @@ void Power::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, ui
 {
     new_value = true;
     power = interpret(pData, length);
+    return;
 
-    Serial.print("\nhr: ");
+    Serial.print("\npower: ");
     Serial.print(power);
     Serial.print("; payload: ");
     for (size_t i = 0; i < length; i++)
@@ -156,9 +182,9 @@ void Power::init()
         {0x23, 0x00, 0x23, 0x00, 0x62, 0x1B, 0x00, 0xFF, 0xA7},
         {0x23, 0x00, 0x0F, 0x00, 0xC8, 0x1A, 0x00, 0xBE, 0xA2},
         {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x1C, 0x00, 0xD2, 0xAE},
-        {0x23, 0x00, 0x3F, 0x00, 0x72, 0x12, 0x00, 0x1A, 0x3B},
-        {0x23, 0x00, 0x3A, 0x00, 0x78, 0x0D, 0x00, 0x98, 0x2E},
-        {0x23, 0x00, 0x29, 0x00, 0xA6, 0x0F, 0x00, 0x70, 0x33}};
+        {0x23, 0x00, 0x3F, 0x01, 0x72, 0x12, 0x00, 0x1A, 0x3B},
+        {0x23, 0x00, 0x3A, 0x05, 0x78, 0x0D, 0x00, 0x98, 0x2E},
+        {0x23, 0x00, 0xff, 0x00, 0xA6, 0x0F, 0x00, 0x70, 0x33}};
 
     printf("Flags\tPower\tBalance\tRev\tTime\n");
     for (int i = 0; i < 9; i++)

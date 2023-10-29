@@ -1,12 +1,16 @@
+#ifndef HR_H
+#define HR_H
+
 #include <Arduino.h>
 #include <BLEDevice.h>
+#include "zones.h"
 #include "queue.h"
 
 class HR : public BLEAdvertisedDeviceCallbacks
 {
     String name;
+    int minv, maxv, avgv, lastv, sumv, count, zonev, lastr;
     int interpret(uint8_t *pData, size_t length);
-
     // BLE
     BLEUUID service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb");
     BLEUUID characteristic_id = BLEUUID((uint16_t)0x2A37);
@@ -26,9 +30,16 @@ public:
     {
         name = device_name;
     }
-    struct Queue *queue = createQueue(296 / 2);
+    struct Queue *queue = createQueue(296 / 2 - 2);
     void init();
     void loop();
+    int last();
+    int min();
+    int max();
+    int avg();
+    int zone();
     int heart_rate;
     String contact;
 };
+
+#endif
