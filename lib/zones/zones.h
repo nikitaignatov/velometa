@@ -13,6 +13,10 @@
 #define HR_Z5_MIN 193
 #define HR_Z5_MAX 250
 
+// Power
+
+#define FTP 270.0f
+
 #define POWER_Z1_MIN 0
 #define POWER_Z1_MAX 54
 
