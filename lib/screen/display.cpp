@@ -157,8 +157,8 @@ void partial_update(String k)
     printf("Partial refresh\r\n");
     EPD_2IN9_Init(EPD_2IN9_PART);
     Paint_ClearWindows(0, 0, screen_width, screen_height, WHITE);
-    Paint_DrawLine(0, 26, screen_width, 26, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
-    Paint_DrawString_EN(0, 0, k.c_str(), &Font20, WHITE, BLACK);
+    Paint_DrawLine(0, Font16.Height, screen_width, Font16.Height, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
+    Paint_DrawString_EN(0, 0, k.c_str(), &Font12, WHITE, BLACK);
 
     EPD_2IN9_Display(BlackImage);
 }

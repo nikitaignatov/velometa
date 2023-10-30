@@ -65,11 +65,11 @@ int Power::interpret(uint8_t *pData, size_t length)
 
     if (power > 0)
     {
-        lastv=power;
-        if (minv >lastv || minv == 0)
-            minv =lastv;
-        if (maxv <lastv)
-            maxv =lastv;
+        lastv = power;
+        if (minv > lastv || minv == 0)
+            minv = lastv;
+        if (maxv < lastv)
+            maxv = lastv;
         sumv += lastv;
         count++;
         avgv = sumv / count;
@@ -77,19 +77,26 @@ int Power::interpret(uint8_t *pData, size_t length)
     }
     else
     {
-        lastv=0;
+        lastv = 0;
     }
 
-    if (POWER_Z1_MIN < lastv && POWER_Z1_MAX > lastv) zonev = 1;
-    if (POWER_Z2_MIN < lastv && POWER_Z2_MAX > lastv) zonev = 2;
-    if (POWER_Z3_MIN < lastv && POWER_Z3_MAX > lastv) zonev = 3;
-    if (POWER_Z4_MIN < lastv && POWER_Z4_MAX > lastv) zonev = 4;
-    if (POWER_Z5_MIN < lastv && POWER_Z5_MAX > lastv) zonev = 5;
-    if (POWER_Z6_MIN < lastv && POWER_Z6_MAX > lastv) zonev = 6;
-    if (POWER_Z7_MIN < lastv) zonev = 6;
+    if (POWER_Z1_MIN < lastv && POWER_Z1_MAX > lastv)
+        zonev = 1;
+    if (POWER_Z2_MIN < lastv && POWER_Z2_MAX > lastv)
+        zonev = 2;
+    if (POWER_Z3_MIN < lastv && POWER_Z3_MAX > lastv)
+        zonev = 3;
+    if (POWER_Z4_MIN < lastv && POWER_Z4_MAX > lastv)
+        zonev = 4;
+    if (POWER_Z5_MIN < lastv && POWER_Z5_MAX > lastv)
+        zonev = 5;
+    if (POWER_Z6_MIN < lastv && POWER_Z6_MAX > lastv)
+        zonev = 6;
+    if (POWER_Z7_MIN < lastv)
+        zonev = 6;
 
-    printf("%u\t%d\t%d\t%d\t%d\n", flags, power, power_balance, crank, ct);
-    return power;
+    // printf("%u\t%d\t%d\t%d\t%d\n", flags, power, power_balance, crank, ct);
+    return lastv;
 }
 
 void Power::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
@@ -115,7 +122,7 @@ bool Power::connect(BLEAddress address)
 {
     auto *client = BLEDevice::createClient();
     client->connect(address, esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM);
-    Serial.println(" - Connected to server");
+    Serial.println(" - Connected to power server");
     auto *svc = client->getService(service_id);
     if (svc == nullptr)
     {
@@ -175,22 +182,22 @@ void Power::init()
     pBLEScan->start(5);
     Serial.println("start scan");
 
-    uint8_t list[][9] = {
-        {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x03, 0x00, 0x0F, 0x17},
-        {0x23, 0x00, 0x0C, 0x00, 0xC8, 0x15, 0x00, 0xC5, 0x7A},
-        {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x16, 0x00, 0xD6, 0x82},
-        {0x23, 0x00, 0x23, 0x00, 0x62, 0x1B, 0x00, 0xFF, 0xA7},
-        {0x23, 0x00, 0x0F, 0x00, 0xC8, 0x1A, 0x00, 0xBE, 0xA2},
-        {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x1C, 0x00, 0xD2, 0xAE},
-        {0x23, 0x00, 0x3F, 0x01, 0x72, 0x12, 0x00, 0x1A, 0x3B},
-        {0x23, 0x00, 0x3A, 0x05, 0x78, 0x0D, 0x00, 0x98, 0x2E},
-        {0x23, 0x00, 0xff, 0x00, 0xA6, 0x0F, 0x00, 0x70, 0x33}};
+    // uint8_t list[][9] = {
+    //     {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x03, 0x00, 0x0F, 0x17},
+    //     {0x23, 0x00, 0x0C, 0x00, 0xC8, 0x15, 0x00, 0xC5, 0x7A},
+    //     {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x16, 0x00, 0xD6, 0x82},
+    //     {0x23, 0x00, 0x23, 0x00, 0x62, 0x1B, 0x00, 0xFF, 0xA7},
+    //     {0x23, 0x00, 0x0F, 0x00, 0xC8, 0x1A, 0x00, 0xBE, 0xA2},
+    //     {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x1C, 0x00, 0xD2, 0xAE},
+    //     {0x23, 0x00, 0x3F, 0x01, 0x72, 0x12, 0x00, 0x1A, 0x3B},
+    //     {0x23, 0x00, 0x3A, 0x05, 0x78, 0x0D, 0x00, 0x98, 0x2E},
+    //     {0x23, 0x00, 0xff, 0x00, 0xA6, 0x0F, 0x00, 0x70, 0x33}};
 
-    printf("Flags\tPower\tBalance\tRev\tTime\n");
-    for (int i = 0; i < 9; i++)
-    {
-        int power = interpret(list[i], 9);
-    }
+    // printf("Flags\tPower\tBalance\tRev\tTime\n");
+    // for (int i = 0; i < 9; i++)
+    // {
+    //     int power = interpret(list[i], 9);
+    // }
 }
 
 void Power::loop()

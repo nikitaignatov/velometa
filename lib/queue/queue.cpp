@@ -10,8 +10,6 @@ struct Queue *createQueue(unsigned capacity)
     queue->rear = capacity - 1;
     queue->array = (int *)malloc(
         queue->capacity * sizeof(int));
-    queue->min = INT16_MAX;
-    queue->max = INT16_MIN;
     return queue;
 }
 
@@ -44,14 +42,18 @@ void enqueue(struct Queue *queue, int item)
     queue->rear = (queue->rear + 1) % queue->capacity;
     queue->array[queue->rear] = item;
     queue->size = queue->size + 1;
+    int min = INT16_MAX;
+    int max = INT16_MIN;
     for (size_t i = 0; i < queue->size; i++)
     {
         int value = queue->array[i];
-        if (queue->min > value)
-            queue->min = value;
-        if (queue->max < value)
-            queue->max = value;
+        if (min > value)
+            min = value;
+        if (max < value)
+            max = value;
     }
+    queue->min = min;
+    queue->max = max;
 }
 
 int front(struct Queue *queue)

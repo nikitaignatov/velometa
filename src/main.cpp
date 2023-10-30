@@ -21,16 +21,13 @@ void setup()
     partial_update(String("display initialized"));
 
     hr_monitor.init();
-    Debug("HR initialized");
-    partial_update(String("HR initialized"));
+    partial_update(String("HR.init"));
 
     power_monitor.init();
-    Debug("POWER initialized");
-    partial_update(String("POWER initialized"));
+    partial_update(String("POWER.init"));
 
     speed_monitor.init();
-    Debug("Speed initialized");
-    partial_update(String("Speed initialized"));
+    partial_update(String("Speed.init"));
 }
 
 void loop()

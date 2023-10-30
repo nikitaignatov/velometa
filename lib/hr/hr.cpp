@@ -51,19 +51,22 @@ int HR::interpret(uint8_t *pData, size_t length)
         count++;
         avgv = sumv / count;
         enqueue(queue, lastv);
-
-        if (HR_Z1_MIN < lastv && HR_Z1_MAX > lastv)
-            zonev = 1;
-        if (HR_Z2_MIN < lastv && HR_Z2_MAX > lastv)
-            zonev = 2;
-        if (HR_Z3_MIN < lastv && HR_Z3_MAX > lastv)
-            zonev = 3;
-        if (HR_Z4_MIN < lastv && HR_Z4_MAX > lastv)
-            zonev = 4;
-        if (HR_Z5_MIN < lastv && HR_Z5_MAX > lastv)
-            zonev = 5;
+    }
+    else
+    {
+        lastv = 0;
     }
 
+    if (HR_Z1_MIN < lastv && HR_Z1_MAX > lastv)
+        zonev = 1;
+    if (HR_Z2_MIN < lastv && HR_Z2_MAX > lastv)
+        zonev = 2;
+    if (HR_Z3_MIN < lastv && HR_Z3_MAX > lastv)
+        zonev = 3;
+    if (HR_Z4_MIN < lastv && HR_Z4_MAX > lastv)
+        zonev = 4;
+    if (HR_Z5_MIN < lastv && HR_Z5_MAX > lastv)
+        zonev = 5;
     return hr;
 }
 
@@ -97,7 +100,7 @@ bool HR::connect(BLEAddress address)
 {
     auto *client = BLEDevice::createClient();
     client->connect(address, esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM);
-    Serial.println(" - Connected to server");
+    Serial.println(" - Connected to hr server");
     auto *svc = client->getService(service_id);
     if (svc == nullptr)
     {

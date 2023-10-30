@@ -86,7 +86,7 @@ bool Speed::connect(BLEAddress address)
 {
     auto *client = BLEDevice::createClient();
     client->connect(address, esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM);
-    Serial.println(" - Connected to server");
+    Serial.println(" - Connected to speed server");
     auto *svc = client->getService(service_id);
     if (svc == nullptr)
     {
@@ -138,6 +138,11 @@ void Speed::onResult(BLEAdvertisedDevice device)
 
 void Speed::init()
 {
+    if (name == "XXX")
+    {
+        doConnect = false;
+        return;
+    }
     Serial.println("init speed sensor");
     BLEDevice::init("");
     auto *pBLEScan = BLEDevice::getScan();
