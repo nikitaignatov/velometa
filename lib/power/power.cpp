@@ -80,20 +80,16 @@ int Power::interpret(uint8_t *pData, size_t length)
         lastv = 0;
     }
 
-    if (POWER_Z1_MIN < lastv && POWER_Z1_MAX > lastv)
-        zonev = 1;
-    if (POWER_Z2_MIN < lastv && POWER_Z2_MAX > lastv)
-        zonev = 2;
-    if (POWER_Z3_MIN < lastv && POWER_Z3_MAX > lastv)
-        zonev = 3;
-    if (POWER_Z4_MIN < lastv && POWER_Z4_MAX > lastv)
-        zonev = 4;
-    if (POWER_Z5_MIN < lastv && POWER_Z5_MAX > lastv)
-        zonev = 5;
-    if (POWER_Z6_MIN < lastv && POWER_Z6_MAX > lastv)
-        zonev = 6;
-    if (POWER_Z7_MIN < lastv)
-        zonev = 6;
+    float_t ftp = 270;
+    int pct = lastv / ftp * 100;
+
+    if (POWER_Z1_MIN < pct && POWER_Z1_MAX > pct)zonev = 1;
+    else if (POWER_Z2_MIN < pct && POWER_Z2_MAX > pct)zonev = 2;
+    else if (POWER_Z3_MIN < pct && POWER_Z3_MAX > pct)zonev = 3;
+    else if (POWER_Z4_MIN < pct && POWER_Z4_MAX > pct)zonev = 4;
+    else if (POWER_Z5_MIN < pct && POWER_Z5_MAX > pct)zonev = 5;
+    else if (POWER_Z6_MIN < pct && POWER_Z6_MAX > pct)zonev = 6;
+    else if (POWER_Z7_MIN < pct) zonev = 6;
 
     // printf("%u\t%d\t%d\t%d\t%d\n", flags, power, power_balance, crank, ct);
     return lastv;
