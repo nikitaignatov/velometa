@@ -1,3 +1,5 @@
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
 #include <Arduino.h>
 #include "DEV_Config.h"
@@ -9,8 +11,8 @@
 #include "power.h"
 #include "speed.h"
 
-extern const int screen_height;
-extern const int screen_width;
+const int screen_height=2;
+const int screen_width=2;
 
 void render(int secs, HR *hr, Power *power,Speed *speed);
 void clear();
@@ -18,3 +20,5 @@ void image_init();
 void image_free();
 void display_init();
 void partial_update(String);
+
+#endif
