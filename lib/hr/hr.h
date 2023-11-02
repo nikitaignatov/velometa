@@ -11,6 +11,7 @@ class HR : public BLEAdvertisedDeviceCallbacks
     String name;
     int minv, maxv, avgv, lastv, sumv, count, zonev, lastr;
     int interpret(uint8_t *pData, size_t length);
+    long wait = 0;
     // BLE
     BLEUUID service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb");
     BLEUUID characteristic_id = BLEUUID((uint16_t)0x2A37);

@@ -154,6 +154,7 @@ void Speed::init()
     Serial.println("start scan");
 }
 
+
 void Speed::loop()
 {
     if (doConnect == true)
@@ -170,17 +171,19 @@ void Speed::loop()
         }
         doConnect = false;
     }
-    if (server_address == nullptr)
-    {
-        init();
-    }
-    if (millis() - lastr > 10e3)
-    {
-        init();
-    }
     if (newHr)
     {
         newHr = false;
-        Serial.println("got data");
+        Serial.println("got speed data");
+    }
+    long now = millis();
+    if (wait - now < 0)
+    {
+        wait = now + 10e3;
+        init();
+    }
+    if (server_address == nullptr)
+    {
+        init();
     }
 }

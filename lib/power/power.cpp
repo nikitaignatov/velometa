@@ -201,6 +201,7 @@ void Power::init()
     // }
 }
 
+
 void Power::loop()
 {
     if (doConnect == true)
@@ -220,6 +221,16 @@ void Power::loop()
     if (new_value)
     {
         new_value = false;
-        Serial.println("got data");
+        Serial.println("got power data");
+    }
+    long now = millis();
+    if (wait - now < 0)
+    {
+        wait = now + 10e3;
+        init();
+    }
+    if (server_address == nullptr)
+    {
+        init();
     }
 }

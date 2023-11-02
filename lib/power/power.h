@@ -10,6 +10,7 @@ class Power : public BLEAdvertisedDeviceCallbacks
     String name;
     int minv, maxv, avgv, lastv, sumv, count, zonev, lastr;
     int interpret(uint8_t *pData, size_t length);
+long wait = 0;
 
     // BLE
     BLEUUID service_id = BLEUUID("00001818-0000-1000-8000-00805f9b34fb");
