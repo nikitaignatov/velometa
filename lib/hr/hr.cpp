@@ -159,7 +159,7 @@ void HR::init()
     pBLEScan->setActiveScan(true);
     Serial.println("init scan");
 
-    pBLEScan->start(5);
+    pBLEScan->start(15);
     Serial.println("start scan");
 }
 
@@ -187,7 +187,7 @@ void HR::loop()
     long now = millis();
     if (wait - now < 0)
     {
-        wait = now + 10e3;
+        wait = now + 60e3;
         init();
     }
     if (server_address == nullptr)

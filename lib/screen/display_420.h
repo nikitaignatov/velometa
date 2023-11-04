@@ -9,11 +9,11 @@
 #include <Fonts/FreeMonoBold24pt7b.h>
 // #include <Fonts/FreeMono24pt7b.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
+#include <Fonts/FreeMono9pt7b.h>
 
-extern const int screen_height;
-extern const int screen_width;
 
-void render(int secs, HR *hr, Power *power, Speed *speed);
+void render(int secs, HR *hr, Power *power, Speed *speed,int screen);
+void display_map_dark(int16_t offset_x,int16_t offset_y);
 
 #define P_CS 5
 #define P_DC 17

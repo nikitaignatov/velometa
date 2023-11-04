@@ -15,6 +15,9 @@ void display_task_code(void *parameter);
 void ble_task_code(void *parameter);
 
 int counter = 0;
+int x_offset = 20;
+int y_offset = 90;
+bool y = false;
 bool change = false;
 int currentStateCLK;
 int lastStateCLK;
@@ -45,6 +48,7 @@ void input_task_code(void *parameter)
         {
             refresh = true;
             sw.change = false;
+            y = !y;
         }
         currentStateCLK = digitalRead(CLK);
         if (currentStateCLK != lastStateCLK && currentStateCLK == 1)
@@ -53,11 +57,20 @@ void input_task_code(void *parameter)
             {
                 counter--;
                 currentDir = "CCW";
+                if (y)
+                    y_offset--;
+                else
+                    x_offset--;
             }
             else
             {
                 counter++;
                 currentDir = "CW";
+
+                if (y)
+                    y_offset++;
+                else
+                    x_offset++;
             }
 
             Serial.print("Direction: ");
@@ -92,13 +105,13 @@ void input_task_code(void *parameter)
 void display_task_code(void *parameter)
 {
     Serial.println("display_task_code");
+    long last = 0;
     for (;;)
     {
-        long secs = millis() / 1000;
-        render(secs, &hr_monitor, &power_monitor, &speed_monitor);
+        long secs = millis();
         if (refresh)
         {
-            refresh_screen();
+            // refresh_screen();
             refresh = false;
         }
         if (sw.change || change)
@@ -110,36 +123,50 @@ void display_task_code(void *parameter)
             {
                 int p = k[i];
                 int mode = digitalRead(p);
-                if (mode == HIGH)
-                {
-                    Serial.print(p);
-                    Serial.println("=HIGH");
-                }
-                if (mode == LOW)
-                {
-                    Serial.print(p);
-                    Serial.println("=LOW");
-                }
+                // if (mode == HIGH)
+                // {
+                //     Serial.print(p);
+                //     Serial.println("=HIGH");
+                // }
+                // if (mode == LOW)
+                // {
+                //     Serial.print(p);
+                //     Serial.println("=LOW");
+                // }
             }
 
-            Serial.print("BTN=");
-            Serial.println(sw.btn);
-            partial_update(String("BTN=") + String(sw.btn) + String("ROT=") + String(counter) + String("DIR=") + currentDir);
+            // Serial.print("BTN=");
+            // Serial.println(sw.btn);
+            // Serial.print(" Axis=");
+            // Serial.print(y ? "y" : "x");
+            // Serial.print(" X=");
+            // Serial.print(x_offset);
+            // Serial.print(" Y=");
+            // Serial.println(y_offset);
         }
-        delay(50);
+        if (secs > last+500)
+        {
+            // if (x_offset < 100)
+            //     x_offset += 4;
+            // else
+            //     x_offset = 0;
+            if (y_offset > 0)
+                y_offset -= 2;
+            else
+                y_offset = 200;
+            change = true;
+            render(secs/1000, &hr_monitor, &power_monitor, &speed_monitor, counter);
+            display_map_dark(x_offset, y_offset);
+        }
+        last = secs;
     }
 }
 void ble_task_code(void *parameter)
 {
     Serial.println("ble_task_code");
     hr_monitor.init();
-    // partial_update(String("HR.init"));
-
     power_monitor.init();
-    // partial_update(String("POWER.init"));
-
     speed_monitor.init();
-    // partial_update(String("Speed.init"));
     Serial.println("ble_task_code setup done.");
     for (;;)
     {
@@ -165,14 +192,14 @@ void setup()
         { sw.isr(); },
         CHANGE);
 
-    xTaskCreatePinnedToCore(
-        input_task_code,   /* Function to implement the task */
-        "input_task_code", /* Name of the task */
-        8 * 1024,          /* Stack size in words */
-        NULL,              /* Task input parameter */
-        0,                 /* Priority of the task */
-        &input_task,       /* Task handle. */
-        0);                /* Core where the task should run */
+    // xTaskCreatePinnedToCore(
+    //     input_task_code,   /* Function to implement the task */
+    //     "input_task_code", /* Name of the task */
+    //     8 * 1024,          /* Stack size in words */
+    //     NULL,              /* Task input parameter */
+    //     0,                 /* Priority of the task */
+    //     &input_task,       /* Task handle. */
+    //     0);                /* Core where the task should run */
 
     xTaskCreatePinnedToCore(
         display_task_code,   /* Function to implement the task */
