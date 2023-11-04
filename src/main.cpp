@@ -144,12 +144,6 @@ void display_task_code(void *parameter)
             // Serial.print(" Y=");
             // Serial.println(y_offset);
         }
-        if (secs > last+500)
-        {
-            // if (x_offset < 100)
-            //     x_offset += 4;
-            // else
-            //     x_offset = 0;
             if (y_offset > 0)
                 y_offset -= 2;
             else
@@ -157,8 +151,6 @@ void display_task_code(void *parameter)
             change = true;
             render(secs/1000, &hr_monitor, &power_monitor, &speed_monitor, counter);
             display_map_dark(x_offset, y_offset);
-        }
-        last = secs;
     }
 }
 void ble_task_code(void *parameter)
@@ -192,14 +184,14 @@ void setup()
         { sw.isr(); },
         CHANGE);
 
-    // xTaskCreatePinnedToCore(
-    //     input_task_code,   /* Function to implement the task */
-    //     "input_task_code", /* Name of the task */
-    //     8 * 1024,          /* Stack size in words */
-    //     NULL,              /* Task input parameter */
-    //     0,                 /* Priority of the task */
-    //     &input_task,       /* Task handle. */
-    //     0);                /* Core where the task should run */
+    xTaskCreatePinnedToCore(
+        input_task_code,   /* Function to implement the task */
+        "input_task_code", /* Name of the task */
+        8 * 1024,          /* Stack size in words */
+        NULL,              /* Task input parameter */
+        0,                 /* Priority of the task */
+        &input_task,       /* Task handle. */
+        0);                /* Core where the task should run */
 
     xTaskCreatePinnedToCore(
         display_task_code,   /* Function to implement the task */
@@ -217,7 +209,7 @@ void setup()
         NULL,            /* Task input parameter */
         0,               /* Priority of the task */
         &ble_task,       /* Task handle. */
-        0);              /* Core where the task should run */
+        1);              /* Core where the task should run */
 }
 
 void loop()
