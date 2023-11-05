@@ -1,6 +1,7 @@
 #ifndef QUEEUE_H
 #define QUEEUE_H
-
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,5 +1,4 @@
 #include "display_420.h"
-#include "map.h"
 
 GxEPD2_BW<GxEPD2_420_M01, GxEPD2_420_M01::HEIGHT> display(GxEPD2_420_M01(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
 const int SCRN_SPI_CHAN = 2;                                                                                                           // HSPI
@@ -15,14 +14,14 @@ void display_layout()
     // sensor
     display.drawFastHLine(0, 60, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
     display.drawFastHLine(0, 140, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
-    display.drawFastVLine(200, 0, 140, GxEPD_BLACK);
+    display.drawFastVLine(200, 0, 60, GxEPD_BLACK);
 
     // map
-    display.drawFastVLine(0, 140, 100, GxEPD_BLACK);
-    display.drawFastVLine(display.epd2.WIDTH - 1, 140, 100, GxEPD_BLACK);
-    display.drawFastHLine(0, 240, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
+    // display.drawFastVLine(0, 140, 100, GxEPD_BLACK);
+    // display.drawFastVLine(display.epd2.WIDTH - 1, 140, 100, GxEPD_BLACK);
+    // display.drawFastHLine(0, 240, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
 
-    display.drawFastHLine(0, GxEPD2_420_M01::HEIGHT - 20, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
+    // display.drawFastHLine(0, GxEPD2_420_M01::HEIGHT - 20, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
 }
 
 void display_time(int secs)
@@ -39,24 +38,23 @@ void display_time(int secs)
     display.print(temp_str);
 }
 
-
 void display_status_bar_content(int secs)
 {
     display.setFont(&FreeMono9pt7b);
     display_time(secs);
 }
 
-
-void display_chart(Queue *queue, int x)
+void display_chart(Queue *queue, int screen_x, int screen_y, int chart_height)
 {
     if (queue->size > 0)
     {
-        int screen_height = 140;
+        int padding = 2;
+        int screen_height = screen_y - padding;
         int min = queue->min;
         int range = queue->max - min;
         range = range == 0 ? 1 : range;
         float_t scaled = (front(queue) - min) / (float_t)range;
-        int height = 80;
+        int height = chart_height - (padding * 2);
 
         int p = screen_height - scaled * height;
         for (size_t i = 0; i < queue->size; i++)
@@ -67,38 +65,21 @@ void display_chart(Queue *queue, int x)
             float_t scaled = ((float_t)c - (float_t)min) / (float_t)range;
             int y = screen_height - scaled * height;
 
-            int xx = i + x;
-            display.drawLine(xx,p,xx+1,y,GxEPD_BLACK);
+            int xx = i + screen_x;
+            display.drawLine(xx, p, xx + 1, y, GxEPD_BLACK);
             p = y;
         }
-    }
-}
-
-void display_map_dark(int16_t offset_x, int16_t offset_y)
-{
-    int y_offset = 120;
-    if (offset_x >= 0)
-    {
-        display.fillTriangle(190, y_offset + 78, 200, y_offset + 50, 210, y_offset + 78, GxEPD_WHITE);
-        display.epd2.drawImagePart(display_map_tile_1, offset_x, offset_y, map_w, map_h, 0, (int16_t)142, (int16_t)400, (int16_t)140, false, false, false);
-        // display.drawBitmap(0, 140+offset_x, display_map_tile_1, map_w, map_h, GxEPD_BLACK);
-        display.refresh(true);
-    }
-    else
-    {
     }
 }
 
 void render(int secs, HR *hr, Power *power, Speed *speed, int offset_x)
 {
     // // clear();
-    display.setPartialWindow(0, 0, 400, 142);
-
     display.fillScreen(GxEPD_WHITE);
     // // int a = system_bar_h + Font12.Height + Font24.Height;
     display_status_bar_content(secs);
     display.setCursor(90, 12);
-    display.print(String(String(speed->last())+String("km/h")).c_str());
+    display.print(String(String(speed->last()) + String("km/h")).c_str());
     display.setCursor(0, 55);
 
     display.setFont(&FreeMonoBold24pt7b);
@@ -108,13 +89,11 @@ void render(int secs, HR *hr, Power *power, Speed *speed, int offset_x)
     // display.print(String(198).c_str());
 
     display.setFont(&FreeMonoBold9pt7b);
-    display_chart(hr->queue,0);
-    display_chart(power->queue,201);
+    display_chart(hr->queue, 0, 140, 80);
+    display_chart(power->queue, 0, 220, 80);
     display_layout();
-    display.displayWindow(0, 0, 400, 142);
 
-    // display.display(true);
-    // display_map_dark(offset_x);
+    display.display(true);
 
     // Paint_DrawLine(0, a - 1, screen_width, a - 1, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
     // Paint_DrawLine(0, system_bar_h - 1, screen_width, system_bar_h - 1, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);

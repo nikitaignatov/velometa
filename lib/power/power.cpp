@@ -1,12 +1,28 @@
 #include "power.h"
 
-int Power::last() { return lastv; }
-int Power::avg() { return avgv; }
-int Power::min() { return minv; }
-int Power::max() { return maxv; }
-int Power::zone() { return zonev; }
+int calculate_zone(int power)
+{
+    float_t ftp = (float_t)FTP;
+    int pct = power / ftp * 100;
+    int zone = 0;
+    if (POWER_Z1_MIN < pct && POWER_Z1_MAX > pct)
+        zone = 1;
+    else if (POWER_Z2_MIN < pct && POWER_Z2_MAX > pct)
+        zone = 2;
+    else if (POWER_Z3_MIN < pct && POWER_Z3_MAX > pct)
+        zone = 3;
+    else if (POWER_Z4_MIN < pct && POWER_Z4_MAX > pct)
+        zone = 4;
+    else if (POWER_Z5_MIN < pct && POWER_Z5_MAX > pct)
+        zone = 5;
+    else if (POWER_Z6_MIN < pct && POWER_Z6_MAX > pct)
+        zone = 6;
+    else if (POWER_Z7_MIN < pct)
+        zone = 7;
+    return zone;
+}
 
-int Power::interpret(uint8_t *pData, size_t length)
+void Sensor::interpret(uint8_t *pData, size_t length)
 {
     // Configure the Cycle Power Measurement characteristic
 
@@ -65,172 +81,20 @@ int Power::interpret(uint8_t *pData, size_t length)
 
     if (power > 0)
     {
-        lastv = power;
-        if (minv > lastv || minv == 0)
-            minv = lastv;
-        if (maxv < lastv)
-            maxv = lastv;
-        sumv += lastv;
-        count++;
-        avgv = sumv / count;
-        enqueue(queue, lastv);
+        Sensor::lastv = power;
+        if (Sensor::minv > Sensor::lastv || Sensor::minv == 0)
+            Sensor::minv = Sensor::lastv;
+        if (Sensor::maxv < Sensor::lastv)
+            Sensor::maxv = Sensor::lastv;
+        Sensor::sumv += Sensor::lastv;
+        Sensor::count++;
+        Sensor::avgv = Sensor::sumv / Sensor::count;
+        Sensor::zonev = calculate_zone(Sensor::lastv);
     }
     else
     {
-        lastv = 0;
+        Sensor::lastv = 0;
     }
 
-    // printf("%u\t%d\t%d\t%d\t%d\n", flags, power, power_balance, crank, ct);
-    return lastv;
-}
-
-int calculate_zone(int power)
-{
-    float_t ftp = (float_t)FTP;
-    int pct = power / ftp * 100;
-    int zone = 0;
-    if (POWER_Z1_MIN < pct && POWER_Z1_MAX > pct) zone = 1;
-    else if (POWER_Z2_MIN < pct && POWER_Z2_MAX > pct) zone = 2;
-    else if (POWER_Z3_MIN < pct && POWER_Z3_MAX > pct) zone = 3;
-    else if (POWER_Z4_MIN < pct && POWER_Z4_MAX > pct) zone = 4;
-    else if (POWER_Z5_MIN < pct && POWER_Z5_MAX > pct) zone = 5;
-    else if (POWER_Z6_MIN < pct && POWER_Z6_MAX > pct) zone = 6;
-    else if (POWER_Z7_MIN < pct) zone = 6;
-    return zone;
-}
-
-void Power::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
-{
-    new_value = true;
-    power = interpret(pData, length);
-    zonev = calculate_zone(lastv);
-    return;
-
-    Serial.print("\npower: ");
-    Serial.print(power);
-    Serial.print("; payload: ");
-    for (size_t i = 0; i < length; i++)
-    {
-        Serial.print("0x");
-        Serial.print(pData[i] < 16 ? "0" : "");
-        Serial.print(pData[i], HEX);
-        Serial.print(" ");
-    }
-    Serial.println(";");
-}
-
-bool Power::connect(BLEAddress address)
-{
-    auto *client = BLEDevice::createClient();
-    client->connect(address, esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM);
-    Serial.println(" - Connected to power server");
-    auto *svc = client->getService(service_id);
-    if (svc == nullptr)
-    {
-        Serial.print("Failed to find our service UUID: ");
-        Serial.println(service_id.toString().c_str());
-        return (false);
-    }
-    else
-    {
-        Serial.print("Connected to serivce ");
-        Serial.println(service_id.toString().c_str());
-    }
-
-    if (client->isConnected())
-    {
-        Serial.print("connected ");
-        characteristic = svc->getCharacteristic(characteristic_id);
-    }
-    else
-    {
-        Serial.print("disconnected ");
-    }
-    if (characteristic == nullptr)
-    {
-        Serial.print("Failed to find our characteristic UUID");
-        return false;
-    }
-    Serial.println(" - Found our characteristics");
-
-    characteristic->registerForNotify([this](BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
-                                      { this->notifyCallback(pBLERemoteCharacteristic, pData, length, isNotify); });
-    return true;
-}
-
-void Power::onResult(BLEAdvertisedDevice device)
-{
-    Serial.printf("scan result: %s\n", device.getName());
-    if (String(device.getName().c_str()).equalsIgnoreCase(name))
-    {
-        Serial.println("scan result match");
-        device.getScan()->stop();
-        server_address = new BLEAddress(device.getAddress());
-        doConnect = true;
-        Serial.println("Device found. Connecting!");
-    }
-}
-
-void Power::init()
-{
-    Serial.println("init power");
-    BLEDevice::init("");
-    auto *pBLEScan = BLEDevice::getScan();
-    pBLEScan->setAdvertisedDeviceCallbacks(this);
-    pBLEScan->setActiveScan(true);
-    Serial.println("init scan");
-
-    pBLEScan->start(15);
-    Serial.println("start scan");
-
-    // uint8_t list[][9] = {
-    //     {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x03, 0x00, 0x0F, 0x17},
-    //     {0x23, 0x00, 0x0C, 0x00, 0xC8, 0x15, 0x00, 0xC5, 0x7A},
-    //     {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x16, 0x00, 0xD6, 0x82},
-    //     {0x23, 0x00, 0x23, 0x00, 0x62, 0x1B, 0x00, 0xFF, 0xA7},
-    //     {0x23, 0x00, 0x0F, 0x00, 0xC8, 0x1A, 0x00, 0xBE, 0xA2},
-    //     {0x23, 0x00, 0x0A, 0x00, 0xC8, 0x1C, 0x00, 0xD2, 0xAE},
-    //     {0x23, 0x00, 0x3F, 0x01, 0x72, 0x12, 0x00, 0x1A, 0x3B},
-    //     {0x23, 0x00, 0x3A, 0x05, 0x78, 0x0D, 0x00, 0x98, 0x2E},
-    //     {0x23, 0x00, 0xff, 0x00, 0xA6, 0x0F, 0x00, 0x70, 0x33}};
-
-    // printf("Flags\tPower\tBalance\tRev\tTime\n");
-    // for (int i = 0; i < 9; i++)
-    // {
-    //     int power = interpret(list[i], 9);
-    // }
-}
-
-
-void Power::loop()
-{
-    if (doConnect == true)
-    {
-        if (connect(*server_address))
-        {
-            Serial.println("We are now connected to the BLE Server.");
-            characteristic->getDescriptor(BLEUUID((uint16_t)0x2902))->writeValue((uint8_t *)notificationOn, 2, true);
-            connected = true;
-        }
-        else
-        {
-            Serial.println("We have failed to connect to the server; Restart your device to scan for nearby BLE server again.");
-        }
-        doConnect = false;
-    }
-    if (new_value)
-    {
-        new_value = false;
-        Serial.println("got power data");
-    }
-    long now = millis();
-    if (wait - now < 0)
-    {
-        wait = now + 60e3;
-        init();
-    }
-    if (server_address == nullptr)
-    {
-        init();
-    }
+    enqueue(Sensor::queue, Sensor::lastv);
 }

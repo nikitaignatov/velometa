@@ -13,7 +13,6 @@
 
 
 void render(int secs, HR *hr, Power *power, Speed *speed,int screen);
-void display_map_dark(int16_t offset_x,int16_t offset_y);
 
 #define P_CS 5
 #define P_DC 17

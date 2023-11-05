@@ -15,9 +15,6 @@ void display_task_code(void *parameter);
 void ble_task_code(void *parameter);
 
 int counter = 0;
-int x_offset = 20;
-int y_offset = 90;
-bool y = false;
 bool change = false;
 int currentStateCLK;
 int lastStateCLK;
@@ -28,9 +25,9 @@ const int screen_height = 128;
 const int screen_width = 296;
 bool refresh = false;
 
-HR hr_monitor(DEVICE_NAME_HR);
-Power power_monitor(DEVICE_NAME_POWER);
-Speed speed_monitor(DEVICE_NAME_SPEED);
+HR hr_monitor(DEVICE_NAME_HR,400);
+Power power_monitor(DEVICE_NAME_POWER,400);
+Speed speed_monitor(DEVICE_NAME_SPEED,200-1);
 
 Button sw;
 Button rot;
@@ -48,7 +45,6 @@ void input_task_code(void *parameter)
         {
             refresh = true;
             sw.change = false;
-            y = !y;
         }
         currentStateCLK = digitalRead(CLK);
         if (currentStateCLK != lastStateCLK && currentStateCLK == 1)
@@ -57,20 +53,11 @@ void input_task_code(void *parameter)
             {
                 counter--;
                 currentDir = "CCW";
-                if (y)
-                    y_offset--;
-                else
-                    x_offset--;
             }
             else
             {
                 counter++;
                 currentDir = "CW";
-
-                if (y)
-                    y_offset++;
-                else
-                    x_offset++;
             }
 
             Serial.print("Direction: ");
@@ -123,34 +110,10 @@ void display_task_code(void *parameter)
             {
                 int p = k[i];
                 int mode = digitalRead(p);
-                // if (mode == HIGH)
-                // {
-                //     Serial.print(p);
-                //     Serial.println("=HIGH");
-                // }
-                // if (mode == LOW)
-                // {
-                //     Serial.print(p);
-                //     Serial.println("=LOW");
-                // }
             }
-
-            // Serial.print("BTN=");
-            // Serial.println(sw.btn);
-            // Serial.print(" Axis=");
-            // Serial.print(y ? "y" : "x");
-            // Serial.print(" X=");
-            // Serial.print(x_offset);
-            // Serial.print(" Y=");
-            // Serial.println(y_offset);
         }
-            if (y_offset > 0)
-                y_offset -= 2;
-            else
-                y_offset = 200;
-            change = true;
-            render(secs/1000, &hr_monitor, &power_monitor, &speed_monitor, counter);
-            display_map_dark(x_offset, y_offset);
+        change = true;
+        render(secs / 1000, &hr_monitor, &power_monitor, &speed_monitor, counter);
     }
 }
 void ble_task_code(void *parameter)
@@ -165,6 +128,7 @@ void ble_task_code(void *parameter)
         hr_monitor.loop();
         speed_monitor.loop();
         power_monitor.loop();
+        Serial.println("ble_task_code loop done.");
         delay(1000);
     }
 }
@@ -209,7 +173,7 @@ void setup()
         NULL,            /* Task input parameter */
         0,               /* Priority of the task */
         &ble_task,       /* Task handle. */
-        1);              /* Core where the task should run */
+        0);              /* Core where the task should run */
 }
 
 void loop()
