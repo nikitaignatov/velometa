@@ -5,20 +5,13 @@ int calculate_zone(int power)
     float_t ftp = (float_t)FTP;
     int pct = power / ftp * 100;
     int zone = 0;
-    if (POWER_Z1_MIN < pct && POWER_Z1_MAX > pct)
-        zone = 1;
-    else if (POWER_Z2_MIN < pct && POWER_Z2_MAX > pct)
-        zone = 2;
-    else if (POWER_Z3_MIN < pct && POWER_Z3_MAX > pct)
-        zone = 3;
-    else if (POWER_Z4_MIN < pct && POWER_Z4_MAX > pct)
-        zone = 4;
-    else if (POWER_Z5_MIN < pct && POWER_Z5_MAX > pct)
-        zone = 5;
-    else if (POWER_Z6_MIN < pct && POWER_Z6_MAX > pct)
-        zone = 6;
-    else if (POWER_Z7_MIN < pct)
-        zone = 7;
+    if (POWER_Z1_MIN < pct && POWER_Z1_MAX > pct) zone = 1;
+    else if (POWER_Z2_MIN < pct && POWER_Z2_MAX > pct) zone = 2;
+    else if (POWER_Z3_MIN < pct && POWER_Z3_MAX > pct) zone = 3;
+    else if (POWER_Z4_MIN < pct && POWER_Z4_MAX > pct) zone = 4;
+    else if (POWER_Z5_MIN < pct && POWER_Z5_MAX > pct) zone = 5;
+    else if (POWER_Z6_MIN < pct && POWER_Z6_MAX > pct) zone = 6;
+    else if (POWER_Z7_MIN < pct) zone = 7;
     return zone;
 }
 
@@ -89,12 +82,10 @@ void Sensor::interpret(uint8_t *pData, size_t length)
         Sensor::sumv += Sensor::lastv;
         Sensor::count++;
         Sensor::avgv = Sensor::sumv / Sensor::count;
-        Sensor::zonev = calculate_zone(Sensor::lastv);
     }
     else
     {
         Sensor::lastv = 0;
     }
-
-    enqueue(Sensor::queue, Sensor::lastv);
+    Sensor::zonev = calculate_zone(Sensor::lastv);
 }

@@ -12,6 +12,7 @@ void Sensor::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, u
 
     lastr = millis();
     this->interpret(pData, length);
+    enqueue(queue, lastv);
     return;
 
     Serial.print("\nsensor: ");

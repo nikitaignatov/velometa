@@ -48,7 +48,6 @@ void Speed::interpret(uint8_t *pData, size_t length)
         Sensor::sumv += Sensor::lastv;
         Sensor::count++;
         Sensor::avgv = Sensor::sumv / Sensor::count;
-        enqueue(Sensor::queue, Sensor::lastv);
     }
     else
     {

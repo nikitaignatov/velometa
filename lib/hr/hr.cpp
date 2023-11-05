@@ -50,8 +50,6 @@ void Sensor::interpret(uint8_t *pData, size_t length)
       Sensor::  lastv = 0;
     }
 
-    enqueue(Sensor::queue,Sensor:: lastv);
-
     if (HR_Z1_MIN <Sensor::lastv && HR_Z1_MAX > Sensor::lastv) Sensor::zonev = 1;
     if (HR_Z2_MIN <Sensor::lastv && HR_Z2_MAX > Sensor::lastv) Sensor::zonev = 2;
     if (HR_Z3_MIN <Sensor::lastv && HR_Z3_MAX > Sensor::lastv) Sensor::zonev = 3;
