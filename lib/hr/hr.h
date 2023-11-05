@@ -1,20 +1,17 @@
 #ifndef HR_H
 #define HR_H
 
-#include <Arduino.h>
-#include <BLEDevice.h>
 #include "sensor.h"
 #include "zones.h"
 
 class HR : public Sensor
 {
-    String name;
+    char* name;
     long wait = 0;
     // BLE
-    boolean newHr = false;
 
 public:
-    HR(String device_name, size_t buffer_size)
+    HR(char* device_name, size_t buffer_size)
         : Sensor(
               device_name,
               buffer_size,

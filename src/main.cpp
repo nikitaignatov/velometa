@@ -13,7 +13,6 @@ TaskHandle_t ble_task;
 void input_task_code(void *parameter);
 void display_task_code(void *parameter);
 void ble_task_code(void *parameter);
-
 int counter = 0;
 bool change = false;
 int currentStateCLK;

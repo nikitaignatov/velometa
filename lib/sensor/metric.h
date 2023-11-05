@@ -1,13 +1,20 @@
-#include <Arduino.h>
 #include "queue.h"
+
+#include <float.h>
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+typedef float float_t;
 
 class Metric
 {
-    String name;
+    char * name;
     float_t last_value, max_value, min_value, avg_value, sum_value, count_value;
 
 public:
-    Metric(String name)
+    Metric(char* name)
     {
         this->name = name;
         reset();

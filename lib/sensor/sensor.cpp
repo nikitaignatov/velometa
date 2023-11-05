@@ -1,10 +1,10 @@
 #include "sensor.h"
 
-int Sensor::last() { return Sensor::lastv; }
-int Sensor::avg() { return Sensor::avgv; }
-int Sensor::min() { return Sensor::minv; }
-int Sensor::max() { return Sensor::maxv; }
-int Sensor::zone() { return Sensor::zonev; }
+uint16_t Sensor::last() { return Sensor::lastv; }
+uint16_t Sensor::avg() { return Sensor::avgv; }
+uint16_t Sensor::min() { return Sensor::minv; }
+uint16_t Sensor::max() { return Sensor::maxv; }
+uint8_t Sensor::zone() { return Sensor::zonev; }
 
 void Sensor::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
 {
@@ -32,7 +32,7 @@ bool Sensor::connect(BLEAddress address)
 {
     auto *client = BLEDevice::createClient();
     client->connect(address, esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM);
-    Serial.printf("\n-> Connected to %s server.-\n", name.c_str());
+    Serial.printf("\n-> Connected to %s server.-\n", name);
     auto *svc = client->getService(_service_id);
     if (svc == nullptr)
     {

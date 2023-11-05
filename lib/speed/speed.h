@@ -1,19 +1,18 @@
-#ifndef SPEED_H
-#define SPEED_H
+#ifndef VELOHUB_SPEED_H
+#define VELOHUB_SPEED_H
 
-#include <Arduino.h>
 #include "queue.h"
 #include "sensor.h"
 
 
 class Speed : public Sensor
 {
-    String name;
+    char* name;
     int  last_tv, last_rv;
     long wait = 0;
 
 public:
-    Speed(String device_name, size_t buffer_size)
+    Speed(char* device_name, size_t buffer_size)
         : Sensor(
               device_name,
               buffer_size,
