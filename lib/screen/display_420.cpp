@@ -76,21 +76,32 @@ void render(int secs, HR *hr, Power *power, Speed *speed, int offset_x)
 {
     // // clear();
     display.fillScreen(GxEPD_WHITE);
+    display.setTextColor(GxEPD_BLACK);
+    
     // // int a = system_bar_h + Font12.Height + Font24.Height;
     display_status_bar_content(secs);
     display.setCursor(90, 12);
     display.print(String(String(speed->last()) + String("km/h")).c_str());
-    display.setCursor(0, 55);
 
+    display.setCursor(0, 55);
     display.setFont(&FreeMonoBold24pt7b);
-    display.print(String(hr->last()).c_str());
-    display.setCursor(202, 55);
     display.print(String(power->last()).c_str());
+    display.setCursor(320, 55);
+    display.print(String(hr->last()).c_str());
+
+    display.fillRect(200, 20, 30, 40, GxEPD_BLACK);
+    display.setTextColor(GxEPD_WHITE);
+    display.setCursor(202, 55);
+    display.print(String(hr->zone()).c_str());
+    display.setCursor(170, 55);
+    display.fillRect(170, 20, 30, 40, GxEPD_BLACK);
+
+    display.print(String(power->zone()).c_str());
     // display.print(String(198).c_str());
 
     display.setFont(&FreeMonoBold9pt7b);
-    display_chart(hr->queue, 0, 140, 80);
-    display_chart(power->queue, 0, 220, 80);
+    display_chart(power->queue, 0, 140, 80);
+    display_chart(hr->queue, 0, 220, 80);
     display_layout();
 
     display.display(true);

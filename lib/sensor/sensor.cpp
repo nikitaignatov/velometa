@@ -8,9 +8,10 @@ int Sensor::zone() { return Sensor::zonev; }
 
 void Sensor::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
 {
-    newHr = true;
+    // Serial.printf("\nsensor-reading: %s.\n",name.c_str());
 
-    interpret(pData, length);
+    lastr = millis();
+    this->interpret(pData, length);
     return;
 
     Serial.print("\nsensor: ");
@@ -30,7 +31,7 @@ bool Sensor::connect(BLEAddress address)
 {
     auto *client = BLEDevice::createClient();
     client->connect(address, esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM);
-    Serial.printf(" - Connected to %s server", name.c_str());
+    Serial.printf("\n-> Connected to %s server.-\n", name.c_str());
     auto *svc = client->getService(_service_id);
     if (svc == nullptr)
     {
@@ -46,7 +47,7 @@ bool Sensor::connect(BLEAddress address)
 
     if (client->isConnected())
     {
-        Serial.print("connected ");
+        Serial.println("connected ");
         characteristic = svc->getCharacteristic(_characteristic_id);
     }
     else
