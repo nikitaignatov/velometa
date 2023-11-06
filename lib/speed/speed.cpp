@@ -15,7 +15,7 @@ bool IsBitSet(byte b, int pos)
     return ((b >> pos) & 1) != 0;
 }
 
-void Speed::interpret(uint8_t *pData, size_t length) 
+void Speed::interpret(uint8_t *pData, size_t length)
 {
     uint32_t revs_acc = 0;
     uint16_t lwet = 0;
@@ -40,14 +40,6 @@ void Speed::interpret(uint8_t *pData, size_t length)
         printf("r:%d p:%d cdiff:%d w:%d d:%d r: %f\n", last_rv, p, cdiff, cdiff * 2105, d, ((cdiff * 2105) / 100.f) / ((float_t)d / 1000.0f));
 
         Sensor::lastv = (((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f));
-
-        if (Sensor::minv > Sensor::lastv || Sensor::minv == 0)
-            Sensor::minv = Sensor::lastv;
-        if (Sensor::maxv < Sensor::lastv)
-            Sensor::maxv = Sensor::lastv;
-        Sensor::sumv += Sensor::lastv;
-        Sensor::count++;
-        Sensor::avgv = Sensor::sumv / Sensor::count;
     }
     else
     {

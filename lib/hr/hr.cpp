@@ -35,25 +35,10 @@ void Sensor::interpret(uint8_t *pData, size_t length)
     if (hr > 0)
     {
         Sensor::lastv = hr;
-        Sensor::lastr = millis();
-
-        if (Sensor::minv > Sensor::lastv || Sensor::minv == 0)
-            Sensor::minv = Sensor::lastv;
-        if (Sensor::maxv < Sensor::lastv)
-            Sensor::maxv = Sensor::lastv;
-        Sensor::sumv += Sensor::lastv;
-        Sensor::count++;
-        Sensor::avgv = Sensor::sumv / Sensor::count;
     }
     else
     {
-      Sensor::  lastv = 0;
+        Sensor::lastv = 0;
     }
-
-    if (HR_Z1_MIN <Sensor::lastv && HR_Z1_MAX > Sensor::lastv) Sensor::zonev = 1;
-    if (HR_Z2_MIN <Sensor::lastv && HR_Z2_MAX > Sensor::lastv) Sensor::zonev = 2;
-    if (HR_Z3_MIN <Sensor::lastv && HR_Z3_MAX > Sensor::lastv) Sensor::zonev = 3;
-    if (HR_Z4_MIN <Sensor::lastv && HR_Z4_MAX > Sensor::lastv) Sensor::zonev = 4;
-    if (HR_Z5_MIN <Sensor::lastv && HR_Z5_MAX > Sensor::lastv) Sensor::zonev = 5;
+    Sensor::zonev = calculate_hr_zone(Sensor::lastv);
 }
-

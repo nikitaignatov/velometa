@@ -61,17 +61,10 @@ void Sensor::interpret(uint8_t *pData, size_t length)
     if (power > 0)
     {
         Sensor::lastv = power;
-        if (Sensor::minv > Sensor::lastv || Sensor::minv == 0)
-            Sensor::minv = Sensor::lastv;
-        if (Sensor::maxv < Sensor::lastv)
-            Sensor::maxv = Sensor::lastv;
-        Sensor::sumv += Sensor::lastv;
-        Sensor::count++;
-        Sensor::avgv = Sensor::sumv / Sensor::count;
     }
     else
     {
         Sensor::lastv = 0;
     }
-    Sensor::zonev = calculate_power_zone(Sensor::lastv);
+    Sensor::zonev = calculate_power_zone(Sensor::lastv, FTP);
 }

@@ -8,8 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 typedef float float_t;
-uint8_t calculate_power_zone(uint16_t power);
 
+uint8_t calculate_power_zone(uint16_t power, uint16_t ftp);
+uint8_t calculate_hr_zone(uint16_t hr);
 
 // HR
 
@@ -30,25 +31,19 @@ uint8_t calculate_power_zone(uint16_t power);
 
 // Power
 
-#define FTP 270.0f
+#define FTP 270
 
 #define POWER_Z1_MIN 0
-#define POWER_Z1_MAX 54
 
 #define POWER_Z2_MIN 55
-#define POWER_Z2_MAX 75
 
 #define POWER_Z3_MIN 76
-#define POWER_Z3_MAX 90
 
 #define POWER_Z4_MIN 91
-#define POWER_Z4_MAX 105
 
 #define POWER_Z5_MIN 106
-#define POWER_Z5_MAX 120
 
 #define POWER_Z6_MIN 121
-#define POWER_Z6_MAX 150
 
 #define POWER_Z7_MIN 151
 

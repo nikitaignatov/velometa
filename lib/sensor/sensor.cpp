@@ -13,6 +13,14 @@ void Sensor::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, u
     lastr = millis();
     this->interpret(pData, length);
     enqueue(queue, lastv);
+
+    if (minv > lastv || minv == 0)
+        minv = lastv;
+    if (maxv < lastv)
+        maxv = lastv;
+    sumv += lastv;
+    count++;
+    avgv = sumv / count;
     return;
 
     Serial.print("\nsensor: ");
