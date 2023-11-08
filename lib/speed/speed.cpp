@@ -39,7 +39,11 @@ void Speed::interpret(uint8_t *pData, size_t length)
         int cdiff = (revs_acc - p);
         printf("r:%d p:%d cdiff:%d w:%d d:%d r: %f\n", last_rv, p, cdiff, cdiff * 2105, d, ((cdiff * 2105) / 100.f) / ((float_t)d / 1000.0f));
 
-        Sensor::lastv = (((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f));
+        uint16_t speed = (((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f));
+        if (speed >= 0 && speed < 100)
+        {
+            Sensor::lastv = speed;
+        }
     }
     else
     {

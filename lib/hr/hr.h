@@ -6,12 +6,13 @@
 
 class HR : public Sensor
 {
-    char* name;
+    char const *name;
     long wait = 0;
     // BLE
+    void interpret(uint8_t *pData, size_t length) override;
 
 public:
-    HR(char* device_name, size_t buffer_size)
+    HR(char const *device_name, size_t buffer_size)
         : Sensor(
               device_name,
               buffer_size,
@@ -20,7 +21,6 @@ public:
     {
         name = device_name;
     }
-
 };
 
 #endif

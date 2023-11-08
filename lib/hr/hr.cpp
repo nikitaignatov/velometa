@@ -1,6 +1,6 @@
 #include "hr.h"
 
-void Sensor::interpret(uint8_t *pData, size_t length)
+void HR::interpret(uint8_t *pData, size_t length)
 {
     int hr = 0;
     int i = 0;

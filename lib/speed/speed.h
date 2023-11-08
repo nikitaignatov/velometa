@@ -4,15 +4,15 @@
 #include "queue.h"
 #include "sensor.h"
 
-
 class Speed : public Sensor
 {
-    char* name;
-    int  last_tv, last_rv;
+    char const *name;
+    int last_tv, last_rv;
     long wait = 0;
+    void interpret(uint8_t *pData, size_t length) override;
 
 public:
-    Speed(char* device_name, size_t buffer_size)
+    Speed(char const *device_name, size_t buffer_size)
         : Sensor(
               device_name,
               buffer_size,
@@ -21,8 +21,6 @@ public:
     {
         name = device_name;
     }
-
-    void interpret(uint8_t *pData, size_t length);
 };
 
 #endif

@@ -1,7 +1,6 @@
 #include "power.h"
-#include "zones.h"
 
-void Sensor::interpret(uint8_t *pData, size_t length)
+void Power::interpret(uint8_t *pData, size_t length)
 {
     // Configure the Cycle Power Measurement characteristic
 
@@ -41,22 +40,21 @@ void Sensor::interpret(uint8_t *pData, size_t length)
     //    B29:30  = UINT16 - Top dead spot angle, degree (decimal)
     //    B31:32  = UINT16 - Bottom dead spot angle, degree (decimal)
     //    B33:34  = UINT16 - Accumulated energy, kJ (decimal)
-
     if (length < 2)
     {
-        printf("power data length should be at least 2, received %lu", length);
+        printf("power data length should be at least 2, received %d", length);
     }
     if (length > 34)
     {
-        printf("power data length should be at most 34, received %lu", length);
+        printf("power data length should be at most 34, received %d", length);
     }
 
-    uint16_t flags = (pData[1] << 8) | pData[0];
+    // uint16_t flags = (pData[1] << 8) | pData[0];
 
-    int power = (pData[3] << 8) | pData[2];
-    uint8_t power_balance = pData[4] / 2;
-    int crank = ((pData[6] << 8) | pData[5]);
-    int ct = ((pData[8] << 8) | pData[7]) / 1024;
+    uint16_t power = (pData[3] << 8) | pData[2];
+    // uint8_t power_balance = pData[4] / 2;
+    // int crank = ((pData[6] << 8) | pData[5]);
+    // int ct = ((pData[8] << 8) | pData[7]) / 1024;
 
     if (power > 0)
     {

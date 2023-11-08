@@ -8,7 +8,7 @@
 
 class Sensor : public BLEAdvertisedDeviceCallbacks
 {
-    char *name;
+    char const *name;
     long wait = 0;
     // BLE
     BLEUUID _service_id;        // BLEUUID("0000180d-0000-1000-8000-00805f9b34fb");
@@ -28,7 +28,7 @@ protected:
     uint16_t minv, maxv, avgv, lastv, sumv, count, zonev, lastr;
 
 public:
-    Sensor(char *device_name, size_t buffer_size, BLEUUID service_id, BLEUUID characteristic_id)
+    Sensor(char const *device_name, size_t buffer_size, BLEUUID service_id, BLEUUID characteristic_id)
     {
         this->name = device_name;
         this->queue = createQueue(buffer_size);

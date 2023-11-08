@@ -1,17 +1,17 @@
 #include "sensor.h"
 
-uint16_t Sensor::last() { return Sensor::lastv; }
-uint16_t Sensor::avg() { return Sensor::avgv; }
-uint16_t Sensor::min() { return Sensor::minv; }
-uint16_t Sensor::max() { return Sensor::maxv; }
-uint8_t Sensor::zone() { return Sensor::zonev; }
+uint16_t Sensor::last() { return lastv; }
+uint16_t Sensor::avg() { return avgv; }
+uint16_t Sensor::min() { return minv; }
+uint16_t Sensor::max() { return maxv; }
+uint8_t Sensor::zone() { return zonev; }
 
 void Sensor::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
 {
     // Serial.printf("\nsensor-reading: %s.\n",name.c_str());
 
     lastr = millis();
-    this->interpret(pData, length);
+    interpret(pData, length);
     enqueue(queue, lastv);
 
     if (minv > lastv || minv == 0)
@@ -21,9 +21,8 @@ void Sensor::notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, u
     sumv += lastv;
     count++;
     avgv = sumv / count;
-    return;
 
-    Serial.print("\nsensor: ");
+    Serial.printf("\nsensor %s: ", name);
     Serial.print(lastv);
     Serial.print("; payload: ");
     for (size_t i = 0; i < length; i++)
@@ -133,18 +132,18 @@ void Sensor::loop()
         }
         doConnect = false;
     }
-    if (newHr)
+    if ((now - lastr) > 20e3)
     {
-        newHr = false;
-        Serial.println("got hr data");
-    }
-    if ((now - lastr) > 30e3)
-    {
-        Serial.println("Sensor lost connection.");
+        Serial.printf("\nSensor %s lost connection.\n", name);
         init();
     }
     if (server_address == nullptr)
     {
         init();
     }
+}
+
+void Sensor::interpret(uint8_t *pData, size_t length)
+{
+    printf("SENSRO");
 }
