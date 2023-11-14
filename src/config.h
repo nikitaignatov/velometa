@@ -1,4 +1,4 @@
-#define SETUP 2
+#define SETUP 1
 
 #if SETUP == 1
 #define DEVICE_NAME_HR "HR6 0031452"

@@ -38,6 +38,28 @@ void display_time(int secs)
     display.print(temp_str);
 }
 
+void display_bottom(float_t h, float_t s, float_t lat, float_t lon)
+{
+    int y = 280;
+
+    display.setCursor(0, y);
+    display.setFont(&FreeMono9pt7b);
+    display.setTextColor(GxEPD_BLACK);
+
+    display.print(h, 0);
+    display.setCursor(50, y);
+    display.print(s, 1);
+    display.setCursor(200, y);
+    display.print(lat, 4);
+    display.setCursor(300, y);
+    display.print(lon, 4);
+}
+
+void show()
+{
+    display.display(true);
+}
+
 void display_status_bar_content(int secs)
 {
     display.setFont(&FreeMono9pt7b);
@@ -72,21 +94,21 @@ void display_chart(Queue *queue, int screen_x, int screen_y, int chart_height)
     }
 }
 
-void render(int secs, HR *hr, Power *power, Speed *speed, int offset_x)
+void render(int secs, HR *hr, Power *power, Speed *speed)
 {
     // // clear();
     display.fillScreen(GxEPD_WHITE);
     display.setTextColor(GxEPD_BLACK);
-    
+
     // // int a = system_bar_h + Font12.Height + Font24.Height;
     display_status_bar_content(secs);
     display.setCursor(90, 12);
     display.print(String(String(speed->last()) + String("km/h")).c_str());
 
-    display.setCursor(0, 55);
     display.setFont(&FreeMonoBold24pt7b);
+    display.setCursor(0, 55);
     display.print(String(power->last()).c_str());
-    display.setCursor(320, 55);
+    display.setCursor(300, 55);
     display.print(String(hr->last()).c_str());
 
     display.fillRect(200, 20, 30, 40, GxEPD_BLACK);
@@ -104,7 +126,7 @@ void render(int secs, HR *hr, Power *power, Speed *speed, int offset_x)
     display_chart(hr->queue, 0, 220, 80);
     display_layout();
 
-    display.display(true);
+    // display.display(true);
 
     // Paint_DrawLine(0, a - 1, screen_width, a - 1, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
     // Paint_DrawLine(0, system_bar_h - 1, screen_width, system_bar_h - 1, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);

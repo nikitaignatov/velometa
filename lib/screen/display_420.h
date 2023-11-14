@@ -12,7 +12,7 @@
 #include <Fonts/FreeMono9pt7b.h>
 
 
-void render(int secs, HR *hr, Power *power, Speed *speed,int screen);
+void render(int secs, HR *hr, Power *power, Speed *speed);
 
 #define P_CS 5
 #define P_DC 17
@@ -29,5 +29,7 @@ void render(int secs, HR *hr, Power *power, Speed *speed,int screen);
 void partial_update(String k);
 void refresh_screen();
 void display_init();
+void display_bottom(float_t h, float_t s, float_t lat, float_t lon);
+void show();
 
 #endif
