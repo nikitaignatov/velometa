@@ -15,6 +15,7 @@ void display_layout()
     display.drawFastHLine(0, 60, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
     display.drawFastHLine(0, 140, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
     display.drawFastVLine(200, 0, 60, GxEPD_BLACK);
+    display.drawFastVLine(200, 21, 39, GxEPD_WHITE);
 
     // map
     // display.drawFastVLine(0, 140, 100, GxEPD_BLACK);
@@ -96,11 +97,13 @@ void display_chart(Queue *queue, int screen_x, int screen_y, int chart_height)
 
 void render(int secs, HR *hr, Power *power, Speed *speed)
 {
-    // // clear();
+    int16_t tbx, tby;
+    uint16_t tbw, tbh;
+    // clear();
     display.fillScreen(GxEPD_WHITE);
     display.setTextColor(GxEPD_BLACK);
 
-    // // int a = system_bar_h + Font12.Height + Font24.Height;
+    // int a = system_bar_h + Font12.Height + Font24.Height;
     display_status_bar_content(secs);
     display.setCursor(90, 12);
     display.print(String(String(speed->last()) + String("km/h")).c_str());
@@ -108,8 +111,10 @@ void render(int secs, HR *hr, Power *power, Speed *speed)
     display.setFont(&FreeMonoBold24pt7b);
     display.setCursor(0, 55);
     display.print(String(power->last()).c_str());
-    display.setCursor(300, 55);
-    display.print(String(hr->last()).c_str());
+    auto hr_reading = hr->last();
+    display.getTextBounds(String(hr_reading).c_str(), 0, 0, &tbx, &tby, &tbw, &tbh);
+    display.setCursor((400 - tbw) - 8, 55);
+    display.print(String(hr_reading).c_str());
 
     display.fillRect(200, 20, 30, 40, GxEPD_BLACK);
     display.setTextColor(GxEPD_WHITE);

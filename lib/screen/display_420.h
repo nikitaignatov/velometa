@@ -11,9 +11,18 @@
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include <Fonts/FreeMono9pt7b.h>
 
-
 void render(int secs, HR *hr, Power *power, Speed *speed);
 
+#define BOARD_LILY_WRIST 1
+#define BOARD BOARD_LILY_WRIST
+#if BOARD == BOARD_LILY_WRIST
+#define P_CS 15
+#define P_DC 2
+#define P_RST 17
+#define P_BUSY 16
+#define EPD_SCK_PIN 14
+#define EPD_MOSI_PIN 13
+#else
 #define P_CS 5
 #define P_DC 17
 #define P_RST 16
@@ -21,6 +30,7 @@ void render(int secs, HR *hr, Power *power, Speed *speed);
 
 #define EPD_SCK_PIN 18
 #define EPD_MOSI_PIN 23
+#endif
 // #define EPD_CS_PIN 15
 // #define EPD_RST_PIN 26
 // #define EPD_DC_PIN 27

@@ -15,10 +15,10 @@ uint8_t calculate_power_zone(uint16_t power, uint16_t ftp)
 
 uint8_t calculate_hr_zone(uint16_t hr)
 {
-    if (HR_Z1_MIN < hr && HR_Z1_MAX > hr) return  1;
-    if (HR_Z2_MIN < hr && HR_Z2_MAX > hr) return  2;
-    if (HR_Z3_MIN < hr && HR_Z3_MAX > hr) return  3;
-    if (HR_Z4_MIN < hr && HR_Z4_MAX > hr) return  4;
-    if (HR_Z5_MIN < hr ) return  5;
+    if (HR_Z1_MIN <= hr && HR_Z1_MAX >= hr) return  1;
+    if (HR_Z2_MIN <= hr && HR_Z2_MAX >= hr) return  2;
+    if (HR_Z3_MIN <= hr && HR_Z3_MAX >= hr) return  3;
+    if (HR_Z4_MIN <= hr && HR_Z4_MAX >= hr) return  4;
+    if (HR_Z5_MIN <= hr ) return  5;
     return 1;
 }

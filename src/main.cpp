@@ -35,7 +35,6 @@ bool refresh = false;
 HR hr_monitor(DEVICE_NAME_HR, 400);
 Power power_monitor(DEVICE_NAME_POWER, 400);
 Speed speed_monitor(DEVICE_NAME_SPEED, 10);
-
 Button sw;
 
 int SW = 2;
@@ -77,12 +76,16 @@ void ble_task_code(void *parameter)
     Serial.println("ble_task_code");
     hr_monitor.init();
     power_monitor.init();
+#ifdef FEATURE_SPEED_ENABLED
     speed_monitor.init();
+#endif
     Serial.println("ble_task_code setup done.");
     for (;;)
     {
         hr_monitor.loop();
+#ifdef FEATURE_SPEED_ENABLED
         speed_monitor.loop();
+#endif
         power_monitor.loop();
         Serial.println("ble_task_code loop done.");
         delay(1000);
@@ -177,14 +180,18 @@ void gps_task_code(void *parameter)
 void setup()
 {
     Serial.begin(115200);
+#ifdef FEATURE_SCREEN_ENABLED
     display_init();
+#endif
     partial_update(String("display initialized"));
-    sw.setup(SW);
+    // sw.setup(SW);
+    partial_update(String("switch"));
 
-    attachInterrupt(
-        SW, []()
-        { sw.isr(); },
-        CHANGE);
+    // attachInterrupt(
+    //     SW, []()
+    //     { sw.isr(); },
+    //     CHANGE);
+    partial_update(String("interrupt"));
 
     // xTaskCreatePinnedToCore(
     //     input_task_code,   /* Function to implement the task */
@@ -195,14 +202,16 @@ void setup()
     //     &input_task,       /* Task handle. */
     //     0);                /* Core where the task should run */
 
+#ifdef FEATURE_SCREEN_ENABLED
     xTaskCreatePinnedToCore(
         display_task_code,   /* Function to implement the task */
         "display_task_code", /* Name of the task */
-        8 * 1024,            /* Stack size in words */
+        10 * 1024,           /* Stack size in words */
         NULL,                /* Task input parameter */
         0,                   /* Priority of the task */
         &display_task,       /* Task handle. */
         0);                  /* Core where the task should run */
+#endif
 
     xTaskCreatePinnedToCore(
         ble_task_code,   /* Function to implement the task */
@@ -212,7 +221,9 @@ void setup()
         0,               /* Priority of the task */
         &ble_task,       /* Task handle. */
         0);              /* Core where the task should run */
+    partial_update(String("ble task"));
 
+#ifdef FEATURE_GPS_ENABLED
     xTaskCreatePinnedToCore(
         gps_task_code,   /* Function to implement the task */
         "gps_task_code", /* Name of the task */
@@ -221,6 +232,7 @@ void setup()
         0,               /* Priority of the task */
         &gps_task,       /* Task handle. */
         0);              /* Core where the task should run */
+#endif
 }
 
 void loop()
