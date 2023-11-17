@@ -8,7 +8,7 @@
 
 struct Queue
 {
-    int front, rear, size, min, max;
+    int front, rear, size, min, max,avg;
     unsigned capacity;
     int *array;
 };

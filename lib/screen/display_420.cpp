@@ -4,6 +4,11 @@ GxEPD2_BW<GxEPD2_420_M01, GxEPD2_420_M01::HEIGHT> display(GxEPD2_420_M01(/*CS=5*
 const int SCRN_SPI_CHAN = 2;                                                                                                           // HSPI
 SPIClass hspi(HSPI);
 
+void clear_screen()
+{
+    display.fillScreen(GxEPD_WHITE);
+}
+
 void display_layout()
 {
     display.setRotation(0);
@@ -56,6 +61,41 @@ void display_bottom(float_t h, float_t s, float_t lat, float_t lon)
     display.print(lon, 4);
 }
 
+void display_last_hr(uint16_t hr)
+{
+    int16_t tbx, tby;
+    uint16_t tbw, tbh;
+    display.setFont(&FreeMonoBold24pt7b);
+    display.getTextBounds(String(hr).c_str(), 0, 0, &tbx, &tby, &tbw, &tbh);
+    display.setCursor((400 - tbw) - 8, 55);
+    display.print(String(hr).c_str());
+}
+
+void display_last_power(uint16_t power)
+{
+    display.setFont(&FreeMonoBold24pt7b);
+    display.setCursor(0, 55);
+    display.print(String(power).c_str());
+}
+
+void display_zone_hr(uint16_t zone)
+{
+    display.fillRect(200, 20, 30, 40, GxEPD_BLACK);
+    display.setFont(&FreeMonoBold24pt7b);
+    display.setTextColor(GxEPD_WHITE);
+    display.setCursor(202, 55);
+    display.print(String(zone).c_str());
+}
+
+void display_zone_power(uint16_t zone)
+{
+    display.fillRect(170, 20, 30, 40, GxEPD_BLACK);
+    display.setFont(&FreeMonoBold24pt7b);
+    display.setTextColor(GxEPD_WHITE);
+    display.setCursor(170, 55);
+    display.print(String(zone).c_str());
+}
+
 void show()
 {
     display.display(true);
@@ -84,7 +124,6 @@ void display_chart(Queue *queue, int screen_x, int screen_y, int chart_height)
         {
             int s = (queue->front + i) % queue->capacity;
             int c = queue->array[s];
-
             float_t scaled = ((float_t)c - (float_t)min) / (float_t)range;
             int y = screen_height - scaled * height;
 
@@ -92,15 +131,19 @@ void display_chart(Queue *queue, int screen_x, int screen_y, int chart_height)
             display.drawLine(xx, p, xx + 1, y, GxEPD_BLACK);
             p = y;
         }
+
+        display.setTextColor(GxEPD_BLACK);
+        display.fillRect(0, screen_y - (height + 8), 100, 16, GxEPD_WHITE);
+        display.setFont(&FreeMono9pt7b);
+        display.setCursor(screen_x, screen_y - height + 8);
+        display.printf("%d|%d|%d", queue->min, queue->max, queue->avg);
     }
 }
 
 void render(int secs, HR *hr, Power *power, Speed *speed)
 {
-    int16_t tbx, tby;
-    uint16_t tbw, tbh;
     // clear();
-    display.fillScreen(GxEPD_WHITE);
+    clear_screen();
     display.setTextColor(GxEPD_BLACK);
 
     // int a = system_bar_h + Font12.Height + Font24.Height;
@@ -108,45 +151,19 @@ void render(int secs, HR *hr, Power *power, Speed *speed)
     display.setCursor(90, 12);
     display.print(String(String(speed->last()) + String("km/h")).c_str());
 
-    display.setFont(&FreeMonoBold24pt7b);
-    display.setCursor(0, 55);
-    display.print(String(power->last()).c_str());
-    auto hr_reading = hr->last();
-    display.getTextBounds(String(hr_reading).c_str(), 0, 0, &tbx, &tby, &tbw, &tbh);
-    display.setCursor((400 - tbw) - 8, 55);
-    display.print(String(hr_reading).c_str());
+    display_last_hr(hr->last());
+    display_last_power(power->last());
+    display_zone_hr(hr->zone());
+    display_zone_power(power->zone());
 
-    display.fillRect(200, 20, 30, 40, GxEPD_BLACK);
-    display.setTextColor(GxEPD_WHITE);
-    display.setCursor(202, 55);
-    display.print(String(hr->zone()).c_str());
-    display.setCursor(170, 55);
-    display.fillRect(170, 20, 30, 40, GxEPD_BLACK);
-
-    display.print(String(power->zone()).c_str());
-    // display.print(String(198).c_str());
-
-    display.setFont(&FreeMonoBold9pt7b);
     display_chart(power->queue, 0, 140, 80);
     display_chart(hr->queue, 0, 220, 80);
     display_layout();
-
-    // display.display(true);
-
-    // Paint_DrawLine(0, a - 1, screen_width, a - 1, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
-    // Paint_DrawLine(0, system_bar_h - 1, screen_width, system_bar_h - 1, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
-    // Paint_DrawLine(cell_width, system_bar_h, cell_width, screen_height, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
-    // display_time(secs);
-    // display_hr(hr);
-    // display_power(power);
-
-    // Paint_DrawString_EN(230, 0, String(speed->last()).c_str(), &Font20, WHITE, BLACK);
-    // Paint_DrawString_EN(230 + (Font20.Width * 2), 4, String("km/h").c_str(), &Font12, WHITE, BLACK);
-    // EPD_2IN9_Display(BlackImage);
 }
+
 void refresh_screen()
 {
-    display.fillScreen(GxEPD_WHITE);
+    clear_screen();
     display.display();
 }
 

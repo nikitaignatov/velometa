@@ -44,9 +44,13 @@ void enqueue(struct Queue *queue, int item)
     queue->size = queue->size + 1;
     int min = INT16_MAX;
     int max = INT16_MIN;
+    int sum = 0;
+    int avg = 0;
     for (size_t i = 0; i < queue->size; i++)
     {
         int value = queue->array[i];
+        sum += value;
+        avg = sum / (queue->size == 0 ? 1 : queue->size);
         if (min > value)
             min = value;
         if (max < value)
@@ -54,6 +58,7 @@ void enqueue(struct Queue *queue, int item)
     }
     queue->min = min;
     queue->max = max;
+    queue->avg = avg;
 }
 
 int front(struct Queue *queue)
