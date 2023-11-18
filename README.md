@@ -54,7 +54,7 @@ Bike computer for training purpose. The goal is build a device that can present 
 
 ```mermaid
 
-flowchart TB
+flowchart TD
 
 subgraph "Peripheral Devices"
   epaper("Epaper Display 4.2inch")
@@ -69,19 +69,19 @@ subgraph "Microcontroller"
   Core0("Core0")
 end
 
-subgraph "Core0"
+subgraph "Core1"
   spi("SPI")
+  uart("UART")
+  uart---gps_module
   spi---epaper
 end
 
-subgraph "Core1"
+subgraph "Core0"
   ble("BLE")
-  uart("UART")
   ble---speed_sensor1
   ble---power_sensor1
   ble---power_sensor2
   ble---hr_monitor  
-  uart---gps_module
 end
 
 subgraph "Drivers"

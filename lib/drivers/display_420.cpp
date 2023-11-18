@@ -136,7 +136,7 @@ void display_chart(Queue *queue, int screen_x, int screen_y, int chart_height)
         display.fillRect(0, screen_y - (height + 8), 100, 16, GxEPD_WHITE);
         display.setFont(&FreeMono9pt7b);
         display.setCursor(screen_x, screen_y - height + 8);
-        display.printf("%d|%d|%d", queue->min, queue->max, queue->avg);
+        display.printf("%d %d %d", queue->min, queue->max, queue->avg);
     }
 }
 

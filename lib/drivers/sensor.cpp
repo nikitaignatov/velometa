@@ -77,15 +77,19 @@ bool Sensor::connect(BLEAddress address)
 
 void Sensor::onResult(BLEAdvertisedDevice device)
 {
-    Serial.printf("%s scan result: %s\n", name, device.getName().c_str());
-    if (String(device.getName().c_str()).equalsIgnoreCase(name))
+    if (device.haveServiceUUID() && device.isAdvertisingService(_service_id))
     {
-        Serial.println("scan result match");
-        device.getScan()->stop();
-        server_address = new BLEAddress(device.getAddress());
-        doConnect = true;
-        Serial.println(server_address->toString().c_str());
-        Serial.println("Device found. Connecting!");
+        Serial.printf("%s scan result: %s\n", name, device.getName().c_str());
+
+        if (String(device.getName().c_str()).equalsIgnoreCase(name))
+        {
+            Serial.println("scan result match");
+            device.getScan()->stop();
+            server_address = new BLEAddress(device.getAddress());
+            doConnect = true;
+            Serial.println(server_address->toString().c_str());
+            Serial.println("Device found. Connecting!");
+        }
     }
 }
 

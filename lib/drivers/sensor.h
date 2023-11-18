@@ -4,10 +4,19 @@
 #include <Arduino.h>
 #include <BLEDevice.h>
 #include "queue.h"
+#include <queue.h>
+void ble_task_code(void *parameter);
 
+// Define a struct
+struct pinRead
+{
+    int pin;
+    int value;
+};
 
 class Sensor : public BLEAdvertisedDeviceCallbacks
 {
+    QueueHandle_t structQueue;
     char const *name;
     long wait = 0;
     // BLE
@@ -34,6 +43,9 @@ public:
         this->queue = createQueue(buffer_size);
         this->_service_id = service_id;
         this->_characteristic_id = characteristic_id;
+
+        structQueue = xQueueCreate(10, sizeof(struct pinRead) // Queue item size
+        );
     }
     virtual ~Sensor()
     {
