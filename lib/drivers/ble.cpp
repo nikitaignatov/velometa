@@ -231,4 +231,45 @@ void ble_parse_power_watt_data(uint8_t *pData, size_t length)
         Serial.printf("POWER: %d -- ", power);
     }
 }
-void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length) {}
+
+bool IsBitSet(byte b, int pos)
+{
+    return ((b >> pos) & 1) != 0;
+}
+
+static int last_tv, last_rv;
+void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length)
+{
+
+    uint32_t revs_acc = 0;
+    uint16_t lwet = 0;
+
+    uint8_t byte0 = pData[0];
+    boolean cwr_uint8 = IsBitSet(byte0, 0);
+    boolean lwet_uint8 = IsBitSet(byte0, 0);
+
+    revs_acc = (pData[4] << 24) | (pData[3] << 16) | (pData[2] << 8) | pData[1];
+    lwet = (pData[6] << 8) | pData[5];
+
+    if (revs_acc > 0 && revs_acc - last_rv > 0)
+    {
+        // r:673 p:672 cdiff:1 w:2105 d:677 r: 3
+        int p = last_rv;
+        int t = last_tv;
+        last_rv = revs_acc;
+        last_tv = lwet;
+        int d = (lwet - t);
+        d = d == 0 ? 1 : d;
+        int cdiff = (revs_acc - p);
+        printf("r:%d p:%d cdiff:%d w:%d d:%d r: %f\n", last_rv, p, cdiff, cdiff * 2105, d, ((cdiff * 2105) / 100.f) / ((float_t)d / 1000.0f));
+
+        uint16_t speed = (((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f));
+        if (speed >= 0 && speed < 100)
+        {
+            Serial.printf("SPEED: %d -- ", speed);
+        }
+    }
+    else
+    {
+    }
+}
