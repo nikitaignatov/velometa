@@ -1,38 +1,72 @@
-#include "metric.h"
+#include "metric.hpp"
+
+metric_data_t total;
 
 void Metric::reset()
 {
-    last_value = 0;
-    min_value = 0;
-    max_value = 0;
-    avg_value = 0;
-    sum_value = 0;
-    count_value = 0;
+    total = {
+        .count = 0,
+        .sum = 0,
+        .period_start = 0,
+        .period_end = 0,
+        .min = 0,
+        .max = 0,
+        .avg = 0,
+        .last = 0,
+    };
 }
 
 void Metric::new_reading(float_t value)
 {
-    last_value = value;
-    if (min_value > value)
-        min_value = value;
-    if (max_value < value)
-        max_value = value;
-    sum_value += value;
-    count_value++;
-    avg_value = sum_value / count_value;
+    total.last = value;
+    total.sum += value;
+    total.count++;
+    total.period_end++;
+    if (total.min > value)
+        total.min = value;
+    if (total.max < value)
+        total.max = value;
+    total.avg = total.sum / total.count;
 }
 
-float_t Metric::min()
+metric_data_t Metric::last()
 {
-    return min_value;
+    return total;
 }
 
-float_t Metric::max()
+void metric_task_code(void *parameter)
 {
-    return max_value;
-}
+    // Serial.println("sensor_task_code");
+    // raw_measurement_msg_t msg;
+    // for (;;)
+    // {
+    //     if (xQueueReceive(vh_raw_measurement_queue, &msg, 1000 / portTICK_RATE_MS) == pdPASS)
+    //     {
+    //         switch (msg.measurement)
+    //         {
+    //         case measurement_t::heartrate:
+    //             hr_monitor.add_reading(msg.value);
+    //             hr_metric.new_reading(msg.value / (float_t)msg.scale);
+    //             break;
+    //         case measurement_t::power:
+    //             power_monitor.add_reading(msg.value);
+    //             break;
+    //         case measurement_t::speed:
+    //             speed_monitor.add_reading(msg.value / msg.scale);
+    //             Serial.printf("SPEED\t: %.2f km/h\n", msg.value / (float_t)msg.scale);
+    //             break;
+    //         case measurement_t::elevation:
+    //             Serial.printf("ELEVATION\t: %d meters\n", msg.value / msg.scale);
+    //             break;
 
-float_t Metric::avg()
-{
-    return avg_value;
+    //         default:
+    //             Serial.printf("Unhandled Message type: %i, Value: %i\n", msg.measurement, msg.value);
+    //             break;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         Serial.println("No items on vh_raw_measurement_queue.");
+    //     }
+    // }
 }

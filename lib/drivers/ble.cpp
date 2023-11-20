@@ -53,7 +53,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
             if (device.haveServiceUUID() && device.isAdvertisingService(sensor.service_id))
             {
                 Serial.printf("%s scan result: %s\n", sensor.device_name, device.getName().c_str());
-                if (String(device.getName().c_str()).equalsIgnoreCase(String(sensor.device_name)))
+                // if (String(device.getName().c_str()).equalsIgnoreCase(String(sensor.device_name)))
                 {
                     Serial.println("scan result match");
                     sensor.address = BLEAddress(device.getAddress());
@@ -72,7 +72,7 @@ void init_scan()
     pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
     pBLEScan->setActiveScan(true);
     Serial.println("init scan");
-    pBLEScan->start(5);
+    pBLEScan->start(15);
     Serial.println("init done");
 }
 

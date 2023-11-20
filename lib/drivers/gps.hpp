@@ -1,5 +1,5 @@
-#ifndef VELOHUB_GPS_H
-#define VELOHUB_GPS_H
+#ifndef VELOHUB_GPS_HPP
+#define VELOHUB_GPS_HPP
 
 #include "config.h"
 #include "types.h"

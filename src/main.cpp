@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include "types.h"
 #include "ble.h"
-#include "gps.h"
+#include "metric.hpp"
+#include "gps.hpp"
 #include "display_420.h"
 
 TaskHandle_t ble_task;
@@ -13,6 +14,7 @@ std::vector<sensor_definition_t> ble_sensors;
 QueueHandle_t vh_raw_measurement_queue;
 QueueHandle_t vh_metrics_queue;
 
+Metric hr_metric(DEVICE_NAME_HR);
 HR hr_monitor(DEVICE_NAME_HR, 400);
 Power power_monitor(DEVICE_NAME_POWER, 400);
 Speed speed_monitor(DEVICE_NAME_SPEED, 10);
@@ -49,6 +51,7 @@ void sensor_task_code(void *parameter)
             {
             case measurement_t::heartrate:
                 hr_monitor.add_reading(msg.value);
+                hr_metric.new_reading(msg.value / (float_t)msg.scale);
                 break;
             case measurement_t::power:
                 power_monitor.add_reading(msg.value);

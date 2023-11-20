@@ -1,4 +1,4 @@
-#include "gps.h"
+#include "gps.hpp"
 
 #if BOARD == BOARD_LILY_154
 static const int RXPin = 13, TXPin = 26;
