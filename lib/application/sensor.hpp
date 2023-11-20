@@ -8,7 +8,7 @@ class Sensor
     char const *name;
 
 protected:
-    uint16_t minv, maxv, avgv, lastv, sumv, count, zonev, lastr;
+    uint16_t minv, maxv, avgv, lastv, sumv, count, lastr;
 
 public:
     Sensor(char const *device_name, size_t buffer_size)
@@ -26,7 +26,6 @@ public:
     uint16_t min();
     uint16_t max();
     uint16_t avg();
-    uint8_t zone();
 };
 
 #endif

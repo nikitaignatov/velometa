@@ -1,6 +1,7 @@
 #ifndef _VELOHUB_METRIC_HPP_
 #define _VELOHUB_METRIC_HPP_
 
+#include <vector>
 #include "queue.hpp"
 #include "types.hpp"
 #include <float.h>
@@ -27,6 +28,7 @@ typedef struct
 class Metric
 {
     char *name;
+    std::vector<metric_t> measurements;
 
 public:
     Metric(char *name)
@@ -34,7 +36,7 @@ public:
         this->name = name;
         reset();
     }
-    void new_reading(float_t value);
+    void new_reading(metric_t value);
     metric_data_t last();
     metric_data_t period(uint16_t seconds);
     void reset();

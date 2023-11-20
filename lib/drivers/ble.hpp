@@ -2,7 +2,7 @@
 #define _VELOHUB_BLE_HPP_
 
 #include <vector>
-#include "config.h"
+#include "config.hpp"
 #include "types.hpp"
 #include <Arduino.h>
 #include <BLEDevice.h>

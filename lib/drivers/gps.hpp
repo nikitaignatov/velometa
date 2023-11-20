@@ -1,7 +1,7 @@
 #ifndef _VELOHUB_GPS_HPP_
 #define _VELOHUB_GPS_HPP_
 
-#include "config.h"
+#include "config.hpp"
 #include "types.hpp"
 #include <tuple>
 #include <float.h>

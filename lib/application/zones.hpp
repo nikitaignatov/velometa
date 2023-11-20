@@ -2,12 +2,10 @@
 #define _VELOHUB_ZONES_HPP_
 
 #include <float.h>
-#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-typedef float float_t;
 
 uint8_t calculate_power_zone(uint16_t power, uint16_t ftp);
 uint8_t calculate_hr_zone(uint16_t hr);

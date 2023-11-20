@@ -78,7 +78,7 @@ void display_last_power(uint16_t power)
     display.print(String(power).c_str());
 }
 
-void display_zone_hr(uint16_t zone)
+void display_zone_hr(uint8_t zone)
 {
     display.fillRect(200, 20, 30, 40, GxEPD_BLACK);
     display.setFont(&FreeMonoBold24pt7b);
@@ -87,7 +87,7 @@ void display_zone_hr(uint16_t zone)
     display.print(String(zone).c_str());
 }
 
-void display_zone_power(uint16_t zone)
+void display_zone_power(uint8_t zone)
 {
     display.fillRect(170, 20, 30, 40, GxEPD_BLACK);
     display.setFont(&FreeMonoBold24pt7b);
@@ -153,8 +153,8 @@ void render(int secs, HR *hr, Power *power, Speed *speed)
 
     display_last_hr(hr->last());
     display_last_power(power->last());
-    display_zone_hr(hr->zone());
-    display_zone_power(power->zone());
+    display_zone_hr(calculate_hr_zone(hr->last()));
+    display_zone_power(calculate_power_zone(power->last(), FTP));
 
     display_chart(power->queue, 0, 140, 80);
     display_chart(hr->queue, 0, 220, 80);

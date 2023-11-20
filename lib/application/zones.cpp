@@ -2,7 +2,7 @@
 
 uint8_t calculate_power_zone(uint16_t power, uint16_t ftp)
 {
-    uint16_t pct = (power / (float_t)ftp) * 100.0;
+    uint16_t pct = (power / (float)ftp) * 100.0;
     if (pct < POWER_Z2_MIN) return 1;
     else if (pct >= POWER_Z2_MIN && pct < POWER_Z3_MIN) return 2;
     else if (pct >= POWER_Z3_MIN && pct < POWER_Z4_MIN) return 3;

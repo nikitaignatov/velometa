@@ -7,7 +7,7 @@ Bike computer for training purpose. The goal is build a device that can present 
 - Watt
 - HR
 - Speed
-- Cadance
+- Cadence
 - GPS
 
 ## Experimental

@@ -1,9 +1,11 @@
 #ifndef _DISPLAY_420_HPP_
 #define _DISPLAY_420_HPP_
 
+#include "config.hpp"
 #include "hr.hpp"
 #include "power.hpp"
 #include "speed.hpp"
+#include "zones.hpp"
 // #include <GFX.h>
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold24pt7b.h>
@@ -13,8 +15,6 @@
 
 void render(int secs, HR *hr, Power *power, Speed *speed);
 
-#define BOARD_LILY_WRIST 1
-#define BOARD BOARD_LILY_WRIST
 #if BOARD == BOARD_LILY_WRIST
 #define P_CS 15
 #define P_DC 2
@@ -22,19 +22,19 @@ void render(int secs, HR *hr, Power *power, Speed *speed);
 #define P_BUSY 16
 #define EPD_SCK_PIN 14
 #define EPD_MOSI_PIN 13
-#else
+#elif BOARD == BOARD_LILY_154
 #define P_CS 5
 #define P_DC 17
 #define P_RST 16
 #define P_BUSY 4
-
 #define EPD_SCK_PIN 18
 #define EPD_MOSI_PIN 23
+#elif BOARD == BOARD_WAVESHARE
+#define EPD_CS_PIN 15
+#define EPD_RST_PIN 26
+#define EPD_DC_PIN 27
+#define EPD_BUSY_PIN 25
 #endif
-// #define EPD_CS_PIN 15
-// #define EPD_RST_PIN 26
-// #define EPD_DC_PIN 27
-// #define EPD_BUSY_PIN 25
 
 void partial_update(String k);
 void refresh_screen();

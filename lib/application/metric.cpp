@@ -16,17 +16,21 @@ void Metric::reset()
     };
 }
 
-void Metric::new_reading(float_t value)
+void Metric::new_reading(metric_t measurement)
 {
+    auto value = measurement.value;
     total.last = value;
     total.sum += value;
     total.count++;
-    total.period_end++;
+    total.period_end = measurement.ts;
     if (total.min > value)
         total.min = value;
     if (total.max < value)
         total.max = value;
     total.avg = total.sum / total.count;
+
+    measurements.push_back(measurement);
+    printf("%s.count:%d; size:%d; max: %d\n", name, measurements.size(), measurements.capacity(),measurements.max_size());
 }
 
 metric_data_t Metric::last()

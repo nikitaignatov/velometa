@@ -24,6 +24,24 @@ void display_task_code(void *parameter)
     Serial.println("display_task_code");
     long last = 0;
     uint8_t refresh = 0;
+
+    datafield_t hr_f = {
+        .type = datafield_type_t::chart,
+        .label = "HR Zone",
+    };
+
+    page_t dash = {
+        .datafields = {
+            hr_f,
+        },
+    };
+
+    screen_t screen = {
+        .pages = {
+            dash,
+        },
+    };
+
     for (;;)
     {
         long secs = millis();
@@ -33,9 +51,18 @@ void display_task_code(void *parameter)
             refresh = false;
         }
         render(secs / 1000, &hr_monitor, &power_monitor, &speed_monitor);
-        // display_bottom(height, speed, lat, lon);
+        // // display_bottom(height, speed, lat, lon);
         show();
-        delay(1000);
+        // for (auto page : screen.pages)
+        // {
+        //     Serial.println("Page");
+        //     for (auto field : page.datafields)
+        //     {
+        //         Serial.printf("Field: %s", field.label.c_str());
+        //         Serial.println(".");
+        //     }
+        // }
+        // delay(1000);
     }
 }
 
@@ -43,6 +70,7 @@ void sensor_task_code(void *parameter)
 {
     Serial.println("sensor_task_code");
     raw_measurement_msg_t msg;
+    metric_t m;
     for (;;)
     {
         if (xQueueReceive(vh_raw_measurement_queue, &msg, 1000 / portTICK_RATE_MS) == pdPASS)
@@ -51,17 +79,20 @@ void sensor_task_code(void *parameter)
             {
             case measurement_t::heartrate:
                 hr_monitor.add_reading(msg.value);
-                hr_metric.new_reading(msg.value / (float_t)msg.scale);
+                m = {
+                    .ts = 0,
+                    .value = msg.value / (float)msg.scale};
+                hr_metric.new_reading(m);
                 break;
             case measurement_t::power:
                 power_monitor.add_reading(msg.value);
                 break;
             case measurement_t::speed:
                 speed_monitor.add_reading(msg.value / msg.scale);
-                Serial.printf("SPEED\t: %.2f km/h\n", msg.value / (float_t)msg.scale);
+                // Serial.printf("SPEED\t: %.2f km/h\n", msg.value / (float_t)msg.scale);
                 break;
             case measurement_t::elevation:
-                Serial.printf("ELEVATION\t: %d meters\n", msg.value / msg.scale);
+                // Serial.printf("ELEVATION\t: %d meters\n", msg.value / msg.scale);
                 break;
 
             default:
@@ -111,16 +142,16 @@ void setup()
         .parse_data = ble_parse_power_watt_data,
         .enabled = true,
     });
-    // ble_sensors.push_back((sensor_definition_t){
-    //     {.device_name = DEVICE_NAME_SPEED},
-    //     .metric = metric_type_t::SPEED_WHEEL_RPM,
-    //     .service_id = BLEUUID("00001816-0000-1000-8000-00805f9b34fb"),
-    //     .characteristic_id = BLEUUID((uint16_t)0x2A5B),
-    //     .address = missing_address,
-    //     .client = nullptr,
-    //     .parse_data = ble_parse_speed_wheel_rpm_data,
-    //     .enabled = true,
-    // });
+    ble_sensors.push_back((sensor_definition_t){
+        {.device_name = DEVICE_NAME_SPEED},
+        .metric = metric_type_t::SPEED_WHEEL_RPM,
+        .service_id = BLEUUID("00001816-0000-1000-8000-00805f9b34fb"),
+        .characteristic_id = BLEUUID((uint16_t)0x2A5B),
+        .address = missing_address,
+        .client = nullptr,
+        .parse_data = ble_parse_speed_wheel_rpm_data,
+        .enabled = true,
+    });
 
 #ifdef FEATURE_SCREEN_ENABLED
     display_init();
