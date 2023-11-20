@@ -1,7 +1,9 @@
 #ifndef VELOHUB_BLE_H
 #define VELOHUB_BLE_H
+
 #include <vector>
 #include "config.h"
+#include "types.h"
 #include <Arduino.h>
 #include <BLEDevice.h>
 

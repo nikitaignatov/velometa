@@ -1,20 +1,10 @@
 #ifndef VELOHUB_SENSOR_H
 #define VELOHUB_SENSOR_H
 
-#include <Arduino.h>
-#include <BLEDevice.h>
 #include "queue.h"
-#include <queue.h>
-
-struct pinRead
-{
-    int pin;
-    int value;
-};
 
 class Sensor
 {
-    QueueHandle_t structQueue;
     char const *name;
 
 protected:
@@ -25,13 +15,13 @@ public:
     {
         this->name = device_name;
         this->queue = createQueue(buffer_size);
-        structQueue = xQueueCreate(10, sizeof(struct pinRead));
     }
     virtual ~Sensor()
     {
     }
     struct Queue *queue;
     void init();
+    void add_reading(uint16_t value);
     uint16_t last();
     uint16_t min();
     uint16_t max();

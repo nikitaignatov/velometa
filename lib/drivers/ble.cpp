@@ -4,7 +4,12 @@ char const *TAG = "ble";
 void notifyCallback(sensor_definition_t sensor, BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify);
 bool connect(sensor_definition_t sensor);
 void init_scan();
-
+uint64_t xx_time_get_time()
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (tv.tv_sec * 1000LL + (tv.tv_usec / 1000LL));
+}
 void ble_task_code(void *parameter)
 {
     ESP_LOGI(TAG, "begin");
@@ -161,7 +166,13 @@ void ble_parse_hr_data(uint8_t *pData, size_t length)
 
     if (hr > 0)
     {
-        hr;
+        raw_measurement_msg_t msg = {
+            .measurement = measurement_t::heartrate,
+            .ts = xx_time_get_time(),
+            .value = hr,
+            .scale = 1};
+        if (vh_raw_measurement_queue)
+            xQueueSend(vh_raw_measurement_queue, &msg, 0);
         Serial.printf("HR: %d -- ", hr);
     }
     else
@@ -228,6 +239,13 @@ void ble_parse_power_watt_data(uint8_t *pData, size_t length)
 
     if (power >= 0)
     {
+        raw_measurement_msg_t msg = {
+            .measurement = measurement_t::power,
+            .ts = xx_time_get_time(),
+            .value = power,
+            .scale = 1};
+        // if (vh_raw_measurement_queue)
+        xQueueSend(vh_raw_measurement_queue, &msg, 0);
         Serial.printf("POWER: %d -- ", power);
     }
 }
@@ -263,9 +281,16 @@ void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length)
         int cdiff = (revs_acc - p);
         printf("r:%d p:%d cdiff:%d w:%d d:%d r: %f\n", last_rv, p, cdiff, cdiff * 2105, d, ((cdiff * 2105) / 100.f) / ((float_t)d / 1000.0f));
 
-        uint16_t speed = (((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f));
-        if (speed >= 0 && speed < 100)
+        uint16_t speed = ((((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f))) * 100;
+        if (speed >= 0 && speed < 10000) // TODO: implement propper handling of edgecases.
         {
+            raw_measurement_msg_t msg = {
+                .measurement = measurement_t::speed,
+                .ts = xx_time_get_time(),
+                .value = speed,
+                .scale = 100};
+            if (vh_raw_measurement_queue)
+                xQueueSend(vh_raw_measurement_queue, &msg, 0);
             Serial.printf("SPEED: %d -- ", speed);
         }
     }

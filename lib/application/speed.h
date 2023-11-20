@@ -1,7 +1,6 @@
 #ifndef VELOHUB_SPEED_H
 #define VELOHUB_SPEED_H
 
-#include "queue.h"
 #include "sensor.h"
 
 class Speed : public Sensor

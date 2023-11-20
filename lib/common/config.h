@@ -1,9 +1,11 @@
+#include "esp_log.h"
+
 #define SETUP 1
 
 #if SETUP == 1
 #define DEVICE_NAME_HR "HR6 0031452"
 #define DEVICE_NAME_HR2 "HR8 30743"
-#define DEVICE_NAME_POWER "KICKR CORE 28DF"
+#define DEVICE_NAME_POWER "KICKR CORE 28DF" // f9:4a:e9:9a:67:4d
 #define DEVICE_NAME_SPEED "XXX"
 #define DEVICE_NAME_GPS "XXX"
 #endif
