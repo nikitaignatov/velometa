@@ -1,7 +1,7 @@
-#ifndef VELOHUB_METRIC_H
-#define VELOHUB_METRIC_H
+#ifndef _VELOHUB_METRIC_HPP_
+#define _VELOHUB_METRIC_HPP_
 
-#include "queue.h"
+#include "queue.hpp"
 #include "types.hpp"
 #include <float.h>
 #define __STDC_LIMIT_MACROS

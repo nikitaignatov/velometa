@@ -1,5 +1,5 @@
-#ifndef VELOHUB_SCREEN_H
-#define VELOHUB_SCREEN_H
+#ifndef _VELOHUB_SCREEN_HPP_
+#define _VELOHUB_SCREEN_HPP_
 
 class Screen
 {

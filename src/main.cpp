@@ -3,7 +3,7 @@
 #include "ble.hpp"
 #include "metric.hpp"
 #include "gps.hpp"
-#include "display_420.h"
+#include "display_420.hpp"
 
 TaskHandle_t ble_task;
 TaskHandle_t display_task;

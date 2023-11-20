@@ -1,5 +1,5 @@
-#ifndef VELOHUB_SPEED_H
-#define VELOHUB_SPEED_H
+#ifndef _VELOHUB_SPEED_HPP_
+#define _VELOHUB_SPEED_HPP_
 
 #include "sensor.hpp"
 

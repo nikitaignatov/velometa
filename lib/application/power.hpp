@@ -1,5 +1,5 @@
-#ifndef POWER_H
-#define POWER_H
+#ifndef _POWER_HPP_
+#define _POWER_HPP_
 #include "sensor.hpp"
 #include "zones.hpp"
 

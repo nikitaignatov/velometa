@@ -1,5 +1,5 @@
-#ifndef DISPLAY_420_H
-#define DISPLAY_420_H
+#ifndef _DISPLAY_420_HPP_
+#define _DISPLAY_420_HPP_
 
 #include "hr.hpp"
 #include "power.hpp"

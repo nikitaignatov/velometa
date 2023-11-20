@@ -1,4 +1,4 @@
-#include "display_420.h"
+#include "display_420.hpp"
 
 GxEPD2_BW<GxEPD2_420_M01, GxEPD2_420_M01::HEIGHT> display(GxEPD2_420_M01(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
 const int SCRN_SPI_CHAN = 2;                                                                                                           // HSPI

@@ -1,5 +1,5 @@
-#ifndef VELOHUB_BLE_H
-#define VELOHUB_BLE_H
+#ifndef _VELOHUB_BLE_HPP_
+#define _VELOHUB_BLE_HPP_
 
 #include <vector>
 #include "config.h"

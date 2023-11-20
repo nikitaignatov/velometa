@@ -1,5 +1,5 @@
-#ifndef VELOHUB_ZONES_H
-#define VELOHUB_ZONES_H
+#ifndef _VELOHUB_ZONES_HPP_
+#define _VELOHUB_ZONES_HPP_
 
 #include <float.h>
 #define __STDC_LIMIT_MACROS

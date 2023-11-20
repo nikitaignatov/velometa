@@ -1,5 +1,5 @@
-#ifndef VELOHUB_TYPES_H
-#define VELOHUB_TYPES_H
+#ifndef _VELOHUB_TYPES_HPP_
+#define _VELOHUB_TYPES_HPP_
 
 #include <stdint.h>
 #include "freertos/FreeRTOS.h"

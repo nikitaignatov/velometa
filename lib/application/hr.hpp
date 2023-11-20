@@ -1,5 +1,5 @@
-#ifndef HR_H
-#define HR_H
+#ifndef _HR_HPP_
+#define _HR_HPP_
 
 #include "sensor.hpp"
 #include "zones.hpp"

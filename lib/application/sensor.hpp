@@ -1,7 +1,7 @@
-#ifndef VELOHUB_SENSOR_H
-#define VELOHUB_SENSOR_H
+#ifndef _VELOHUB_SENSOR_HPP_
+#define _VELOHUB_SENSOR_HPP_
 
-#include "queue.h"
+#include "queue.hpp"
 
 class Sensor
 {

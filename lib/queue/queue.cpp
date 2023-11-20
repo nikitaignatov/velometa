@@ -1,4 +1,4 @@
-#include "queue.h"
+#include "queue.hpp"
 
 struct Queue *createQueue(unsigned capacity)
 {
