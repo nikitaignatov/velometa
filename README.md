@@ -58,12 +58,15 @@ flowchart TD
 
 subgraph "Peripheral Devices"
   epaper("Epaper Display 4.2inch")
-  power_sensor1("Assioma")
-  power_sensor2("Wahoo Kicker")
-  speed_sensor1("Speed Sensor")
-  hr_monitor("HR Monitor")
   gps_module("GPS Module")
 end
+
+subgraph "Bluetooth LE Sensors"
+  bike("Bike Sensors")
+  trainer("Tainer Sensors")
+  hr_monitor("HR Monitor")
+end
+
 subgraph "Microcontroller"
   Core1("Core1")
   Core0("Core0")
@@ -78,9 +81,8 @@ end
 
 subgraph "Core0"
   ble("BLE")
-  ble---speed_sensor1
-  ble---power_sensor1
-  ble---power_sensor2
+  ble---bike
+  ble---trainer
   ble---hr_monitor  
 end
 
@@ -128,6 +130,63 @@ subgraph "Application"
   map_page---telemetry
   page---telemetry
   screen---page
+end
+
+```
+
+
+## Sensor Data Collection
+
+```mermaid
+
+flowchart LR
+
+subgraph "Peripheral"
+  power_sensor1("Assioma")
+  power_sensor2("Wahoo Kicker")
+  speed_sensor1("Speed Sensor")
+  hr_monitor("HR Monitor")
+  gps_module("GPS Module")
+end
+
+subgraph "Driver"
+  ble("BLE")
+  gps("GPS")
+  hr_monitor---ble  
+  speed_sensor1---ble
+  power_sensor1---ble
+  power_sensor2---ble
+  gps_module---gps
+end
+
+subgraph "Sensor"
+  speed("Speed")
+  power("Power")
+  hr("HR")
+  time("Time")
+  elevation("Elevation")
+  location("Location")
+  ble---hr
+  ble---power
+  ble---speed
+  gps---speed
+  gps---elevation
+  gps---time
+  gps---location
+end
+
+subgraph "Computation"
+  f("Filter")
+  m("Metrics")
+  telemetry("Raw Measurements")
+  telemetry---f
+  f---m
+  time---telemetry
+  location---telemetry
+  elevation---telemetry
+  speed---telemetry
+  hr---telemetry
+  power---telemetry
 end
 
 ```
