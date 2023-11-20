@@ -1,10 +1,13 @@
 #include <Arduino.h>
 #include "types.h"
 #include "ble.h"
+#include "gps.h"
 #include "display_420.h"
 
 TaskHandle_t ble_task;
 TaskHandle_t display_task;
+TaskHandle_t sensor_task;
+TaskHandle_t gps_task;
 
 std::vector<sensor_definition_t> ble_sensors;
 QueueHandle_t vh_raw_measurement_queue;
@@ -30,6 +33,43 @@ void display_task_code(void *parameter)
         render(secs / 1000, &hr_monitor, &power_monitor, &speed_monitor);
         // display_bottom(height, speed, lat, lon);
         show();
+        delay(1000);
+    }
+}
+
+void sensor_task_code(void *parameter)
+{
+    Serial.println("sensor_task_code");
+    raw_measurement_msg_t msg;
+    for (;;)
+    {
+        if (xQueueReceive(vh_raw_measurement_queue, &msg, 1000 / portTICK_RATE_MS) == pdPASS)
+        {
+            switch (msg.measurement)
+            {
+            case measurement_t::heartrate:
+                hr_monitor.add_reading(msg.value);
+                break;
+            case measurement_t::power:
+                power_monitor.add_reading(msg.value);
+                break;
+            case measurement_t::speed:
+                speed_monitor.add_reading(msg.value / msg.scale);
+                Serial.printf("SPEED\t: %.2f km/h\n", msg.value / (float_t)msg.scale);
+                break;
+            case measurement_t::elevation:
+                Serial.printf("ELEVATION\t: %d meters\n", msg.value / msg.scale);
+                break;
+
+            default:
+                Serial.printf("Unhandled Message type: %i, Value: %i\n", msg.measurement, msg.value);
+                break;
+            }
+        }
+        else
+        {
+            Serial.println("No items on vh_raw_measurement_queue.");
+        }
     }
 }
 
@@ -79,7 +119,6 @@ void setup()
     //     .enabled = true,
     // });
 
-
 #ifdef FEATURE_SCREEN_ENABLED
     display_init();
     xTaskCreatePinnedToCore(
@@ -89,7 +128,7 @@ void setup()
         NULL,                /* Task input parameter */
         0,                   /* Priority of the task */
         &display_task,       /* Task handle. */
-        0);                  /* Core where the task should run */
+        1);                  /* Core where the task should run */
 #endif
 
     xTaskCreatePinnedToCore(
@@ -100,35 +139,30 @@ void setup()
         0,               /* Priority of the task */
         &ble_task,       /* Task handle. */
         0);              /* Core where the task should run */
+
+    xTaskCreatePinnedToCore(
+        sensor_task_code,   /* Function to implement the task */
+        "sensor_task_code", /* Name of the task */
+        16 * 1024,          /* Stack size in words */
+        NULL,               /* Task input parameter */
+        0,                  /* Priority of the task */
+        &sensor_task,       /* Task handle. */
+        1);                 /* Core where the task should run */
+
+#ifdef FEATURE_GPS_ENABLED
+    xTaskCreatePinnedToCore(
+        gps_task_code,   /* Function to implement the task */
+        "gps_task_code", /* Name of the task */
+        4 * 1024,        /* Stack size in words */
+        NULL,            /* Task input parameter */
+        0,               /* Priority of the task */
+        &gps_task,       /* Task handle. */
+        0);              /* Core where the task should run */
+#endif
+
+    vTaskDelete(NULL);
 }
 
 void loop()
 {
-    raw_measurement_msg_t msg;
-
-    if (xQueueReceive(vh_raw_measurement_queue, &msg, 1000 / portTICK_RATE_MS) == pdPASS)
-    {
-        switch (msg.measurement)
-        {
-        case measurement_t::heartrate:
-            Serial.printf("HR: %d %llu\n", msg.value, msg.ts / 1000);
-            hr_monitor.add_reading(msg.value);
-            break;
-        case measurement_t::power:
-            Serial.printf("POWER: %d %llu\n", msg.value, msg.ts / 1000);
-            power_monitor.add_reading(msg.value);
-            break;
-        case measurement_t::speed:
-            Serial.printf("SPEED: %d\n", msg.value / 100.0);
-            break;
-
-        default:
-            Serial.printf("Unhandled Message type: %i, Value: %i\n", msg.measurement, msg.value);
-            break;
-        }
-    }
-    else
-    {
-        Serial.println("No items on vh_raw_measurement_queue.");
-    }
 }
