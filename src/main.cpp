@@ -1,62 +1,27 @@
 #include <Arduino.h>
-#include "queue.h"
-#include "hr.h"
-#include "power.h"
-#include "speed.h"
-#include "config.h"
-#include "display_420.h"
-#include "button.h"
-#include <TinyGPSPlus.h>
-
+#include "types.h"
+#include "ble.h"
 #include "gps.h"
+#include "display_420.h"
 
-static const int RXPin = 13, TXPin = 26;
-static const uint32_t GPSBaud = 9600;
-TinyGPSPlus gps;
-HardwareSerial ss(1);
-
-float_t speed;
-float_t lat, lon, height;
-
-TaskHandle_t input_task;
-TaskHandle_t display_task;
 TaskHandle_t ble_task;
+TaskHandle_t display_task;
+TaskHandle_t sensor_task;
 TaskHandle_t gps_task;
 
-void input_task_code(void *parameter);
-void display_task_code(void *parameter);
-void ble_task_code(void *parameter);
-void gps_task_code(void *parameter);
-
-const int screen_height = 300;
-const int screen_width = 400;
-bool refresh = false;
+std::vector<sensor_definition_t> ble_sensors;
+QueueHandle_t vh_raw_measurement_queue;
+QueueHandle_t vh_metrics_queue;
 
 HR hr_monitor(DEVICE_NAME_HR, 400);
 Power power_monitor(DEVICE_NAME_POWER, 400);
 Speed speed_monitor(DEVICE_NAME_SPEED, 10);
-Button sw;
-
-int SW = 2;
-
-void input_task_code(void *parameter)
-{
-    Serial.println("input_task_code");
-    for (;;)
-    {
-        if (sw.change)
-        {
-            refresh = true;
-            sw.change = false;
-        }
-        delay(1);
-    }
-}
 
 void display_task_code(void *parameter)
 {
     Serial.println("display_task_code");
     long last = 0;
+    uint8_t refresh = 0;
     for (;;)
     {
         long secs = millis();
@@ -66,143 +31,96 @@ void display_task_code(void *parameter)
             refresh = false;
         }
         render(secs / 1000, &hr_monitor, &power_monitor, &speed_monitor);
-        display_bottom(height, speed, lat, lon);
+        // display_bottom(height, speed, lat, lon);
         show();
-    }
-}
-
-void ble_task_code(void *parameter)
-{
-    Serial.println("ble_task_code");
-    hr_monitor.init();
-    power_monitor.init();
-#ifdef FEATURE_SPEED_ENABLED
-    speed_monitor.init();
-#endif
-    Serial.println("ble_task_code setup done.");
-    for (;;)
-    {
-        hr_monitor.loop();
-#ifdef FEATURE_SPEED_ENABLED
-        speed_monitor.loop();
-#endif
-        power_monitor.loop();
-        Serial.println("ble_task_code loop done.");
         delay(1000);
     }
 }
 
-void gps_task_code(void *parameter)
+void sensor_task_code(void *parameter)
 {
-    Serial.println("gps_task_code");
-    ss.begin(GPSBaud, SERIAL_8N1, RXPin, TXPin);
-    Serial.println("gps_task_code setup done.");
+    Serial.println("sensor_task_code");
+    raw_measurement_msg_t msg;
     for (;;)
     {
-        while (ss.available() > 0)
-            if (gps.encode(ss.read()))
+        if (xQueueReceive(vh_raw_measurement_queue, &msg, 1000 / portTICK_RATE_MS) == pdPASS)
+        {
+            switch (msg.measurement)
             {
-                height = gps.altitude.meters();
-                speed = gps.speed.kmph();
-                lat = gps.location.lat();
-                lon = gps.location.lng();
-                pixel_t p = convert_geo_to_pixel(lat, lon, 1085, 762, 12.170583828160401, (12.186787243525105 - 12.170583828160401), 55.7772468557264, 55.7772468557264 * M_PI / 180);
+            case measurement_t::heartrate:
+                hr_monitor.add_reading(msg.value);
+                break;
+            case measurement_t::power:
+                power_monitor.add_reading(msg.value);
+                break;
+            case measurement_t::speed:
+                speed_monitor.add_reading(msg.value / msg.scale);
+                Serial.printf("SPEED\t: %.2f km/h\n", msg.value / (float_t)msg.scale);
+                break;
+            case measurement_t::elevation:
+                Serial.printf("ELEVATION\t: %d meters\n", msg.value / msg.scale);
+                break;
 
-                Serial.print("X:");
-                Serial.print(p.x);
-                Serial.print("Y:");
-                Serial.println(p.y);
-                lat = p.x;
-                lon = p.y;
-
-                Serial.print(F("Location: "));
-
-                if (gps.location.isValid())
-                {
-                    Serial.print(gps.location.lat(), 6);
-                    Serial.print(F(","));
-                    Serial.print(gps.location.lng(), 6);
-                }
-                else
-                {
-                    Serial.print(F("INVALID"));
-                }
-
-                Serial.print(F("  Date/Time: "));
-                if (gps.date.isValid())
-                {
-                    Serial.print(gps.date.year());
-                    Serial.print(F("-"));
-                    Serial.print(gps.date.month());
-                    Serial.print(F("-"));
-                    Serial.print(gps.date.day());
-                }
-                else
-                {
-                    Serial.print(F("INVALID"));
-                }
-
-                Serial.print(F("T"));
-                if (gps.time.isValid())
-                {
-                    if (gps.time.hour() < 10)
-                        Serial.print(F("0"));
-                    Serial.print(gps.time.hour());
-                    Serial.print(F(":"));
-                    if (gps.time.minute() < 10)
-                        Serial.print(F("0"));
-                    Serial.print(gps.time.minute());
-                    Serial.print(F(":"));
-                    if (gps.time.second() < 10)
-                        Serial.print(F("0"));
-                    Serial.print(gps.time.second());
-                    Serial.print(F("."));
-                    if (gps.time.centisecond() < 10)
-                        Serial.print(F("0"));
-                    Serial.print(gps.time.centisecond());
-                }
-                else
-                {
-                    Serial.print(F("INVALID"));
-                }
-
-                Serial.println("Z");
-
-                if (millis() > 5000 && gps.charsProcessed() < 10)
-                {
-                    Serial.println(F("No GPS detected: check wiring."));
-                }
-                delay(1);
+            default:
+                Serial.printf("Unhandled Message type: %i, Value: %i\n", msg.measurement, msg.value);
+                break;
             }
+        }
+        else
+        {
+            Serial.println("No items on vh_raw_measurement_queue.");
+        }
     }
 }
 
 void setup()
 {
     Serial.begin(115200);
+
+    vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
+    ble_sensors.push_back((sensor_definition_t){
+        {.device_name = DEVICE_NAME_HR},
+        .metric = metric_type_t::HR_BPM,
+        .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
+        .characteristic_id = BLEUUID((uint16_t)0x2A37),
+        .address = missing_address,
+        .client = nullptr,
+        .parse_data = ble_parse_hr_data,
+        .enabled = true,
+    });
+    ble_sensors.push_back((sensor_definition_t){
+        {.device_name = DEVICE_NAME_HR2},
+        .metric = metric_type_t::HR_BPM,
+        .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
+        .characteristic_id = BLEUUID((uint16_t)0x2A37),
+        .address = missing_address,
+        .client = nullptr,
+        .parse_data = ble_parse_hr_data,
+        .enabled = true,
+    });
+    ble_sensors.push_back((sensor_definition_t){
+        {.device_name = DEVICE_NAME_POWER},
+        .metric = metric_type_t::POWER_WATT,
+        .service_id = BLEUUID("00001818-0000-1000-8000-00805f9b34fb"),
+        .characteristic_id = BLEUUID((uint16_t)0x2A63),
+        .address = missing_address,
+        .client = nullptr,
+        .parse_data = ble_parse_power_watt_data,
+        .enabled = true,
+    });
+    // ble_sensors.push_back((sensor_definition_t){
+    //     {.device_name = DEVICE_NAME_SPEED},
+    //     .metric = metric_type_t::SPEED_WHEEL_RPM,
+    //     .service_id = BLEUUID("00001816-0000-1000-8000-00805f9b34fb"),
+    //     .characteristic_id = BLEUUID((uint16_t)0x2A5B),
+    //     .address = missing_address,
+    //     .client = nullptr,
+    //     .parse_data = ble_parse_speed_wheel_rpm_data,
+    //     .enabled = true,
+    // });
+
 #ifdef FEATURE_SCREEN_ENABLED
     display_init();
-#endif
-    partial_update(String("display initialized"));
-    // sw.setup(SW);
-    partial_update(String("switch"));
-
-    // attachInterrupt(
-    //     SW, []()
-    //     { sw.isr(); },
-    //     CHANGE);
-    partial_update(String("interrupt"));
-
-    // xTaskCreatePinnedToCore(
-    //     input_task_code,   /* Function to implement the task */
-    //     "input_task_code", /* Name of the task */
-    //     8 * 1024,          /* Stack size in words */
-    //     NULL,              /* Task input parameter */
-    //     0,                 /* Priority of the task */
-    //     &input_task,       /* Task handle. */
-    //     0);                /* Core where the task should run */
-
-#ifdef FEATURE_SCREEN_ENABLED
     xTaskCreatePinnedToCore(
         display_task_code,   /* Function to implement the task */
         "display_task_code", /* Name of the task */
@@ -210,7 +128,7 @@ void setup()
         NULL,                /* Task input parameter */
         0,                   /* Priority of the task */
         &display_task,       /* Task handle. */
-        0);                  /* Core where the task should run */
+        1);                  /* Core where the task should run */
 #endif
 
     xTaskCreatePinnedToCore(
@@ -221,7 +139,15 @@ void setup()
         0,               /* Priority of the task */
         &ble_task,       /* Task handle. */
         0);              /* Core where the task should run */
-    partial_update(String("ble task"));
+
+    xTaskCreatePinnedToCore(
+        sensor_task_code,   /* Function to implement the task */
+        "sensor_task_code", /* Name of the task */
+        16 * 1024,          /* Stack size in words */
+        NULL,               /* Task input parameter */
+        0,                  /* Priority of the task */
+        &sensor_task,       /* Task handle. */
+        1);                 /* Core where the task should run */
 
 #ifdef FEATURE_GPS_ENABLED
     xTaskCreatePinnedToCore(
@@ -233,6 +159,8 @@ void setup()
         &gps_task,       /* Task handle. */
         0);              /* Core where the task should run */
 #endif
+
+    vTaskDelete(NULL);
 }
 
 void loop()
