@@ -1,4 +1,4 @@
-#include "sensor.h"
+#include "sensor.hpp"
 
 uint16_t Sensor::last() { return lastv; }
 uint16_t Sensor::avg() { return avgv; }

@@ -1,7 +1,7 @@
 #ifndef VELOHUB_SPEED_H
 #define VELOHUB_SPEED_H
 
-#include "sensor.h"
+#include "sensor.hpp"
 
 class Speed : public Sensor
 {

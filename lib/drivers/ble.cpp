@@ -1,4 +1,4 @@
-#include "ble.h"
+#include "ble.hpp"
 
 char const *TAG = "ble";
 void notifyCallback(sensor_definition_t sensor, BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify);

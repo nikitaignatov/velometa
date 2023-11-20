@@ -1,7 +1,7 @@
 #ifndef POWER_H
 #define POWER_H
-#include "sensor.h"
-#include "zones.h"
+#include "sensor.hpp"
+#include "zones.hpp"
 
 class Power : public Sensor
 {

@@ -1,8 +1,8 @@
 #ifndef HR_H
 #define HR_H
 
-#include "sensor.h"
-#include "zones.h"
+#include "sensor.hpp"
+#include "zones.hpp"
 
 class HR : public Sensor
 {

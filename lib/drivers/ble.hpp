@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "config.h"
-#include "types.h"
+#include "types.hpp"
 #include <Arduino.h>
 #include <BLEDevice.h>
 

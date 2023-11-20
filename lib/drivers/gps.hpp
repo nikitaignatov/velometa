@@ -2,7 +2,7 @@
 #define VELOHUB_GPS_HPP
 
 #include "config.h"
-#include "types.h"
+#include "types.hpp"
 #include <tuple>
 #include <float.h>
 #include <math.h>

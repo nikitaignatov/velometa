@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "types.h"
-#include "ble.h"
+#include "types.hpp"
+#include "ble.hpp"
 #include "metric.hpp"
 #include "gps.hpp"
 #include "display_420.h"

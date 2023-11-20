@@ -1,9 +1,9 @@
 #ifndef DISPLAY_420_H
 #define DISPLAY_420_H
 
-#include "hr.h"
-#include "power.h"
-#include "speed.h"
+#include "hr.hpp"
+#include "power.hpp"
+#include "speed.hpp"
 // #include <GFX.h>
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold24pt7b.h>

@@ -1,4 +1,4 @@
-#include "zones.h"
+#include "zones.hpp"
 
 uint8_t calculate_power_zone(uint16_t power, uint16_t ftp)
 {
