@@ -1,7 +1,9 @@
 #include "display_420.hpp"
 
-GxEPD2_BW<GxEPD2_420_M01, GxEPD2_420_M01::HEIGHT> display(GxEPD2_420_M01(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
-const int SCRN_SPI_CHAN = 2;                                                                                                           // HSPI
+#define SCREEN GxEPD2_420_M01
+
+GxEPD2_BW<SCREEN, SCREEN::HEIGHT> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
+const int SCRN_SPI_CHAN = 2; // HSPI
 SPIClass hspi(HSPI);
 
 void clear_screen()
@@ -13,12 +15,12 @@ void display_layout()
 {
     display.setRotation(0);
     // status
-    display.drawFastHLine(0, 20, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
+    display.drawFastHLine(0, 20, SCREEN::WIDTH, GxEPD_BLACK);
     display.drawFastVLine(85, 0, 20, GxEPD_BLACK);
 
     // sensor
-    display.drawFastHLine(0, 60, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
-    display.drawFastHLine(0, 140, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
+    display.drawFastHLine(0, 60, SCREEN::WIDTH, GxEPD_BLACK);
+    display.drawFastHLine(0, 140, SCREEN::WIDTH, GxEPD_BLACK);
     display.drawFastVLine(200, 0, 60, GxEPD_BLACK);
     display.drawFastVLine(200, 21, 39, GxEPD_WHITE);
 
@@ -142,23 +144,22 @@ void display_chart(Queue *queue, int screen_x, int screen_y, int chart_height)
 
 void render(int secs, HR *hr, Power *power, Speed *speed)
 {
-    // clear();
-    clear_screen();
-    display.setTextColor(GxEPD_BLACK);
+        clear_screen();
+        display.setTextColor(GxEPD_BLACK);
 
-    // int a = system_bar_h + Font12.Height + Font24.Height;
-    display_status_bar_content(secs);
-    display.setCursor(90, 12);
-    display.print(String(String(speed->last()) + String("km/h")).c_str());
+        // int a = system_bar_h + Font12.Height + Font24.Height;
+        display_status_bar_content(secs);
+        display.setCursor(90, 12);
+        display.print(String(String(speed->last()) + String("km/h")).c_str());
 
-    display_last_hr(hr->last());
-    display_last_power(power->last());
-    display_zone_hr(calculate_hr_zone(hr->last()));
-    display_zone_power(calculate_power_zone(power->last(), FTP));
+        display_last_hr(hr->last());
+        display_last_power(power->last());
+        display_zone_hr(calculate_hr_zone(hr->last()));
+        display_zone_power(calculate_power_zone(power->last(), FTP));
 
-    display_chart(power->queue, 0, 140, 80);
-    display_chart(hr->queue, 0, 220, 80);
-    display_layout();
+        display_chart(power->queue, 0, 140, 80);
+        display_chart(hr->queue, 0, 220, 80);
+        display_layout();
 }
 
 void refresh_screen()

@@ -62,7 +62,6 @@ void display_task_code(void *parameter)
         //         Serial.println(".");
         //     }
         // }
-        // delay(1000);
     }
 }
 
@@ -81,7 +80,8 @@ void sensor_task_code(void *parameter)
                 hr_monitor.add_reading(msg.value);
                 m = {
                     .ts = 0,
-                    .value = msg.value / (float)msg.scale};
+                    .value = msg.value / msg.scale,
+                };
                 hr_metric.new_reading(m);
                 break;
             case measurement_t::power:
@@ -107,9 +107,57 @@ void sensor_task_code(void *parameter)
     }
 }
 
+typedef struct
+{
+    uint16_t ts;
+    uint8_t hr;
+    uint16_t power;
+    uint8_t cadence;
+    uint16_t speed;
+    uint16_t lat;
+    uint16_t lon;
+    // uint16_t alt;
+    // float slope;
+    // float temp;
+    // float humidity;
+} telem_t;
+const size_t size = 4 * 1024U;
+telem_t telemetry[size];
+
 void setup()
 {
     Serial.begin(115200);
+    telem_t t;
+    for (size_t i = 0; i < size; i += 1)
+    {
+        t = {
+            .ts = (uint16_t)i,
+            .hr = (uint8_t)(i / 1024),
+            .power = (uint16_t)i,
+            .cadence = (uint8_t)i,
+            .speed = (uint16_t)i,
+            .lat = (uint16_t)i,
+            .lon = (uint16_t)i,
+            // .alt = (uint16_t)i,
+        };
+        telemetry[i] = t;
+        if (i % 1024 == 0)
+        {
+            Serial.printf("Size: \t%d Capacity: \t%d\n", i, size);
+            // Serial.printf("Size: \t%d Capacity: \t%d\n", telemetry.size(), telemetry.capacity());
+        }
+    }
+
+    int avg_hr = 0;
+    int64_t sum;
+    int64_t count;
+    for (size_t i = 0; i < size; i++)
+    {
+        sum += (uint64_t)telemetry[i].hr;
+        count++;
+        avg_hr=sum/count;
+    }
+    Serial.printf("HR avg: \t%d Count: \t%d Sum: \t%d\n", avg_hr, sum, count);
 
     vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
     ble_sensors.push_back((sensor_definition_t){
