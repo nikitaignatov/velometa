@@ -7,6 +7,6 @@
 void vh_setup();
 void vh_loop();
 
-void update_hr(std::string);
+void update_hr(int min, int max, int avg, int value, int zone,bool connected);
 void update_power(std::string);
 void update_speed(std::string);

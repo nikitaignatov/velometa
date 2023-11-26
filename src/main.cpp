@@ -9,6 +9,12 @@
 #include "metric.hpp"
 #include "gps.hpp"
 
+activity_metrics_t activity = {
+    .hr = {0, 0, 200, 0, 0, 0, 0, 0, 0},
+    .power = {0, 0, 0, 0, 0, 0, 0, 0, 0},
+    .speed = {0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+
 #if USE_EPAPER
 #include "display_420.hpp"
 #elif USE_LCD
@@ -44,10 +50,24 @@ void sensor_task_code(void *parameter)
                 hr_monitor.add_reading(msg.value);
                 m = {
                     .ts = 0,
-                    .value = msg.value / msg.scale,
+                    .value = (float)msg.value / (float)msg.scale,
                 };
 
-                update_hr(fmt::format("#ffffff {}#", msg.value / msg.scale));
+                auto p = activity.hr;
+                auto n =(metric_info_t) {
+                    .ts = millis(),
+                    .last = (float)m.value,
+                    .min = (float)m.value < p.min ? m.value : p.min,
+                    .max = (float)m.value > p.max ? m.value : p.max,
+                    .avg = (float)(p.sum + m.value) / (float)p.count + 1,
+                    .sum = (float)(p.sum + m.value),
+                    .count = (float)p.count + 1,
+                    .std = 0,
+                    .var = 0,
+                };
+                activity.hr = n;
+
+                update_hr(0, 152, 128, (msg.value / msg.scale), 2, true);
                 hr_metric.new_reading(m);
                 break;
             case measurement_t::power:
@@ -76,9 +96,9 @@ void sensor_task_code(void *parameter)
     }
 }
 
-
 void setup()
 {
+
     Serial.begin(115200);
     vh_setup();
 

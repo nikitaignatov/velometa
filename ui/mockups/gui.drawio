@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2023-11-26T12:38:48.791Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36   " etag="PqfZOj6-cgKxaYm1ixLs" version="22.1.4" type="device" pages="2">
+<mxfile host="app.diagrams.net" modified="2023-11-26T22:45:23.360Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36   " etag="1mi7yiAScS1IPj5pFePh" version="22.1.4" type="device" pages="2">
   <diagram name="main screen" id="erXqF-_i6sMH9nALuPuJ">
     <mxGraphModel dx="1382" dy="774" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -65,7 +65,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="main " id="WxZZuajxigj8aaTZiEma">
-    <mxGraphModel dx="1382" dy="774" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1382" dy="704" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="ShxMOStZanyGIXK3IgTH-0" />
         <mxCell id="ShxMOStZanyGIXK3IgTH-1" parent="ShxMOStZanyGIXK3IgTH-0" />
