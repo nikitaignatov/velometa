@@ -103,6 +103,7 @@ lv_obj_t *vh_show_value(lv_obj_t *tile, std::string label, std::string value, lv
 
   return metric;
 }
+
 void update_value(lv_obj_t *target, std::string text)
 {
   lv_label_set_text(target, text.c_str());
@@ -132,10 +133,12 @@ lv_obj_t *vh_create_tile(lv_obj_t *tv)
 void lv_example_tileview_1(void)
 {
   lv_obj_t *tv = lv_tileview_create(lv_scr_act());
+
   lv_obj_t *tile1 = vh_create_tile(tv);
-  power = vh_show_value(tile1, "#666666 Power [Watt]#", "#ffffff 190#", LV_ALIGN_TOP_LEFT);
-  hrv = vh_show_value(tile1, "#666666 HR [bpm]#", "#999999 91#", LV_ALIGN_TOP_MID);
-  speed = vh_show_value(tile1, "#666666 Speed [km/h]#", "#999999 31.5#", LV_ALIGN_TOP_RIGHT);
+    
+  power = vh_show_value(tile1, "#666666 Power [Watt]#", "#ffffff ----#", LV_ALIGN_TOP_LEFT);
+  hrv = vh_show_value(tile1, "#666666 HR [bpm]#", "#999999 ---#", LV_ALIGN_TOP_MID);
+  speed = vh_show_value(tile1, "#666666 Speed [km/h]#", "#999999 --.-#", LV_ALIGN_TOP_RIGHT);
 }
 
 void vh_loop()
