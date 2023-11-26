@@ -42,4 +42,8 @@ void display_init();
 void display_bottom(float_t h, float_t s, float_t lat, float_t lon);
 void show();
 
+#if USE_EPAPER
+void display_task_code(void *parameter);
+#endif
+
 #endif

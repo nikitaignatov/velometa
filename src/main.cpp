@@ -1,9 +1,19 @@
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <Arduino.h>
 #include "types.hpp"
 #include "ble.hpp"
+#include "hr.hpp"
+#include "power.hpp"
+#include "speed.hpp"
 #include "metric.hpp"
 #include "gps.hpp"
+
+#if USE_EPAPER
 #include "display_420.hpp"
+#elif USE_LCD
+#include "wt32sc01plus.hpp"
+#endif
 
 TaskHandle_t ble_task;
 TaskHandle_t display_task;
@@ -18,52 +28,6 @@ Metric hr_metric(DEVICE_NAME_HR);
 HR hr_monitor(DEVICE_NAME_HR, 400);
 Power power_monitor(DEVICE_NAME_POWER, 400);
 Speed speed_monitor(DEVICE_NAME_SPEED, 10);
-
-void display_task_code(void *parameter)
-{
-    Serial.println("display_task_code");
-    long last = 0;
-    uint8_t refresh = 0;
-
-    datafield_t hr_f = {
-        .type = datafield_type_t::chart,
-        .label = "HR Zone",
-    };
-
-    page_t dash = {
-        .datafields = {
-            hr_f,
-        },
-    };
-
-    screen_t screen = {
-        .pages = {
-            dash,
-        },
-    };
-
-    for (;;)
-    {
-        long secs = millis();
-        if (refresh)
-        {
-            refresh_screen();
-            refresh = false;
-        }
-        render(secs / 1000, &hr_monitor, &power_monitor, &speed_monitor);
-        // // display_bottom(height, speed, lat, lon);
-        show();
-        // for (auto page : screen.pages)
-        // {
-        //     Serial.println("Page");
-        //     for (auto field : page.datafields)
-        //     {
-        //         Serial.printf("Field: %s", field.label.c_str());
-        //         Serial.println(".");
-        //     }
-        // }
-    }
-}
 
 void sensor_task_code(void *parameter)
 {
@@ -82,13 +46,18 @@ void sensor_task_code(void *parameter)
                     .ts = 0,
                     .value = msg.value / msg.scale,
                 };
+
+                update_hr(fmt::format("#ffffff {}#", msg.value / msg.scale));
                 hr_metric.new_reading(m);
                 break;
             case measurement_t::power:
                 power_monitor.add_reading(msg.value);
+                update_power(fmt::format("#ffffff {}#", msg.value / msg.scale));
+
                 break;
             case measurement_t::speed:
                 speed_monitor.add_reading(msg.value / msg.scale);
+                update_speed(fmt::format("#ffffff {}#", msg.value / msg.scale));
                 // Serial.printf("SPEED\t: %.2f km/h\n", msg.value / (float_t)msg.scale);
                 break;
             case measurement_t::elevation:
@@ -107,57 +76,11 @@ void sensor_task_code(void *parameter)
     }
 }
 
-typedef struct
-{
-    uint16_t ts;
-    uint8_t hr;
-    uint16_t power;
-    uint8_t cadence;
-    uint16_t speed;
-    uint16_t lat;
-    uint16_t lon;
-    // uint16_t alt;
-    // float slope;
-    // float temp;
-    // float humidity;
-} telem_t;
-const size_t size = 4 * 1024U;
-telem_t telemetry[size];
 
 void setup()
 {
     Serial.begin(115200);
-    telem_t t;
-    for (size_t i = 0; i < size; i += 1)
-    {
-        t = {
-            .ts = (uint16_t)i,
-            .hr = (uint8_t)(i / 1024),
-            .power = (uint16_t)i,
-            .cadence = (uint8_t)i,
-            .speed = (uint16_t)i,
-            .lat = (uint16_t)i,
-            .lon = (uint16_t)i,
-            // .alt = (uint16_t)i,
-        };
-        telemetry[i] = t;
-        if (i % 1024 == 0)
-        {
-            Serial.printf("Size: \t%d Capacity: \t%d\n", i, size);
-            // Serial.printf("Size: \t%d Capacity: \t%d\n", telemetry.size(), telemetry.capacity());
-        }
-    }
-
-    int avg_hr = 0;
-    int64_t sum;
-    int64_t count;
-    for (size_t i = 0; i < size; i++)
-    {
-        sum += (uint64_t)telemetry[i].hr;
-        count++;
-        avg_hr=sum/count;
-    }
-    Serial.printf("HR avg: \t%d Count: \t%d Sum: \t%d\n", avg_hr, sum, count);
+    vh_setup();
 
     vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
     ble_sensors.push_back((sensor_definition_t){
@@ -201,7 +124,7 @@ void setup()
         .enabled = true,
     });
 
-#ifdef FEATURE_SCREEN_ENABLED
+#ifdef USE_EPAPER
     display_init();
     xTaskCreatePinnedToCore(
         display_task_code,   /* Function to implement the task */
@@ -241,6 +164,8 @@ void setup()
         &gps_task,       /* Task handle. */
         0);              /* Core where the task should run */
 #endif
+    while (1)
+        vh_loop();
 
     vTaskDelete(NULL);
 }

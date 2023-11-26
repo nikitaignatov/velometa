@@ -4,9 +4,9 @@
 /* Uncomment below line to draw on screen with touch */
 #define DRAW_ON_SCREEN
 
-#include "lgfx.hpp"
+void vh_setup();
+void vh_loop();
 
-static LGFX lcd; // declare display variable
-
-#include <lvgl.h>
-#include "lv_conf.h"
+void update_hr(std::string);
+void update_power(std::string);
+void update_speed(std::string);
