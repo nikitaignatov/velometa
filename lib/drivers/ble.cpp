@@ -23,15 +23,18 @@ void ble_task_code(void *parameter)
 
             if (sensor.client && sensor.client->isConnected())
             {
+                sensor.state.connected = true;
                 continue;
             }
             else if (!missing_address.equals(sensor.address))
             {
+                sensor.state.connected = false;
                 Serial.printf("Connect to sensor %s\n", sensor.device_name);
                 connect(sensor);
             }
             else if (sensor.enabled)
             {
+                sensor.state.connected = false;
                 Serial.printf("Scan enabled sensor %s. address:%s\n", sensor.device_name, sensor.address.toString().c_str());
                 init_scan();
             }
@@ -44,6 +47,21 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
 {
     void onResult(BLEAdvertisedDevice device)
     {
+        // auto device_name = fmt::format("{}({})", device.getName(), device.getAddress().toString());
+        // int c = 0;
+        // bool missing = true;
+        // for (auto d : sys.sensors.near_by_devices)
+        // {
+        //     if (d.compare(device_name) == 0)
+        //         missing = false;
+        //     Serial.print(c++);
+        //     Serial.print(" -> ");
+        //     Serial.println(device_name.c_str());
+        //     Serial.println("------------");
+        // }
+        // if (missing)
+        //     sys.sensors.near_by_devices.push_back(device_name);
+
         for (auto &sensor : ble_sensors)
         {
             if (sensor.client && sensor.client->isConnected())
@@ -58,6 +76,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
                     Serial.println("scan result match");
                     sensor.address = BLEAddress(device.getAddress());
                     sensor.client = BLEDevice::createClient();
+                    sensor.state.name = sensor.device_name;
                 }
             }
         }

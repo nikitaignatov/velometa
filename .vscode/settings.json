@@ -11,6 +11,14 @@
         "initializer_list": "cpp",
         "streambuf": "cpp",
         "tuple": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "chrono": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp",
+        "limits": "cpp",
+        "type_traits": "cpp",
+        "ff.h": "c",
+        "esp_vfs_fat.h": "c",
+        "lv_assert.h": "c"
     }
 }

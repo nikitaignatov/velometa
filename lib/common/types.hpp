@@ -89,4 +89,31 @@ typedef struct
     std::vector<page_t> pages;
 } screen_t;
 
+typedef struct
+{
+    std::string name;
+    std::string address;
+    int battery_pct;
+    bool connected;
+    bool enabled;
+    uint64_t last_reading;
+} sensor_state_t;
+
+typedef struct
+{
+    sensor_state_t hr;
+    sensor_state_t power;
+    sensor_state_t speed;
+    sensor_state_t gps;
+    std::vector<std::string> near_by_devices;
+} sensors_t;
+
+typedef struct
+{
+    uint64_t tick_ms;
+    sensors_t sensors;
+    activity_metrics_t activity;
+    int mocked;
+} system_t;
+
 #endif

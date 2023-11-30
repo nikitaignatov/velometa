@@ -1,6 +1,8 @@
 #ifndef _VELOHUB_BLE_HPP_
 #define _VELOHUB_BLE_HPP_
 
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <vector>
 #include "config.hpp"
 #include "types.hpp"
@@ -8,7 +10,7 @@
 #include <BLEDevice.h>
 
 static auto missing_address = BLEAddress((uint8_t *)"\0\0\0\0\0\0");
-
+extern system_t sys;
 enum metric_type_t
 {
     METRIC_NOT_DEFINED = 0,
@@ -29,6 +31,8 @@ typedef struct
     BLEClient *client;
     void (*parse_data)(uint8_t *pData, size_t length);
     bool enabled;
+    sensor_state_t state;
+
 } sensor_definition_t;
 
 extern std::vector<sensor_definition_t> ble_sensors;

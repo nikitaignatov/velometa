@@ -40,7 +40,6 @@
 
 /*Images pixels with this color will not be drawn if they are chroma keyed)*/
 #define LV_COLOR_CHROMA_KEY lv_color_hex(0x00ff00)         /*pure green*/
-
 /*=========================
    MEMORY SETTINGS
  *=========================*/
@@ -68,7 +67,7 @@
 
 /*Number of the intermediate memory buffer used during rendering and other internal processing mechanisms.
  *You will see an error log message if there wasn't enough buffers. */
-#define LV_MEM_BUF_MAX_NUM 16
+#define LV_MEM_BUF_MAX_NUM 128
 
 /*Use the standard `memcpy` and `memset` instead of LVGL's own functions. (Might or might not be faster).*/
 #define LV_MEMCPY_MEMSET_STD 0
@@ -126,10 +125,10 @@
  *With complex image decoders (e.g. PNG or JPG) caching can save the continuous open/decode of images.
  *However the opened images might consume additional RAM.
  *0: to disable caching*/
-#define LV_IMG_CACHE_DEF_SIZE 0
+#define LV_IMG_CACHE_DEF_SIZE 1
 
 /*Maximum buffer size to allocate for rotation. Only used if software rotation is enabled in the display driver.*/
-#define LV_DISP_ROT_MAX_BUF (10*1024)
+#define LV_DISP_ROT_MAX_BUF (16*1024)
 
 /*-------------
  * GPU
@@ -171,7 +170,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
  *-----------*/
 
 /*Enable the log module*/
-#define LV_USE_LOG 0
+#define LV_USE_LOG 1
 #if LV_USE_LOG
 
 /*How important log should be added:
@@ -181,11 +180,11 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
  *LV_LOG_LEVEL_ERROR       Only critical issue, when the system may fail
  *LV_LOG_LEVEL_USER        Only logs added by the user
  *LV_LOG_LEVEL_NONE        Do not log anything*/
-#  define LV_LOG_LEVEL LV_LOG_LEVEL_WARN
+#  define LV_LOG_LEVEL LV_LOG_LEVEL_INFO
 
 /*1: Print the log with 'printf';
  *0: User need to register a callback with `lv_log_register_print_cb()`*/
-#  define LV_LOG_PRINTF 0
+#  define LV_LOG_PRINTF 1
 
 /*Enable/disable LV_LOG_TRACE in modules that produces a huge number of logs*/
 #  define LV_LOG_TRACE_MEM        1
@@ -342,7 +341,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 
 
 /*Always set a default font*/
-#define LV_FONT_DEFAULT &lv_font_montserrat_28
+#define LV_FONT_DEFAULT &lv_font_montserrat_20
 
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
@@ -490,6 +489,8 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 
 #define LV_USE_MSGBOX     1
 
+#define LV_USE_MSG        1
+
 #define LV_USE_SPINBOX    1
 
 #define LV_USE_SPINNER    1
@@ -521,7 +522,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 # define LV_THEME_DEFAULT_GROW 1
 
 /*Default transition time in [ms]*/
-# define LV_THEME_DEFAULT_TRANSITION_TIME 40
+# define LV_THEME_DEFAULT_TRANSITION_TIME 0
 #endif /*LV_USE_THEME_DEFAULT*/
 
 /*A very simple theme that is a good starting point for a custom theme*/
@@ -546,8 +547,12 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 
 /*File system interfaces for common APIs
  *To enable set a driver letter for that API*/
-#define LV_USE_FS_STDIO '\0'        /*Uses fopen, fread, etc*/
-//#define LV_FS_STDIO_PATH "/home/john/"    /*Set the working directory. If commented it will be "./" */
+#define LV_USE_FS_STDIO 1
+#if LV_USE_FS_STDIO
+    #define LV_FS_STDIO_LETTER 'S'     /*Set an upper cased letter on which the drive will accessible (e.g. 'A')*/
+    #define LV_FS_STDIO_PATH "/sdcard"         /*Set the working directory. File/directory paths will be appended to it.*/
+    #define LV_FS_STDIO_CACHE_SIZE 0    /*>0 to cache this number of bytes in lv_fs_read()*/
+#endif
 
 #define LV_USE_FS_POSIX '\0'        /*Uses open, read, etc*/
 //#define LV_FS_POSIX_PATH "/home/john/"    /*Set the working directory. If commented it will be "./" */
@@ -555,10 +560,14 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_USE_FS_WIN32 '\0'        /*Uses CreateFile, ReadFile, etc*/
 //#define LV_FS_WIN32_PATH "C:\\Users\\john\\"    /*Set the working directory. If commented it will be ".\\" */
 
-#define LV_USE_FS_FATFS '\0'        /*Uses f_open, f_read, etc*/
+#define LV_USE_FS_FATFS 0
+#if LV_USE_FS_FATFS
+    #define LV_FS_FATFS_LETTER 'S'     /*Set an upper cased letter on which the drive will accessible (e.g. 'A')*/
+    #define LV_FS_FATFS_CACHE_SIZE 10    /*>0 to cache this number of bytes in lv_fs_read()*/
+#endif
 
 /*PNG decoder library*/
-#define LV_USE_PNG 0
+#define LV_USE_PNG 1
 
 /*BMP decoder library*/
 #define LV_USE_BMP 0
@@ -596,7 +605,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 *==================*/
 
 /*Enable the examples to be built with the library*/
-#define LV_BUILD_EXAMPLES 1
+#define LV_BUILD_EXAMPLES 0
 
 /*--END OF LV_CONF_H--*/
 
