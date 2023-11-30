@@ -12,6 +12,7 @@
 // #include <Fonts/FreeMono24pt7b.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include <Fonts/FreeMono9pt7b.h>
+#define SCREEN GxEPD2_420_M01
 
 void render(int secs, HR *hr, Power *power, Speed *speed);
 

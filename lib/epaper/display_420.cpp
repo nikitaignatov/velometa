@@ -1,7 +1,5 @@
 #include "display_420.hpp"
 
-#define SCREEN GxEPD2_420_M01
-
 GxEPD2_BW<SCREEN, SCREEN::HEIGHT> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
 const int SCRN_SPI_CHAN = 2; // HSPI
 SPIClass hspi(HSPI);

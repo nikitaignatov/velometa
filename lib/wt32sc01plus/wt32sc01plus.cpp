@@ -9,13 +9,11 @@
 
 static LGFX lcd; // declare display variable
 
-#include <ff.h>
 #include <lvgl.h>
 #include "lv_conf.h"
 
 #include "vh_container.hpp"
 #include "vh_status_bar.hpp"
-FATFS fatfs;
 
 /*** Setup screen resolution for LVGL ***/
 static const uint16_t screenWidth = 320;
@@ -72,22 +70,13 @@ void vh_setup(void)
 {
   // delay(5000);
   Serial.begin(115200); /* prepare for possible serial debug */
-
-  auto r = init_sdspi();
-  Serial.print(r);
+  auto r = fs_mount_sd_card();
+  Serial.print(r->fsize);
   Serial.println(" init_sdspi");
   lcd.init(); // Initialize LovyanGFX
   lv_init();  // Initialize lvgl
   lv_fs_stdio_init();
-
   lv_png_init();
-
-  f_mount(&fatfs, "S:", 1);
-  lv_fs_file_t f;
-  lv_fs_res_t res = lv_fs_open(&f, "S:20478.png", LV_FS_MODE_RD);
-  Serial.printf("res: %d\n", res);
-  res = lv_fs_open(&f, "S:/20478.png", LV_FS_MODE_RD);
-  Serial.printf("res: %d\n", res);
 
   // Setting display to landscape
   if (lcd.width() < lcd.height())
@@ -240,7 +229,7 @@ static void map_slider_event_cb(lv_event_t *e)
   map_frequency = (uint16_t)lv_slider_get_value(slider);
   Serial.print(" => ");
   Serial.println(map_frequency);
-  lv_label_set_text(label_m,fmt::format("{}",map_frequency).c_str());
+  lv_label_set_text(label_m, fmt::format("{}", map_frequency).c_str());
 }
 
 lv_obj_t *img;
@@ -407,65 +396,4 @@ void publish(uint32_t topic, metric_info_t payload)
   {
     lv_msg_send(topic, &payload);
   }
-}
-
-bool init_sdspi()
-{
-  sdspi_device_config_t device_config = SDSPI_DEVICE_CONFIG_DEFAULT();
-  device_config.host_id = SDSPI_HOST_ID;
-  device_config.gpio_cs = SD_CS;
-  //device_config.gpio_cd = -1;   // SD Card detect
-
-  ESP_LOGI(TAG, "Initializing SD card");
-  sdmmc_host_t host = SDSPI_HOST_DEFAULT();
-  host.slot = device_config.host_id;
-
-  esp_vfs_fat_mount_config_t mount_config =
-      {
-          //.format_if_mount_failed = true,
-          .format_if_mount_failed = false,
-          .max_files = 5,
-          .allocation_unit_size = 32 * 1024};
-
-  ESP_LOGI(TAG, "Initializing SPI BUS");
-  spi_bus_config_t bus_cfg = {
-      .mosi_io_num = SD_MOSI,
-      .miso_io_num = SD_MISO,
-      .sclk_io_num = SD_SCLK,
-      .quadwp_io_num = -1,
-      .quadhd_io_num = -1,
-      .max_transfer_sz = 4092,
-  };
-  esp_err_t ret = spi_bus_initialize(SDSPI_HOST_ID, &bus_cfg, SDSPI_DEFAULT_DMA);
-  if (ret != ESP_OK)
-  {
-    ESP_LOGE(TAG, "Failed to initialize bus.");
-    return ESP_FAIL;
-  }
-
-  ESP_LOGI(TAG, "Mounting filesystem");
-  ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &device_config, &mount_config, &sdcard);
-  if (ret != ESP_OK)
-  {
-    if (ret == ESP_FAIL)
-    {
-      ESP_LOGE(TAG, "Failed to mount filesystem. \n"
-                    "If you want the card to be formatted, enable above in mount_config.");
-      return ESP_FAIL;
-    }
-    else
-    {
-      ESP_LOGE(TAG, "Failed to initialize the card (%s). \n"
-                    "Make sure SD card lines have pull-up resistors in place.",
-               esp_err_to_name(ret));
-      return ESP_FAIL;
-    }
-    return ESP_FAIL;
-  }
-  ESP_LOGI(TAG, "Filesystem mounted");
-
-  // Card has been initialized, print its properties
-  sdmmc_card_print_info(stdout, sdcard);
-
-  return ESP_OK;
 }

@@ -28,3 +28,11 @@
 #define BOARD_WAVESHARE 3
 #define WTSC01_PLUS 4
 #define BOARD WTSC01_PLUS
+
+
+
+
+#define MSG_NEW_SPEED 1
+#define MSG_NEW_POWER 2
+#define MSG_NEW_HR 3
+#define MSG_NEW_HEADING 4
