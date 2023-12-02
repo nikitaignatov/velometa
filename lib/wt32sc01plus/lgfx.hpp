@@ -1,3 +1,5 @@
+#pragma once 
+
 #define LGFX_USE_V1 // set to use new version of library
 #include <LovyanGFX.hpp> // main library
 class LGFX : public lgfx::LGFX_Device

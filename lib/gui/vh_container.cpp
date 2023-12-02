@@ -1,7 +1,4 @@
-#ifndef _VH_LVGL_CONTAINER_HPP_
-#define _VH_LVGL_CONTAINER_HPP_
-
-#include "lvgl.h"
+#include "vh_container.hpp"
 
 lv_obj_t *vh_create_container(lv_obj_t *parent, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t bg_hex)
 {
@@ -16,5 +13,7 @@ lv_obj_t *vh_create_container(lv_obj_t *parent, uint16_t x, uint16_t y, uint16_t
     lv_obj_set_scrollbar_mode(container, LV_SCROLLBAR_MODE_OFF);
     return container;
 }
-
-#endif
+lv_obj_t *vh_create_container(lv_obj_t *parent, uint16_t width, uint16_t height)
+{
+    return vh_create_container(parent, 0, 0, width, height, 0x000000);
+}

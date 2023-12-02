@@ -1,5 +1,4 @@
-#ifndef _VH_METRIC_HPP_
-#define _VH_METRIC_HPP_
+#pragma once 
 
 #include "lvgl.h"
 #include "vh_container.hpp"
@@ -28,5 +27,3 @@ lv_obj_t *vh_show_metric(lv_obj_t *parent, std::string label, std::string value,
 
   return metric;
 }
-
-#endif
