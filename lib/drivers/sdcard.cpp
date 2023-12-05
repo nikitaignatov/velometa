@@ -1,16 +1,11 @@
 #include "sdcard.hpp"
-FATFS fatfs;
+static FATFS fatfs;
 
 FATFS *fs_mount_sd_card()
 {
     init_sdspi();
 
     f_mount(&fatfs, "S:", 1);
-    // lv_fs_file_t f;
-    // lv_fs_res_t res = lv_fs_open(&f, "S:20478.png", LV_FS_MODE_RD);
-    // Serial.printf("res: %d\n", res);
-    // res = lv_fs_open(&f, "S:/20478.png", LV_FS_MODE_RD);
-    // Serial.printf("res: %d\n", res);
     return &fatfs;
 }
 

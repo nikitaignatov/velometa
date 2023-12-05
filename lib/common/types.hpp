@@ -11,6 +11,7 @@
 
 extern QueueHandle_t vh_raw_measurement_queue;
 extern QueueHandle_t vh_metrics_queue;
+extern QueueHandle_t vh_gps_queue;
 
 typedef enum
 {
@@ -115,5 +116,21 @@ typedef struct
     activity_metrics_t activity;
     int mocked;
 } system_t;
+typedef struct
+{
+    uint64_t tick_ms;
+    uint64_t date;
+    uint64_t time;
+    double lat;
+    double lon;
+    double speed;
+    double height;
+    double hdop;
+    double age;
+    bool has_fix;
+    int satelites;
+} gps_data_t;
+
+extern void publish_gps(gps_data_t data);
 
 #endif

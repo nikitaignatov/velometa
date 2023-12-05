@@ -51,6 +51,7 @@ TaskHandle_t gps_task;
 std::vector<sensor_definition_t> ble_sensors;
 QueueHandle_t vh_raw_measurement_queue;
 QueueHandle_t vh_metrics_queue;
+QueueHandle_t vh_gps_queue;
 
 Metric hr_metric(DEVICE_NAME_HR);
 HR hr_monitor(DEVICE_NAME_HR, 400);
@@ -101,6 +102,11 @@ void sensor_task_code(void *parameter)
                 break;
             case measurement_t::power:
 
+                m = {
+                    .ts = 0,
+                    .value = (float)msg.value / (float)msg.scale,
+                };
+
                 n = update_stats(activity.power, m);
                 activity.power = n;
 
@@ -109,6 +115,11 @@ void sensor_task_code(void *parameter)
 
                 break;
             case measurement_t::speed:
+
+                m = {
+                    .ts = 0,
+                    .value = (float)msg.value / (float)msg.scale,
+                };
                 n = update_stats(activity.speed, m);
                 activity.speed = n;
 
@@ -151,47 +162,30 @@ void display_task_code(void *parameter)
     }
 }
 
-void mock_task_code(void *parameter)
+void appendFile(fs::FS &fs, const char *path, const char *message)
 {
-    Serial.println("mock_task_code");
-    delay(2000);
-    metric_info_t msg = {};
+    Serial.printf("Appending to file: %s\n", path);
 
-    metric_t m;
-    metric_info_t s={};
-    metric_info_t h={};
-    metric_info_t p={};
-    metric_info_t n={};
-    for (;;)
+    File file = fs.open(path, FILE_APPEND);
+    if (!file)
     {
-        vTaskDelay(map_frequency / portTICK_PERIOD_MS);
-
-        m = {
-            .ts = 0,
-            .value = (float)random(15, 60) / (float)1,
-        };
-        s = update_stats(s, m);
-        publish(MSG_NEW_SPEED, s);
-        m = {
-            .ts = 0,
-            .value = (float)random(45, 200) / (float)1,
-        };
-        h = update_stats(h, m);
-        publish(MSG_NEW_HR, h);
-        m = {
-            .ts = 0,
-            .value = (float)random(90, 300) / (float)1,
-        };
-        p = update_stats(p, m);
-        publish(MSG_NEW_POWER, p);
-        publish(MSG_NEW_HEADING, msg);
+        Serial.println("Failed to open file for appending");
+        return;
     }
+    if (file.print(message))
+    {
+        Serial.println("Message appended");
+    }
+    else
+    {
+        Serial.println("Append failed");
+    }
+    file.close();
 }
 
-void setup()
+void write_task_code(void *parameter)
 {
-    delay(2500);
-    Serial.begin(115200);
+    Serial.println("write_task_code");
 
     pinMode(SD_CS, OUTPUT); //SD Card SS
     SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
@@ -224,6 +218,85 @@ void setup()
 
     uint64_t cardSize = SD.cardSize() / (1024 * 1024);
     Serial.printf("SD Card Size: %lluMB\n", cardSize);
+    gps_data_t msg;
+    for (;;)
+    {
+        int count = 0;
+        std::string lines = "";
+        while (xQueueReceive(vh_gps_queue, &msg, 10 / portTICK_RATE_MS) == pdPASS)
+        {
+            if (count == 0)
+            {
+                lines = fmt::format("{},{},{},{},{}\n", msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
+            }
+            else
+            {
+                lines = fmt::format("{}{},{},{},{},{}\n", lines, msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
+            }
+
+            count++;
+        }
+        if (lines.length() > 1)
+        {
+            Serial.println("DUMP TO CSV:");
+
+            Serial.println(lines.c_str());
+            appendFile(SD, "/gps.csv", lines.c_str());
+        }
+
+        vTaskDelay(60 * 1000 / portTICK_PERIOD_MS);
+    }
+}
+
+void mock_task_code(void *parameter)
+{
+    Serial.println("mock_task_code");
+    delay(2000);
+    metric_info_t msg = {};
+
+    metric_t m;
+    metric_info_t s = {};
+    metric_info_t h = {};
+    metric_info_t p = {};
+    metric_info_t n = {};
+    for (;;)
+    {
+        vTaskDelay(map_frequency / portTICK_PERIOD_MS);
+        continue;
+
+        m = {
+            .ts = 0,
+            .value = (float)random(15, 60) / (float)1,
+        };
+        s = update_stats(s, m);
+        publish(MSG_NEW_SPEED, s);
+        m = {
+            .ts = 0,
+            .value = (float)random(45, 200) / (float)1,
+        };
+        h = update_stats(h, m);
+        publish(MSG_NEW_HR, h);
+        m = {
+            .ts = 0,
+            .value = (float)random(90, 300) / (float)1,
+        };
+        p = update_stats(p, m);
+        publish(MSG_NEW_POWER, p);
+        publish(MSG_NEW_HEADING, msg);
+    }
+}
+
+void setup()
+{
+    delay(4000);
+    Serial.begin(115200);
+    vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
+    vh_gps_queue = xQueueCreate(120, sizeof(gps_data_t));
+
+    auto r = fs_mount_sd_card();
+    Serial.print(r->fsize);
+    Serial.println(" init_sdspi");
+
     xTaskCreatePinnedToCore(
         display_task_code, /* Function to implement the task */
         "display_task",    /* Name of the task */
@@ -240,8 +313,15 @@ void setup()
         0,              /* Priority of the task */
         NULL,           /* Task handle. */
         1);             /* Core where the task should run */
+    xTaskCreatePinnedToCore(
+        write_task_code, /* Function to implement the task */
+        "write_task",    /* Name of the task */
+        4 * 1024,        /* Stack size in words */
+        NULL,            /* Task input parameter */
+        0,               /* Priority of the task */
+        NULL,            /* Task handle. */
+        1);              /* Core where the task should run */
 
-    vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
     ble_sensors.push_back((sensor_definition_t){
         {.device_name = DEVICE_NAME_HR},
         .metric = metric_type_t::HR_BPM,
@@ -312,7 +392,6 @@ void setup()
         0,                  /* Priority of the task */
         &sensor_task,       /* Task handle. */
         1);                 /* Core where the task should run */
-
 #ifdef FEATURE_GPS_ENABLED
     xTaskCreatePinnedToCore(
         gps_task_code,   /* Function to implement the task */

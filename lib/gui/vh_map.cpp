@@ -9,32 +9,6 @@
 lv_obj_t *map_window;
 lv_obj_t *map;
 
-uint32_t lon_to_tile_x(double lon, int zoom)
-{
-    return (int)(floor((lon + 180.0) / 360.0 * (1 << zoom)));
-}
-
-uint32_t lat_lon_to_tile_y(double lat, double lon, int zoom)
-{
-    double latrad = lat * M_PI / 180.0;
-
-    return (int)(floor((1.0 - asinh(tan(latrad)) / M_PI) / 2.0 * (1 << zoom)));
-}
-
-uint32_t lon_to_x(double lon, int zoom)
-{
-    double xtile_d = (lon + 180.0) / 360.0 * (1 << zoom);
-    return xtile_d * 256;
-}
-
-uint32_t lat_lon_to_y(double lat, double lon, int zoom)
-{
-    double latrad = lat * M_PI / 180.0;
-
-    double ytile_d = (1.0 - asinh(tan(latrad)) / M_PI) / 2.0 * (1 << zoom);
-    return ytile_d * 256;
-}
-
 void vh_map_init(lv_obj_t *parent)
 {
     map_window = vh_create_container(parent, WINDOW_WIDTH, WINDOW_HEIGH);

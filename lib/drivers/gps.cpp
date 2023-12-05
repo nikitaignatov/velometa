@@ -5,7 +5,7 @@ static const int RXPin = 13, TXPin = 26;
 #elif BOARD == BOARD_LILY_WRIST
 static const int RXPin = 21, TXPin = 22;
 #elif BOARD == WTSC01_PLUS
-static const int RXPin = 21, TXPin = 22;
+static const int RXPin = 11, TXPin = 10;
 #endif
 static const uint32_t GPSBaud = 9600;
 TinyGPSPlus gps;
@@ -46,18 +46,32 @@ pixel_t convert_geo_to_pixel(float_t latitude, float_t longitude,
 void gps_task_code(void *parameter)
 {
     Serial.println("gps_task_code");
+    pinMode(RXPin, INPUT);
+    pinMode(TXPin, OUTPUT);
     ss.begin(GPSBaud, SERIAL_8N1, RXPin, TXPin);
+
     Serial.println("gps_task_code setup done.");
+    int time = 0;
     for (;;)
     {
         while (ss.available() > 0)
+        {
             if (gps.encode(ss.read()))
             {
+
+                gps_data_t data;
                 if (!vh_raw_measurement_queue)
                 {
                     delay(1000);
+                    Serial.println("gps_task_code queue is null");
                     continue;
                 }
+
+                if (gps.time.value() == time)
+                {
+                    continue;
+                }
+                time = gps.time.value();
 
                 auto height = static_cast<uint16_t>(abs(gps.altitude.meters()));
                 auto speed = static_cast<uint16_t>(gps.speed.kmph() * 100.0);
@@ -74,21 +88,38 @@ void gps_task_code(void *parameter)
                     .ts = gps.date.value() * 1000,
                     .value = height,
                     .scale = 1};
-
                 xQueueSend(vh_raw_measurement_queue, &msg, 0);
-                delay(1000);
-                continue;
 
-                auto lat = gps.location.lat();
-                auto lon = gps.location.lng();
-                pixel_t p = convert_geo_to_pixel(lat, lon, 1085, 762, 12.170583828160401, (12.186787243525105 - 12.170583828160401), 55.7772468557264, 55.7772468557264 * M_PI / 180);
+                data = (gps_data_t){
+                    .tick_ms = gps.time.value(),
+                    .date = gps.date.value(),
+                    .time = gps.time.value(),
+                    .lat = gps.location.lat(),
+                    .lon = gps.location.lng(),
+                    .speed = gps.speed.kmph(),
+                    .height = gps.altitude.meters(),
+                    .has_fix = gps.sentencesWithFix(),
+                    .satelites = gps.satellites.value(),
+                };
 
-                Serial.print("X:");
-                Serial.print(p.x);
-                Serial.print("Y:");
-                Serial.println(p.y);
-                lat = p.x;
-                lon = p.y;
+                if (true)
+                {
+                    publish_gps(data);
+                    auto lat = gps.location.lat();
+                    auto lon = gps.location.lng();
+                    pixel_t p = convert_geo_to_pixel(lat, lon, 1085, 762, 12.170583828160401, (12.186787243525105 - 12.170583828160401), 55.7772468557264, 55.7772468557264 * M_PI / 180);
+                    xQueueSend(vh_gps_queue, &data, 0);
+
+                    Serial.print("X:");
+                    Serial.print(p.x);
+                    Serial.print("Y:");
+                    Serial.println(p.y);
+                    lat = p.x;
+                    lon = p.y;
+                }
+
+                // delay(1000);
+                // continue;
 
                 Serial.print(F("Location: "));
 
@@ -103,6 +134,12 @@ void gps_task_code(void *parameter)
                     Serial.print(F("INVALID"));
                 }
 
+                Serial.print(F("  Date.value[ "));
+                Serial.print(gps.date.value());
+                Serial.print(F(" ] "));
+                Serial.print(F("  Time.value[ "));
+                Serial.print(gps.time.value());
+                Serial.print(F(" ] "));
                 Serial.print(F("  Date/Time: "));
                 if (gps.date.isValid())
                 {
@@ -142,12 +179,14 @@ void gps_task_code(void *parameter)
                 }
 
                 Serial.println("Z");
-
-                if (millis() > 5000 && gps.charsProcessed() < 10)
-                {
-                    Serial.println(F("No GPS detected: check wiring."));
-                }
-                delay(1000);
+                // delay(1000);
             }
+        }
+
+        // if (millis() > 5000 && gps.charsProcessed() < 10)
+        // {
+        //     Serial.println(F("No GPS detected: check wiring."));
+        // }
+        // delay(1000);
     }
 }

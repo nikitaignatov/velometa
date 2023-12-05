@@ -34,3 +34,4 @@ void vh_setup();
 void vh_loop();
 void update(system_t sys);
 void publish(uint32_t topic, metric_info_t payload);
+void publish_gps(gps_data_t data);

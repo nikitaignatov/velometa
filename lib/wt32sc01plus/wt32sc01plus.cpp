@@ -54,10 +54,7 @@ void update_speed(std::string v) { update_value(_speed, v); }
 void vh_setup(void)
 {
   // delay(5000);
-  Serial.begin(115200); /* prepare for possible serial debug */
-  auto r = fs_mount_sd_card();
-  Serial.print(r->fsize);
-  Serial.println(" init_sdspi");
+  Serial.begin(115200); 
   lcd.init(); // Initialize LovyanGFX
   lv_init();  // Initialize lvgl
   lv_fs_stdio_init();
@@ -152,6 +149,7 @@ lv_obj_t *vh_show_value(lv_obj_t *tile, std::string label, std::string value, lv
 
   return metric;
 }
+
 lv_obj_t *vh_show_hr(lv_obj_t *tile, std::string label, std::string value, lv_align_t align)
 {
   lv_obj_t *lbl = lv_label_create(tile);
@@ -192,41 +190,25 @@ void event_handler(lv_event_t *e)
   }
 }
 
-// static void slider_event_cb(lv_event_t *e)
-// {
-//   lv_obj_t *slider = lv_event_get_target(e);
+static void slider_event_cb(lv_event_t *e)
+{
+  lv_obj_t *slider = lv_event_get_target(e);
 
-//   uint8_t v = (uint8_t)lv_slider_get_value(slider);
-//   lcd.setBrightness(v);
-// }
-
-// static void map_slider_event_cb(lv_event_t *e)
-// {
-//   lv_obj_t *slider = lv_event_get_target(e);
-//   Serial.print("map_slider_event_cb: ");
-//   Serial.print(lv_slider_get_value(slider));
-//   Serial.print(" : ");
-//   Serial.print((uint16_t)lv_slider_get_value(slider));
-//   Serial.print(" = ");
-//   Serial.print(map_frequency);
-
-//   map_frequency = (uint16_t)lv_slider_get_value(slider);
-//   Serial.print(" => ");
-//   Serial.println(map_frequency);
-//   lv_label_set_text(label_m, fmt::format("{}", map_frequency).c_str());
-// }
+  uint8_t v = (uint8_t)lv_slider_get_value(slider);
+  lcd.setBrightness(v);
+}
 
 // static void slider_event_cb(lv_event_t *e);
-// static void label_event_cb(lv_event_t *e);
+static void label_event_cb(lv_event_t *e);
 void main_screen(void)
 {
   apply_velohub_theme();
 
-  // lv_style_init(&style_metric_label);
-  // lv_style_init(&style_metric_value);
+  lv_style_init(&style_metric_label);
+  lv_style_init(&style_metric_value);
 
-  // lv_style_set_text_font(&style_metric_label, font_small);
-  // lv_style_set_text_font(&style_metric_value, font_xlarge);
+  lv_style_set_text_font(&style_metric_label, font_small);
+  lv_style_set_text_font(&style_metric_value, font_xlarge);
 
   lv_obj_t *p = vh_tiles_init(lv_scr_act());
 
@@ -252,22 +234,22 @@ void main_screen(void)
 
   // list = label;
 
-  // lv_obj_t *metrics = vh_create_container(tile1, 0, 22, lcd.width(), 100, 0x000000);
-  // lv_obj_t *metrics_2 = vh_create_container(tile1, 0, 200, lcd.width() / 2, 100, 0x000000);
+  lv_obj_t *metrics = vh_create_container(tile1, 0, 22, lcd.width(), 100, 0x000000);
+  lv_obj_t *metrics_2 = vh_create_container(tile1, 0, 200, lcd.width() / 2, 100, 0x000000);
   // lv_obj_set_scrollbar_mode(metrics, LV_SCROLLBAR_MODE_OFF);
   // lv_obj_set_size(metrics, lcd.width(), 70);
   // lv_obj_set_scrollbar_mode(metrics_2, LV_SCROLLBAR_MODE_OFF);
-  // lv_obj_set_size(metrics_2, lcd.width() / 2, 70);
-  // _power = vh_show_value(metrics, "#666666 Power [Watt]#", "#ffffff ----#", LV_ALIGN_BOTTOM_LEFT);
-  // vh_show_hr(metrics_2, "#aa6666 *HR [bpm]#", "#999999 ---#", LV_ALIGN_BOTTOM_MID);
+  lv_obj_set_size(metrics_2, lcd.width() / 2, 70);
+  _power = vh_show_value(metrics, "#666666 Power [Watt]#", "#ffffff ----#", LV_ALIGN_BOTTOM_LEFT);
+  vh_show_hr(metrics_2, "#aa6666 *HR [bpm]#", "#999999 ---#", LV_ALIGN_BOTTOM_MID);
   // _speed = vh_show_value(metrics, "#666666 Speed [km/h]#", "#999999 --.-#", LV_ALIGN_BOTTOM_RIGHT);
 
-  // lv_obj_add_event_cb(_power, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
+  lv_obj_add_event_cb(_power, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
   // lv_obj_add_event_cb(_speed, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
-  // lv_obj_add_event_cb(hrv, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
+  lv_obj_add_event_cb(hrv, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
   // lv_msg_subsribe_obj(MSG_NEW_SPEED, _speed, (void *)"{:.1f}");
-  // lv_msg_subsribe_obj(MSG_NEW_POWER, _power, (void *)"{:.0f}");
-  // lv_msg_subsribe_obj(MSG_NEW_HR, hrv, (void *)"{:.0f}");
+  lv_msg_subsribe_obj(MSG_NEW_POWER, _power, (void *)"{:.0f}");
+  lv_msg_subsribe_obj(MSG_NEW_HR, hrv, (void *)"{:.0f}");
 
   // lv_obj_t *slider = lv_slider_create(scan_tile);
   // lv_obj_center(slider);
@@ -338,7 +320,6 @@ static void label_event_cb(lv_event_t *e)
 
 void publish(uint32_t topic, metric_info_t payload)
 {
-  return;
   if (topic == MSG_NEW_HEADING)
   {
     // auto x = lv_img_get_offset_x(img);
@@ -367,4 +348,10 @@ void publish(uint32_t topic, metric_info_t payload)
   {
     lv_msg_send(topic, &payload);
   }
+}
+
+
+void publish_gps(gps_data_t data)
+{
+  lv_msg_send(2222, &data);
 }

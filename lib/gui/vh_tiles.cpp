@@ -70,8 +70,10 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     map_tile = lv_tileview_add_tile(tv, 2, 0, LV_DIR_LEFT);
     lv_obj_t *tile4 = lv_tileview_add_tile(tv, 3, 0, LV_DIR_LEFT);
     lv_obj_t *tile5 = lv_tileview_add_tile(tv, 4, 0, LV_DIR_LEFT);
-    lv_obj_t *tile6 = lv_tileview_add_tile(tv, 5, 0, LV_DIR_LEFT);
+    lv_obj_t *gps_tile = lv_tileview_add_tile(tv, 5, 0, LV_DIR_LEFT);
     lv_obj_t *btn_next = create_btn(parent, true);
     lv_obj_t *btn_prev = create_btn(parent, false);
+
+    auto *p = vh_gps_tile_create(gps_tile);
     return tv;
 }
