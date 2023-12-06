@@ -1,7 +1,5 @@
 #include "display_420.hpp"
 
-#define SCREEN GxEPD2_420_M01
-
 GxEPD2_BW<SCREEN, SCREEN::HEIGHT> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
 const int SCRN_SPI_CHAN = 2; // HSPI
 SPIClass hspi(HSPI);
@@ -185,3 +183,53 @@ void display_init()
     hspi.begin(EPD_SCK_PIN, 12, EPD_MOSI_PIN, 15);                                         // remap hspi for EPD (swap pins)
     display.init(115200, true, 2, false, hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0)); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
 }
+
+
+
+#if USE_EPAPER
+void display_task_code(void *parameter)
+{
+    Serial.println("display_task_code");
+    long last = 0;
+    uint8_t refresh = 0;
+
+    datafield_t hr_f = {
+        .type = datafield_type_t::chart,
+        .label = "HR Zone",
+    };
+
+    page_t dash = {
+        .datafields = {
+            hr_f,
+        },
+    };
+
+    screen_t screen = {
+        .pages = {
+            dash,
+        },
+    };
+
+    for (;;)
+    {
+        long secs = millis();
+        if (refresh)
+        {
+            refresh_screen();
+            refresh = false;
+        }
+        render(secs / 1000, &hr_monitor, &power_monitor, &speed_monitor);
+        // // display_bottom(height, speed, lat, lon);
+        show();
+        // for (auto page : screen.pages)
+        // {
+        //     Serial.println("Page");
+        //     for (auto field : page.datafields)
+        //     {
+        //         Serial.printf("Field: %s", field.label.c_str());
+        //         Serial.println(".");
+        //     }
+        // }
+    }
+}
+#endif

@@ -12,6 +12,7 @@
 // #include <Fonts/FreeMono24pt7b.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include <Fonts/FreeMono9pt7b.h>
+#define SCREEN GxEPD2_420_M01
 
 void render(int secs, HR *hr, Power *power, Speed *speed);
 
@@ -41,5 +42,9 @@ void refresh_screen();
 void display_init();
 void display_bottom(float_t h, float_t s, float_t lat, float_t lon);
 void show();
+
+#if USE_EPAPER
+void display_task_code(void *parameter);
+#endif
 
 #endif

@@ -1,9 +1,47 @@
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <Arduino.h>
+#include "nvs_flash.h"
+#include "nvs.h"
+#include "FFat.h"
+
+// SD -- start
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
+
+// Modify CS_PIN for your chip select pin.
+#define CS_PIN SS
+
+// SD CARD - SPI PINS
+#define SDSPI_HOST_ID SPI3_HOST
+#define SD_MISO GPIO_NUM_38
+#define SD_MOSI GPIO_NUM_40
+#define SD_SCLK GPIO_NUM_39
+#define SD_CS GPIO_NUM_41
+// SD -- end
+
 #include "types.hpp"
 #include "ble.hpp"
+#include "hr.hpp"
+#include "power.hpp"
+#include "speed.hpp"
 #include "metric.hpp"
 #include "gps.hpp"
+
+uint16_t map_frequency = 2000;
+
+activity_metrics_t activity = {
+    .hr = {0, 0, 200, 0, 0, 0, 0, 0, 0},
+    .power = {0, 0, 0, 0, 0, 0, 0, 0, 0},
+    .speed = {0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+
+#if USE_EPAPER
 #include "display_420.hpp"
+#elif USE_LCD
+#include "wt32sc01plus.hpp"
+#endif
 
 TaskHandle_t ble_task;
 TaskHandle_t display_task;
@@ -19,50 +57,19 @@ HR hr_monitor(DEVICE_NAME_HR, 400);
 Power power_monitor(DEVICE_NAME_POWER, 400);
 Speed speed_monitor(DEVICE_NAME_SPEED, 10);
 
-void display_task_code(void *parameter)
+metric_info_t update_stats(metric_info_t p, metric_t m)
 {
-    Serial.println("display_task_code");
-    long last = 0;
-    uint8_t refresh = 0;
-
-    datafield_t hr_f = {
-        .type = datafield_type_t::chart,
-        .label = "HR Zone",
+    return (metric_info_t){
+        .ts = millis(),
+        .last = (float)m.value,
+        .min = (float)m.value < p.min ? m.value : p.min,
+        .max = (float)m.value > p.max ? m.value : p.max,
+        .avg = (float)(p.sum + m.value) / (float)p.count + 1,
+        .sum = (float)(p.sum + m.value),
+        .count = (float)p.count + 1,
+        .std = 0,
+        .var = 0,
     };
-
-    page_t dash = {
-        .datafields = {
-            hr_f,
-        },
-    };
-
-    screen_t screen = {
-        .pages = {
-            dash,
-        },
-    };
-
-    for (;;)
-    {
-        long secs = millis();
-        if (refresh)
-        {
-            refresh_screen();
-            refresh = false;
-        }
-        render(secs / 1000, &hr_monitor, &power_monitor, &speed_monitor);
-        // // display_bottom(height, speed, lat, lon);
-        show();
-        // for (auto page : screen.pages)
-        // {
-        //     Serial.println("Page");
-        //     for (auto field : page.datafields)
-        //     {
-        //         Serial.printf("Field: %s", field.label.c_str());
-        //         Serial.println(".");
-        //     }
-        // }
-    }
 }
 
 void sensor_task_code(void *parameter)
@@ -70,6 +77,8 @@ void sensor_task_code(void *parameter)
     Serial.println("sensor_task_code");
     raw_measurement_msg_t msg;
     metric_t m;
+    metric_info_t n;
+    int count = 1;
     for (;;)
     {
         if (xQueueReceive(vh_raw_measurement_queue, &msg, 1000 / portTICK_RATE_MS) == pdPASS)
@@ -80,15 +89,31 @@ void sensor_task_code(void *parameter)
                 hr_monitor.add_reading(msg.value);
                 m = {
                     .ts = 0,
-                    .value = msg.value / msg.scale,
+                    .value = (float)msg.value / (float)msg.scale,
                 };
+
+                n = update_stats(activity.hr, m);
+                activity.hr = n;
+
+                publish(MSG_NEW_HR, n);
                 hr_metric.new_reading(m);
+
                 break;
             case measurement_t::power:
+
+                n = update_stats(activity.power, m);
+                activity.power = n;
+
+                publish(MSG_NEW_POWER, n);
                 power_monitor.add_reading(msg.value);
+
                 break;
             case measurement_t::speed:
-                speed_monitor.add_reading(msg.value / msg.scale);
+                n = update_stats(activity.speed, m);
+                activity.speed = n;
+
+                publish(MSG_NEW_SPEED, n);
+                speed_monitor.add_reading(msg.value);
                 // Serial.printf("SPEED\t: %.2f km/h\n", msg.value / (float_t)msg.scale);
                 break;
             case measurement_t::elevation:
@@ -104,60 +129,117 @@ void sensor_task_code(void *parameter)
         {
             Serial.println("No items on vh_raw_measurement_queue.");
         }
+        if (count > 90)
+            count = 0;
+        // auto p = (metric_info_t){
+        //     .ts = millis(),
+        //     .last = (float)count++};
+        // publish(MSG_NEW_HEADING, p);
+    }
+}
+void display_task_code(void *parameter)
+{
+    Serial.println("display_task_code");
+    vh_setup();
+
+    int count = 1;
+    for (;;)
+    {
+        vTaskDelay(2 / portTICK_PERIOD_MS);
+
+        vh_loop();
     }
 }
 
-typedef struct
+void mock_task_code(void *parameter)
 {
-    uint16_t ts;
-    uint8_t hr;
-    uint16_t power;
-    uint8_t cadence;
-    uint16_t speed;
-    uint16_t lat;
-    uint16_t lon;
-    // uint16_t alt;
-    // float slope;
-    // float temp;
-    // float humidity;
-} telem_t;
-const size_t size = 4 * 1024U;
-telem_t telemetry[size];
+    Serial.println("mock_task_code");
+    delay(2000);
+    metric_info_t msg = {};
+
+    metric_t m;
+    metric_info_t s={};
+    metric_info_t h={};
+    metric_info_t p={};
+    metric_info_t n={};
+    for (;;)
+    {
+        vTaskDelay(map_frequency / portTICK_PERIOD_MS);
+
+        m = {
+            .ts = 0,
+            .value = (float)random(15, 60) / (float)1,
+        };
+        s = update_stats(s, m);
+        publish(MSG_NEW_SPEED, s);
+        m = {
+            .ts = 0,
+            .value = (float)random(45, 200) / (float)1,
+        };
+        h = update_stats(h, m);
+        publish(MSG_NEW_HR, h);
+        m = {
+            .ts = 0,
+            .value = (float)random(90, 300) / (float)1,
+        };
+        p = update_stats(p, m);
+        publish(MSG_NEW_POWER, p);
+        publish(MSG_NEW_HEADING, msg);
+    }
+}
 
 void setup()
 {
+    delay(2500);
     Serial.begin(115200);
-    telem_t t;
-    for (size_t i = 0; i < size; i += 1)
+
+    pinMode(SD_CS, OUTPUT); //SD Card SS
+    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
+    SD.begin(SD_CS);
+    uint8_t cardType = SD.cardType();
+
+    if (cardType == CARD_NONE)
     {
-        t = {
-            .ts = (uint16_t)i,
-            .hr = (uint8_t)(i / 1024),
-            .power = (uint16_t)i,
-            .cadence = (uint8_t)i,
-            .speed = (uint16_t)i,
-            .lat = (uint16_t)i,
-            .lon = (uint16_t)i,
-            // .alt = (uint16_t)i,
-        };
-        telemetry[i] = t;
-        if (i % 1024 == 0)
-        {
-            Serial.printf("Size: \t%d Capacity: \t%d\n", i, size);
-            // Serial.printf("Size: \t%d Capacity: \t%d\n", telemetry.size(), telemetry.capacity());
-        }
+        Serial.println("No SD card attached");
+        return;
     }
 
-    int avg_hr = 0;
-    int64_t sum;
-    int64_t count;
-    for (size_t i = 0; i < size; i++)
+    Serial.print("SD Card Type: ");
+    if (cardType == CARD_MMC)
     {
-        sum += (uint64_t)telemetry[i].hr;
-        count++;
-        avg_hr=sum/count;
+        Serial.println("MMC");
     }
-    Serial.printf("HR avg: \t%d Count: \t%d Sum: \t%d\n", avg_hr, sum, count);
+    else if (cardType == CARD_SD)
+    {
+        Serial.println("SDSC");
+    }
+    else if (cardType == CARD_SDHC)
+    {
+        Serial.println("SDHC");
+    }
+    else
+    {
+        Serial.println("UNKNOWN");
+    }
+
+    uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+    Serial.printf("SD Card Size: %lluMB\n", cardSize);
+    xTaskCreatePinnedToCore(
+        display_task_code, /* Function to implement the task */
+        "display_task",    /* Name of the task */
+        16 * 1024,         /* Stack size in words */
+        NULL,              /* Task input parameter */
+        0,                 /* Priority of the task */
+        &display_task,     /* Task handle. */
+        1);                /* Core where the task should run */
+    xTaskCreatePinnedToCore(
+        mock_task_code, /* Function to implement the task */
+        "mock_task",    /* Name of the task */
+        4 * 1024,       /* Stack size in words */
+        NULL,           /* Task input parameter */
+        0,              /* Priority of the task */
+        NULL,           /* Task handle. */
+        1);             /* Core where the task should run */
 
     vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
     ble_sensors.push_back((sensor_definition_t){
@@ -201,7 +283,7 @@ void setup()
         .enabled = true,
     });
 
-#ifdef FEATURE_SCREEN_ENABLED
+#ifdef USE_EPAPER
     display_init();
     xTaskCreatePinnedToCore(
         display_task_code,   /* Function to implement the task */

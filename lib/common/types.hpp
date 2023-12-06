@@ -45,6 +45,27 @@ typedef struct
     float value;
 } metric_t;
 
+typedef struct
+{
+    uint32_t ts;
+    float last;
+    float min;
+    float max;
+    float avg;
+    float sum;
+    float count;
+    float std;
+    float var;
+} metric_info_t;
+
+typedef struct
+{
+    metric_info_t hr;
+    metric_info_t power;
+    metric_info_t speed;
+    metric_info_t cadence;
+} activity_metrics_t;
+
 typedef enum
 {
     number = 0,
@@ -67,5 +88,32 @@ typedef struct
 {
     std::vector<page_t> pages;
 } screen_t;
+
+typedef struct
+{
+    std::string name;
+    std::string address;
+    int battery_pct;
+    bool connected;
+    bool enabled;
+    uint64_t last_reading;
+} sensor_state_t;
+
+typedef struct
+{
+    sensor_state_t hr;
+    sensor_state_t power;
+    sensor_state_t speed;
+    sensor_state_t gps;
+    std::vector<std::string> near_by_devices;
+} sensors_t;
+
+typedef struct
+{
+    uint64_t tick_ms;
+    sensors_t sensors;
+    activity_metrics_t activity;
+    int mocked;
+} system_t;
 
 #endif
