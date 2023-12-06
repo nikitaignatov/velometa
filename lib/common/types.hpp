@@ -1,6 +1,7 @@
 #ifndef _VELOHUB_TYPES_HPP_
 #define _VELOHUB_TYPES_HPP_
 
+
 #include <stdint.h>
 #include <vector>
 #include <string>
@@ -9,8 +10,17 @@
 #include "freertos/queue.h"
 #include "freertos/event_groups.h"
 
+#define VH_SENSOR_BIT_MOCK_DATA 0
+#define VH_SENSOR_BIT_GPS_READY 1
+#define VH_SENSOR_BIT_HR_READY 2
+#define VH_SENSOR_BIT_POWER_READY 3
+#define VH_SENSOR_BIT_SPEED_READY 4
+#define VH_SENSOR_BIT_CADENCE_READY 5
+
 extern QueueHandle_t vh_raw_measurement_queue;
 extern QueueHandle_t vh_metrics_queue;
+extern QueueHandle_t vh_gps_queue;
+extern EventGroupHandle_t sensor_status_bits;
 
 typedef enum
 {
@@ -115,5 +125,23 @@ typedef struct
     activity_metrics_t activity;
     int mocked;
 } system_t;
+typedef struct
+{
+    uint64_t tick_ms;
+    uint64_t date;
+    uint64_t time;
+    double lat;
+    double lon;
+    double speed;
+    double height;
+    double hdop;
+    double age;
+    bool has_fix;
+    int satelites;
+} gps_data_t;
 
+extern void publish_gps(gps_data_t data);
+
+
+metric_info_t update_stats(metric_info_t p, metric_t m);
 #endif

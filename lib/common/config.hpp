@@ -18,7 +18,7 @@
 #endif
 
 #define FEATURE_SCREEN_ENABLED
-// #define FEATURE_GPS_ENABLED
+#define FEATURE_GPS_ENABLED
 #define FEATURE_HR_ENABLED
 #define FEATURE_POWER_ENABLED
 // #define FEATURE_SPEED_ENABLED
@@ -29,10 +29,8 @@
 #define WTSC01_PLUS 4
 #define BOARD WTSC01_PLUS
 
-
-
-
 #define MSG_NEW_SPEED 1
 #define MSG_NEW_POWER 2
 #define MSG_NEW_HR 3
 #define MSG_NEW_HEADING 4
+#define MSG_NEW_GPS_HDOP 5

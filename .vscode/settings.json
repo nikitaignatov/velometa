@@ -19,6 +19,8 @@
         "type_traits": "cpp",
         "ff.h": "c",
         "esp_vfs_fat.h": "c",
-        "lv_assert.h": "c"
+        "lv_assert.h": "c",
+        "string": "cpp",
+        "ffconf.h": "c"
     }
 }

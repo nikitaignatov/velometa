@@ -2,6 +2,11 @@
 #define _VELOHUB_SENSOR_HPP_
 
 #include "queue.hpp"
+#include <Arduino.h>
+#include "config.hpp"
+#include "types.hpp"
+#include "metric.hpp"
+#include "vh_display.hpp"
 
 class Sensor
 {
@@ -28,4 +33,7 @@ public:
     uint16_t avg();
 };
 
+extern Metric hr_metric;
+
+void sensor_task_code(void *parameter);
 #endif

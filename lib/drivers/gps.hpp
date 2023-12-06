@@ -3,6 +3,7 @@
 
 #include "config.hpp"
 #include "types.hpp"
+#include "vh_display.hpp" // TODO: this should not be here
 #include <tuple>
 #include <float.h>
 #include <math.h>
@@ -23,5 +24,5 @@ pixel_t convert_geo_to_pixel(float_t latitude, float_t longitude,
                              float_t mapLatBottomDegree); // in Radians
 
 void gps_task_code(void *parameter);
-
+void gps_process_task_code(void *parameter);
 #endif
