@@ -19,24 +19,13 @@ void lv_button_demo(void);
 void lv_example_get_started_1(void);
 void main_screen(void);
 
-lv_obj_t *vh_bg_black(lv_obj_t *obj)
-{
-  lv_obj_set_style_bg_color(obj, lv_color_hex(0x000000), 0);
-  lv_obj_set_style_bg_opa(obj, LV_OPA_100, 0);
-  return obj;
-}
-// lv_font_t * my_font;
-// my_font = lv_font_load(&Dosis_Light8pt7b);
-
 static auto font_small = &lv_font_montserrat_10;
 static auto font_med = &lv_font_montserrat_14;
 static auto font_large = &lv_font_montserrat_32;
 static auto font_xlarge = &lv_font_montserrat_48;
 
-static lv_style_t style_metric_label;
-static lv_style_t style_console;
 static lv_style_t style_metric_value;
-static lv_style_t style_bg;
+static lv_style_t style_metric_label;
 lv_obj_t *hrv;
 lv_obj_t *hrv_l;
 lv_obj_t *_power;
@@ -54,7 +43,7 @@ void update_speed(std::string v) { update_value(_speed, v); }
 void vh_setup(void)
 {
   // delay(5000);
-  Serial.begin(115200); 
+  Serial.begin(115200);
   lcd.init(); // Initialize LovyanGFX
   lv_init();  // Initialize lvgl
   lv_fs_stdio_init();
@@ -98,34 +87,6 @@ void vh_loop()
     lcd.printf("Touch w:(%03d,%03d)", x, y);
   }
 #endif
-}
-
-static void velohub_theme_callback(lv_theme_t *th, lv_obj_t *obj)
-{
-  LV_UNUSED(th);
-  lv_obj_add_style(obj, &style_bg, 0);
-}
-
-static void apply_velohub_theme(void)
-{
-  lv_style_init(&style_bg);
-  lv_style_set_bg_color(&style_bg, lv_color_hex(0x000000));
-  lv_style_set_bg_opa(&style_bg, LV_OPA_100);
-
-  lv_style_init(&style_console);
-  lv_style_set_text_font(&style_console, font_med);
-
-  /*Initialize the new theme from the current theme*/
-  lv_theme_t *th_act = lv_disp_get_theme(NULL);
-  static lv_theme_t th_new;
-  th_new = *th_act;
-
-  /*Set the parent theme ans the style applay callback for the new theme*/
-  lv_theme_set_parent(&th_new, th_act);
-  lv_theme_set_apply_cb(&th_new, velohub_theme_callback);
-
-  /*Assign the new theme the the current display*/
-  lv_disp_set_theme(NULL, &th_new);
 }
 
 lv_obj_t *vh_show_value(lv_obj_t *tile, std::string label, std::string value, lv_align_t align)
@@ -203,17 +164,12 @@ static void label_event_cb(lv_event_t *e);
 void main_screen(void)
 {
   apply_velohub_theme();
-
   lv_style_init(&style_metric_label);
   lv_style_init(&style_metric_value);
-
-  lv_style_set_text_font(&style_metric_label, font_small);
-  lv_style_set_text_font(&style_metric_value, font_xlarge);
 
   lv_obj_t *p = vh_tiles_init(lv_scr_act());
 
   lv_obj_t *tile1 = vh_get_main_tile();
-  lv_obj_t *status_bar = vh_create_status_bar(tile1, lcd.width());
 
   // lv_obj_t *btn_m = lv_btn_create(tile1);
 
@@ -303,11 +259,6 @@ void touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
   }
 }
 
-void update(system_t k)
-{
-  Serial.println("update sys");
-  return;
-}
 static void label_event_cb(lv_event_t *e)
 {
   lv_obj_t *label = lv_event_get_target(e);
@@ -318,40 +269,13 @@ static void label_event_cb(lv_event_t *e)
   lv_label_set_text(label, fmt::format(formatter, v->last).c_str());
 }
 
-void publish(uint32_t topic, metric_info_t payload)
+void display_task_code(void *parameter)
 {
-  if (topic == MSG_NEW_HEADING)
-  {
-    // auto x = lv_img_get_offset_x(img);
-    // auto y = lv_img_get_offset_y(img);
-    // if (x > 255)
-    // {
-    //   x = 0;
-    // }
-    // else
-    // {
-    //   x++;
-    // }
-    // if (y > 254)
-    // {
-    //   y = 0;
-    // }
-    // else
-    // {
-    //   y++;
-    //   y++;
-    // }
-    // lv_img_set_offset_x(img, x);
-    // lv_img_set_offset_y(img, y);
-  }
-  else
-  {
-    lv_msg_send(topic, &payload);
-  }
-}
-
-
-void publish_gps(gps_data_t data)
-{
-  lv_msg_send(2222, &data);
+    Serial.println("display_task_code");
+    vh_setup();
+    for (;;)
+    {
+        vTaskDelay(2 / portTICK_PERIOD_MS);
+        vh_loop();
+    }
 }

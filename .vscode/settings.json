@@ -20,6 +20,7 @@
         "ff.h": "c",
         "esp_vfs_fat.h": "c",
         "lv_assert.h": "c",
-        "string": "cpp"
+        "string": "cpp",
+        "ffconf.h": "c"
     }
 }

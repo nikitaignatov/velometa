@@ -27,11 +27,11 @@ typedef struct
 
 class Metric
 {
-    char *name;
+    char const *name;
     std::vector<metric_t> measurements;
 
 public:
-    Metric(char *name)
+    Metric(char const *name)
     {
         this->name = name;
         reset();

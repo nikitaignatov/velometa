@@ -25,13 +25,10 @@
 #include "vh_tiles.hpp"
 #include "vh_map.hpp"
 #include "vh_status_bar.hpp"
+#include "vh_theme.hpp"
 
 
 extern uint16_t map_frequency;
 extern system_t sys;
 
-void vh_setup();
-void vh_loop();
-void update(system_t sys);
-void publish(uint32_t topic, metric_info_t payload);
-void publish_gps(gps_data_t data);
+void display_task_code(void *parameter);

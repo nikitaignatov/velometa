@@ -69,3 +69,91 @@ bool init_sdspi()
 
     return ESP_OK;
 }
+
+
+static void appendFile(fs::FS &fs, const char *path, const char *message)
+{
+    Serial.printf("Appending to file: %s\n", path);
+    File file = fs.open(path, FILE_APPEND);
+    if (!file)
+    {
+        Serial.println("Failed to open file for appending");
+        return;
+    }
+    if (file.print(message))
+    {
+        Serial.println("Message appended");
+    }
+    else
+    {
+        Serial.println("Append failed");
+    }
+    file.close();
+}
+
+
+void write_task_code(void *parameter)
+{
+    Serial.println("write_task_code");
+
+    pinMode(SD_CS, OUTPUT); //SD Card SS
+    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
+    SD.begin(SD_CS);
+    uint8_t cardType = SD.cardType();
+
+    if (cardType == CARD_NONE)
+    {
+        Serial.println("No SD card attached");
+        return;
+    }
+
+    Serial.print("SD Card Type: ");
+    if (cardType == CARD_MMC)
+    {
+        Serial.println("MMC");
+    }
+    else if (cardType == CARD_SD)
+    {
+        Serial.println("SDSC");
+    }
+    else if (cardType == CARD_SDHC)
+    {
+        Serial.println("SDHC");
+    }
+    else
+    {
+        Serial.println("UNKNOWN");
+    }
+
+    uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+    Serial.printf("SD Card Size: %lluMB\n", cardSize);
+    gps_data_t msg;
+    for (;;)
+    {
+        int count = 0;
+        std::string lines = "";
+
+        xEventGroupWaitBits(sensor_status_bits, (1 << 1), pdFALSE, pdTRUE, portMAX_DELAY);
+        // while (xQueueReceive(telemetry, &msg, 10 / portTICK_RATE_MS) == pdPASS)
+        // {
+        //     if (count == 0)
+        //     {
+        //         lines = fmt::format("{},{},{},{},{}\n", msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
+        //     }
+        //     else
+        //     {
+        //         lines = fmt::format("{}{},{},{},{},{}\n", lines, msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
+        //     }
+
+        //     count++;
+        // }
+        if (lines.length() > 1)
+        {
+            Serial.println("DUMP TO CSV:");
+            Serial.println(lines.c_str());
+            appendFile(SD, "/gps.csv", lines.c_str());
+        }
+
+        vTaskDelay(60 * 1000 / portTICK_PERIOD_MS);
+    }
+}

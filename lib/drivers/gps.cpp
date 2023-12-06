@@ -104,7 +104,6 @@ void gps_task_code(void *parameter)
 
                 if (true)
                 {
-                    publish_gps(data);
                     auto lat = gps.location.lat();
                     auto lon = gps.location.lng();
                     pixel_t p = convert_geo_to_pixel(lat, lon, 1085, 762, 12.170583828160401, (12.186787243525105 - 12.170583828160401), 55.7772468557264, 55.7772468557264 * M_PI / 180);
