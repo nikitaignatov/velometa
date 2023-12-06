@@ -3,10 +3,7 @@
 #include <Arduino.h>
 #include "types.hpp"
 #include "ble.hpp"
-#include "hr.hpp"
-#include "power.hpp"
-#include "speed.hpp"
-#include "metric.hpp"
+#include "sensor.hpp"
 #include "gps.hpp"
 #include "mock_data.hpp"
 
@@ -31,19 +28,7 @@ QueueHandle_t vh_metrics_queue;
 QueueHandle_t vh_gps_queue;
 EventGroupHandle_t sensor_status_bits;
 
-void gps_process_task_code(void *parameter)
-{
-    Serial.println("gps_task_code");
-    gps_data_t msg;
-    for (;;)
-    {
-        while (xQueueReceive(vh_gps_queue, &msg, 100 / portTICK_RATE_MS) == pdPASS)
-        {
-            // todo process gps data
-            publish(MSG_NEW_GPS_HDOP, msg);
-        }
-    }
-}
+
 
 void setup()
 {

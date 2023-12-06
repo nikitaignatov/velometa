@@ -189,3 +189,17 @@ void gps_task_code(void *parameter)
         // delay(1000);
     }
 }
+
+void gps_process_task_code(void *parameter)
+{
+    Serial.println("gps_task_code");
+    gps_data_t msg;
+    for (;;)
+    {
+        while (xQueueReceive(vh_gps_queue, &msg, 100 / portTICK_RATE_MS) == pdPASS)
+        {
+            // todo process gps data
+            publish(MSG_NEW_GPS_HDOP, msg);
+        }
+    }
+}
