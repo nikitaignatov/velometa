@@ -1,18 +1,19 @@
 #include "vh_gps.hpp"
 #include "TinyGPSPlus.h"
-lv_obj_t *tile;
-lv_obj_t *date;
-lv_obj_t *time_;
-lv_obj_t *hdop;
-lv_obj_t *speed_;
-lv_obj_t *alt;
-lv_obj_t *lat;
-lv_obj_t *lon;
-lv_obj_t *age;
-lv_obj_t *sat;
-lv_obj_t *fix;
-lv_obj_t *zoom;
-lv_obj_t *tile_path;
+
+static lv_obj_t *tile;
+static lv_obj_t *date;
+static lv_obj_t *time_;
+static lv_obj_t *hdop;
+static lv_obj_t *speed_;
+static lv_obj_t *alt;
+static lv_obj_t *lat;
+static lv_obj_t *lon;
+static lv_obj_t *age;
+static lv_obj_t *sat;
+static lv_obj_t *fix;
+static lv_obj_t *zoom;
+static lv_obj_t *tile_path;
 
 static void label_event_cb(lv_event_t *e)
 {

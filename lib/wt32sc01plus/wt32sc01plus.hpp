@@ -23,7 +23,6 @@
 
 #include "types.hpp"
 #include "vh_tiles.hpp"
-#include "vh_map.hpp"
 #include "vh_status_bar.hpp"
 #include "vh_theme.hpp"
 

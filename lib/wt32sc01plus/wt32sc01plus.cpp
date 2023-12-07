@@ -1,5 +1,5 @@
 #include "wt32sc01plus.hpp"
-static LGFX lcd;
+LGFX lcd;
 
 /*** Setup screen resolution for LVGL ***/
 static const uint16_t screenWidth = 320;
@@ -15,30 +15,12 @@ static int32_t x, y;
 /*** Function declaration ***/
 void display_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
 void touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data);
-void lv_button_demo(void);
-void lv_example_get_started_1(void);
 void main_screen(void);
 
 static auto font_small = &lv_font_montserrat_10;
 static auto font_med = &lv_font_montserrat_14;
 static auto font_large = &lv_font_montserrat_32;
 static auto font_xlarge = &lv_font_montserrat_48;
-
-static lv_style_t style_metric_value;
-static lv_style_t style_metric_label;
-lv_obj_t *hrv;
-lv_obj_t *hrv_l;
-lv_obj_t *_power;
-lv_obj_t *_speed;
-lv_obj_t *list;
-lv_obj_t *label_m;
-
-void update_value(lv_obj_t *target, std::string text) { lv_label_set_text(target, text.c_str()); }
-void update_hr(int min, int max, int avg, int value, int zone, bool connected)
-{
-}
-void update_power(std::string v) { update_value(_power, v); }
-void update_speed(std::string v) { update_value(_speed, v); }
 
 void vh_setup(void)
 {
@@ -88,60 +70,13 @@ void vh_loop()
 #endif
 }
 
-lv_obj_t *vh_show_value(lv_obj_t *tile, std::string label, std::string value, lv_align_t align)
-{
-  lv_obj_t *lbl = lv_label_create(tile);
-  lv_obj_add_style(lbl, &style_metric_label, 0);
-  lv_label_set_recolor(lbl, true);
-  lv_label_set_text(lbl, label.c_str());
-  if (LV_ALIGN_BOTTOM_LEFT == align)
-    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0, 0);
-  if (LV_ALIGN_BOTTOM_RIGHT == align)
-    lv_obj_align(lbl, LV_ALIGN_TOP_RIGHT, 0, 0);
-  if (LV_ALIGN_BOTTOM_MID == align)
-    lv_obj_align(lbl, LV_ALIGN_TOP_MID, 0, 0);
-
-  lv_obj_t *metric = lv_label_create(tile);
-  lv_obj_add_style(metric, &style_metric_value, 0);
-  lv_label_set_recolor(metric, true);
-  lv_label_set_text(metric, value.c_str());
-  lv_obj_align(metric, align, 0, 0);
-
-  return metric;
-}
-
-lv_obj_t *vh_show_hr(lv_obj_t *tile, std::string label, std::string value, lv_align_t align)
-{
-  lv_obj_t *lbl = lv_label_create(tile);
-  lv_obj_add_style(lbl, &style_metric_label, 0);
-  lv_label_set_recolor(lbl, true);
-  lv_label_set_text(lbl, label.c_str());
-  if (LV_ALIGN_BOTTOM_LEFT == align)
-    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0, 0);
-  if (LV_ALIGN_BOTTOM_RIGHT == align)
-    lv_obj_align(lbl, LV_ALIGN_TOP_RIGHT, 0, 0);
-  if (LV_ALIGN_BOTTOM_MID == align)
-    lv_obj_align(lbl, LV_ALIGN_TOP_MID, 0, 0);
-
-  lv_obj_t *metric = lv_label_create(tile);
-  lv_obj_add_style(metric, &style_metric_value, 0);
-  lv_label_set_recolor(metric, true);
-  lv_label_set_text(metric, value.c_str());
-  lv_obj_align(metric, align, 0, 0);
-
-  hrv = metric;
-  hrv_l = lbl;
-
-  return metric;
-}
-
 void event_handler(lv_event_t *e)
 {
   lv_event_code_t code = lv_event_get_code(e);
 
   if (code == LV_EVENT_CLICKED)
   {
-    // sys.mocked = sys.mocked == 1 ? 0 : 1;
+    vh_mock_data_toggle();
     LV_LOG_USER("Clicked");
   }
   else if (code == LV_EVENT_VALUE_CHANGED)
@@ -150,22 +85,9 @@ void event_handler(lv_event_t *e)
   }
 }
 
-static void slider_event_cb(lv_event_t *e)
-{
-  lv_obj_t *slider = lv_event_get_target(e);
-
-  uint8_t v = (uint8_t)lv_slider_get_value(slider);
-  lcd.setBrightness(v);
-}
-
-// static void slider_event_cb(lv_event_t *e);
-static void label_event_cb(lv_event_t *e);
 void main_screen(void)
 {
   apply_velohub_theme();
-  lv_style_init(&style_metric_label);
-  lv_style_init(&style_metric_value);
-
   lv_obj_t *p = vh_tiles_init(lv_scr_act());
 
   lv_obj_t *tile1 = vh_get_main_tile();
@@ -180,50 +102,14 @@ void main_screen(void)
   // lv_obj_set_style_bg_color(btn_m, lv_color_hex(0x999999), 0);
   // lv_obj_align(btn_m, LV_ALIGN_BOTTOM_MID, 0, 0);
 
-  // /*Tile2: a button*/
-  // lv_obj_t *label = lv_label_create(scan_tile);
-  // lv_label_set_text(label, "Set Brightness");
-
-  // // lv_obj_set_size(btn, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-  // lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
-
-  // list = label;
-
-  lv_obj_t *metrics = vh_create_container(tile1, 0, 22, lcd.width(), 100, 0x000000);
-  lv_obj_t *metrics_2 = vh_create_container(tile1, 0, 200, lcd.width() / 2, 100, 0x000000);
-  // lv_obj_set_scrollbar_mode(metrics, LV_SCROLLBAR_MODE_OFF);
-  // lv_obj_set_size(metrics, lcd.width(), 70);
-  // lv_obj_set_scrollbar_mode(metrics_2, LV_SCROLLBAR_MODE_OFF);
-  lv_obj_set_size(metrics_2, lcd.width() / 2, 70);
-  _power = vh_show_value(metrics, "#666666 Power [Watt]#", "#ffffff ----#", LV_ALIGN_BOTTOM_LEFT);
-  vh_show_hr(metrics_2, "#aa6666 *HR [bpm]#", "#999999 ---#", LV_ALIGN_BOTTOM_MID);
-  // _speed = vh_show_value(metrics, "#666666 Speed [km/h]#", "#999999 --.-#", LV_ALIGN_BOTTOM_RIGHT);
-
-  lv_obj_add_event_cb(_power, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
-  // lv_obj_add_event_cb(_speed, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
-  lv_obj_add_event_cb(hrv, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
-  // lv_msg_subsribe_obj(MSG_NEW_SPEED, _speed, (void *)"{:.1f}");
-  lv_msg_subsribe_obj(MSG_NEW_POWER, _power, (void *)"{:.0f}");
-  lv_msg_subsribe_obj(MSG_NEW_HR, hrv, (void *)"{:.0f}");
-
-  // lv_obj_t *slider = lv_slider_create(scan_tile);
-  // lv_obj_center(slider);
-  // lv_slider_set_range(slider, 1, 255);
-  // lv_obj_set_size(slider, 20, 300);
-  // lv_slider_set_value(slider, 128, lv_anim_enable_t::LV_ANIM_OFF);
-  // lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-
   // lv_obj_t *map_update_slider = lv_slider_create(tile1);
   // lv_obj_align(map_update_slider, LV_ALIGN_CENTER, 0, 25);
   // lv_slider_set_range(map_update_slider, 30, 10000);
   // lv_slider_set_value(map_update_slider, map_frequency, lv_anim_enable_t::LV_ANIM_OFF);
   // lv_obj_set_size(map_update_slider, 10, 300);
   // lv_obj_add_event_cb(map_update_slider, map_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-
-  // vh_map_init(tile1);
 }
 
-/*** Display callback to flush the buffer to screen ***/
 void display_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
   uint32_t w = (area->x2 - area->x1 + 1);
@@ -231,7 +117,7 @@ void display_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 
   lcd.startWrite();
   lcd.setAddrWindow(area->x1, area->y1, w, h);
-  lcd.pushColors((uint16_t *)&color_p->full, w * h, true);
+  lcd.pushPixels((uint16_t *)&color_p->full, w * h, true);
   lcd.endWrite();
 
   lv_disp_flush_ready(disp);
@@ -250,31 +136,19 @@ void touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
   else
   {
     data->state = LV_INDEV_STATE_PR;
-
-    /*Set the coordinates*/
     data->point.x = touchX;
     data->point.y = touchY;
     // Serial.printf("Touch (x,y): (%03d,%03d)\n",touchX,touchY );
   }
 }
 
-static void label_event_cb(lv_event_t *e)
-{
-  lv_obj_t *label = lv_event_get_target(e);
-  lv_msg_t *m = lv_event_get_msg(e);
-
-  const char *formatter = (char *)lv_msg_get_user_data(m);
-  const metric_info_t *v = (metric_info_t *)lv_msg_get_payload(m);
-  lv_label_set_text(label, fmt::format(formatter, v->last).c_str());
-}
-
 void display_task_code(void *parameter)
 {
-    Serial.println("display_task_code");
-    vh_setup();
-    for (;;)
-    {
-        vTaskDelay(2 / portTICK_PERIOD_MS);
-        vh_loop();
-    }
+  Serial.println("display_task_code");
+  vh_setup();
+  for (;;)
+  {
+    vTaskDelay(2 / portTICK_PERIOD_MS);
+    vh_loop();
+  }
 }

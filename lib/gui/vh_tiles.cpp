@@ -74,6 +74,10 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     lv_obj_t *btn_next = create_btn(parent, true);
     lv_obj_t *btn_prev = create_btn(parent, false);
 
+    vh_create_brightness_slider(scan_tile);
+    vh_map_init(map_tile);
+
     auto *p = vh_gps_tile_create(gps_tile);
+
     return tv;
 }
