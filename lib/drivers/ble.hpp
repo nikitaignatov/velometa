@@ -23,7 +23,7 @@ enum metric_type_t
 
 typedef struct
 {
-    char device_name[20];
+    std::string device_name;
     metric_type_t metric;
     BLEUUID service_id;
     BLEUUID characteristic_id;

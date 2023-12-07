@@ -44,7 +44,7 @@ void setup()
     vh_gps_queue = xQueueCreate(120, sizeof(gps_data_t));
 
     ble_sensors.push_back((sensor_definition_t){
-        {.device_name = DEVICE_NAME_HR},
+        .device_name = DEVICE_NAME_HR,
         .metric = metric_type_t::HR_BPM,
         .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
         .characteristic_id = BLEUUID((uint16_t)0x2A37),
@@ -54,7 +54,7 @@ void setup()
         .enabled = true,
     });
     ble_sensors.push_back((sensor_definition_t){
-        {.device_name = DEVICE_NAME_HR2},
+        .device_name = DEVICE_NAME_HR2,
         .metric = metric_type_t::HR_BPM,
         .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
         .characteristic_id = BLEUUID((uint16_t)0x2A37),
@@ -64,7 +64,7 @@ void setup()
         .enabled = true,
     });
     ble_sensors.push_back((sensor_definition_t){
-        {.device_name = DEVICE_NAME_POWER},
+        .device_name = DEVICE_NAME_POWER,
         .metric = metric_type_t::POWER_WATT,
         .service_id = BLEUUID("00001818-0000-1000-8000-00805f9b34fb"),
         .characteristic_id = BLEUUID((uint16_t)0x2A63),
@@ -74,7 +74,7 @@ void setup()
         .enabled = true,
     });
     ble_sensors.push_back((sensor_definition_t){
-        {.device_name = DEVICE_NAME_SPEED},
+        .device_name = DEVICE_NAME_SPEED,
         .metric = metric_type_t::SPEED_WHEEL_RPM,
         .service_id = BLEUUID("00001816-0000-1000-8000-00805f9b34fb"),
         .characteristic_id = BLEUUID((uint16_t)0x2A5B),

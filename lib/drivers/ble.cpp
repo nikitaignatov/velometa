@@ -71,7 +71,8 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
             if (device.haveServiceUUID() && device.isAdvertisingService(sensor.service_id))
             {
                 Serial.printf("%s scan result: %s\n", sensor.device_name, device.getName().c_str());
-                if (String(device.getName().c_str()).equalsIgnoreCase(String(sensor.device_name)))
+                // TODO: 
+                if (String(device.getName().c_str()).equalsIgnoreCase(String(sensor.device_name.c_str())))
                 {
                     Serial.println("scan result match");
                     sensor.address = BLEAddress(device.getAddress());
