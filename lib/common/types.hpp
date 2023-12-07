@@ -21,7 +21,6 @@ extern QueueHandle_t vh_metrics_queue;
 extern QueueHandle_t vh_gps_queue;
 extern EventGroupHandle_t sensor_status_bits;
 
-void vh_mock_data_toggle();
 typedef enum
 {
     heartrate = 0,       // bpm

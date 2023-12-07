@@ -3,11 +3,11 @@
 int active = 0;
 
 lv_obj_t *tv;
-lv_obj_t *tile1;
+lv_obj_t *dashboard_tile;
 lv_obj_t *scan_tile;
 lv_obj_t *map_tile;
 
-lv_obj_t *vh_get_main_tile() { return tile1; }
+lv_obj_t *vh_get_main_tile() { return dashboard_tile; }
 lv_obj_t *vh_get_settings_tile() { return scan_tile; }
 lv_obj_t *vh_get_map_tile() { return map_tile; }
 
@@ -65,17 +65,19 @@ lv_obj_t *create_btn(lv_obj_t *parent, bool next)
 lv_obj_t *vh_tiles_init(lv_obj_t *parent)
 {
     tv = lv_tileview_create(parent);
-    tile1 = lv_tileview_add_tile(tv, 0, 0, LV_DIR_RIGHT);
-    scan_tile = lv_tileview_add_tile(tv, 1, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
-    map_tile = lv_tileview_add_tile(tv, 2, 0, LV_DIR_LEFT);
-    lv_obj_t *tile4 = lv_tileview_add_tile(tv, 3, 0, LV_DIR_LEFT);
-    lv_obj_t *tile5 = lv_tileview_add_tile(tv, 4, 0, LV_DIR_LEFT);
-    lv_obj_t *gps_tile = lv_tileview_add_tile(tv, 5, 0, LV_DIR_LEFT);
+    dashboard_tile = lv_tileview_add_tile(tv, 0, 0, LV_DIR_NONE);
+    scan_tile = lv_tileview_add_tile(tv, 1, 0, LV_DIR_NONE);
+    map_tile = lv_tileview_add_tile(tv, 2, 0, LV_DIR_NONE);
+    lv_obj_t *tile4 = lv_tileview_add_tile(tv, 3, 0, LV_DIR_NONE);
+    lv_obj_t *tile5 = lv_tileview_add_tile(tv, 4, 0, LV_DIR_NONE);
+    lv_obj_t *gps_tile = lv_tileview_add_tile(tv, 5, 0, LV_DIR_NONE);
     lv_obj_t *btn_next = create_btn(parent, true);
     lv_obj_t *btn_prev = create_btn(parent, false);
 
     vh_create_brightness_slider(scan_tile);
     vh_map_init(map_tile);
+    vh_create_dashboard(dashboard_tile);
+    vh_create_mock_btn(dashboard_tile);
 
     auto *p = vh_gps_tile_create(gps_tile);
 

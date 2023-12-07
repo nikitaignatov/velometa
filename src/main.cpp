@@ -7,7 +7,7 @@
 #include "gps.hpp"
 #include "mock_data.hpp"
 
-uint16_t map_frequency = 2000;
+uint16_t map_frequency = 200;
 
 #define DEVELOPMENT
 

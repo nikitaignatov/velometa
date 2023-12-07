@@ -15,3 +15,5 @@
 #include "lgfx.hpp"
 
 extern LGFX lcd;
+
+void vh_create_dashboard(lv_obj_t *parent);
