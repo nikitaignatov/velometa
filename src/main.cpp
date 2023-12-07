@@ -28,8 +28,6 @@ QueueHandle_t vh_metrics_queue;
 QueueHandle_t vh_gps_queue;
 EventGroupHandle_t sensor_status_bits;
 
-
-
 void setup()
 {
     Serial.begin(115200);
