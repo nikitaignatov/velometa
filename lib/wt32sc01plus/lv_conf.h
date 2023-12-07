@@ -168,48 +168,23 @@
 #if LV_ENABLE_GC != 0
 #define LV_GC_INCLUDE "gc.h" /*Include Garbage Collector related things*/
 #endif                       /*LV_ENABLE_GC*/
-
 /*=====================
  *  COMPILER SETTINGS
  *====================*/
-
-/*For big endian systems set to 1*/
-#define LV_BIG_ENDIAN_SYSTEM 0
-
-/*Define a custom attribute to `lv_tick_inc` function*/
-#define LV_ATTRIBUTE_TICK_INC
-
-/*Define a custom attribute to `lv_timer_handler` function*/
-#define LV_ATTRIBUTE_TIMER_HANDLER
-
-/*Define a custom attribute to `lv_disp_flush_ready` function*/
-#define LV_ATTRIBUTE_FLUSH_READY
-
-/*Required alignment size for buffers*/
-#define LV_ATTRIBUTE_MEM_ALIGN_SIZE 1
-
+#define LV_BIG_ENDIAN_SYSTEM 0        /*For big endian systems set to 1*/
+#define LV_ATTRIBUTE_TICK_INC         /*Define a custom attribute to `lv_tick_inc` function*/
+#define LV_ATTRIBUTE_TIMER_HANDLER    /*Define a custom attribute to `lv_timer_handler` function*/
+#define LV_ATTRIBUTE_FLUSH_READY      /*Define a custom attribute to `lv_disp_flush_ready` function*/
+#define LV_ATTRIBUTE_MEM_ALIGN_SIZE 1 /*Required alignment size for buffers*/
 /*Will be added where memories needs to be aligned (with -Os data might not be aligned to boundary by default).
  * E.g. __attribute__((aligned(4)))*/
 #define LV_ATTRIBUTE_MEM_ALIGN
-
-/*Attribute to mark large constant arrays for example font's bitmaps*/
-#define LV_ATTRIBUTE_LARGE_CONST
-
-/*Complier prefix for a big array declaration in RAM*/
-#define LV_ATTRIBUTE_LARGE_RAM_ARRAY
-
-/*Place performance critical functions into a faster memory (e.g RAM)*/
-#define LV_ATTRIBUTE_FAST_MEM
-
-/*Prefix variables that are used in GPU accelerated operations, often these need to be placed in RAM sections that are DMA accessible*/
-#define LV_ATTRIBUTE_DMA
-
-/*Export integer constant to binding. This macro is used with constants in the form of LV_<CONST> that
- *should also appear on LVGL binding API such as Micropython.*/
+#define LV_ATTRIBUTE_LARGE_CONST                                   /*Attribute to mark large constant arrays for example font's bitmaps*/
+#define LV_ATTRIBUTE_LARGE_RAM_ARRAY                               /*Complier prefix for a big array declaration in RAM*/
+#define LV_ATTRIBUTE_FAST_MEM                                      /*Place performance critical functions into a faster memory (e.g RAM)*/
+#define LV_ATTRIBUTE_DMA                                           /*Prefix variables that are used in GPU accelerated operations, often these need to be placed in RAM sections that are DMA accessible*/
 #define LV_EXPORT_CONST_INT(int_value) struct _silence_gcc_warning /*The default value just prevents GCC warning*/
-
-/*Extend the default -32k..32k coordinate range to -4M..4M by using int32_t for coordinates instead of int16_t*/
-#define LV_USE_LARGE_COORD 0
+#define LV_USE_LARGE_COORD 0                                       /*Extend the default -32k..32k coordinate range to -4M..4M by using int32_t for coordinates instead of int16_t*/
 /*==================
  *   FONT USAGE
  *===================*/
@@ -357,8 +332,8 @@
  *----------*/
 #define LV_USE_THEME_DEFAULT 1
 #if LV_USE_THEME_DEFAULT
-#define LV_THEME_DEFAULT_DARK 1 /*0: Light mode; 1: Dark mode*/
-#define LV_THEME_DEFAULT_GROW 1 /*1: Enable grow on press*/
+#define LV_THEME_DEFAULT_DARK 1            /*0: Light mode; 1: Dark mode*/
+#define LV_THEME_DEFAULT_GROW 1            /*1: Enable grow on press*/
 #define LV_THEME_DEFAULT_TRANSITION_TIME 0 /*Default transition time in [ms]*/
 #endif                                     /*LV_USE_THEME_DEFAULT*/
 #define LV_USE_THEME_BASIC 1

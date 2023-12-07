@@ -47,7 +47,6 @@ void vh_setup(void)
   lcd.init(); // Initialize LovyanGFX
   lv_init();  // Initialize lvgl
   lv_fs_stdio_init();
-  lv_png_init();
 
   // Setting display to landscape
   if (lcd.width() < lcd.height())
