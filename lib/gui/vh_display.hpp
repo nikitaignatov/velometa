@@ -2,6 +2,7 @@
 #pragma once
 
 #include <lvgl.h>
+#include "esp32-hal-log.h"
 #include "types.hpp"
 
 void publish(uint32_t topic, metric_info_t payload);

@@ -17,11 +17,6 @@ void display_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 void touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data);
 void main_screen(void);
 
-static auto font_small = &lv_font_montserrat_10;
-static auto font_med = &lv_font_montserrat_14;
-static auto font_large = &lv_font_montserrat_32;
-static auto font_xlarge = &lv_font_montserrat_48;
-
 void vh_setup(void)
 {
   // delay(5000);
@@ -68,6 +63,9 @@ void vh_loop()
     lcd.printf("Touch w:(%03d,%03d)", x, y);
   }
 #endif
+
+  // Serial.print("stack::disaplay::");
+  // Serial.println(uxTaskGetStackHighWaterMark(NULL));
 }
 
 void main_screen(void)
@@ -124,6 +122,14 @@ void display_task_code(void *parameter)
   for (;;)
   {
     vTaskDelay(2 / portTICK_PERIOD_MS);
-    vh_loop();
+    if (xSemaphoreTake(vh_display_semaphore, (TickType_t)10) == pdTRUE)
+    {
+      vh_loop();
+      xSemaphoreGive(vh_display_semaphore);
+    }
+    else
+    {
+      ESP_LOGE("display_task_code", "failed to take semaphor");
+    }
   }
 }

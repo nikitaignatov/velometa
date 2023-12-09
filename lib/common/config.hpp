@@ -1,5 +1,6 @@
 #include "esp_log.h"
 
+#define DEVELOPMENT 
 #define SETUP 1
 
 #if SETUP == 1
@@ -33,4 +34,4 @@
 #define MSG_NEW_POWER 2
 #define MSG_NEW_HR 3
 #define MSG_NEW_HEADING 4
-#define MSG_NEW_GPS_HDOP 5
+#define MSG_NEW_GPS 5

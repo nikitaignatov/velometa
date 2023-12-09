@@ -1,6 +1,8 @@
 #include "vh_gps.hpp"
 #include "TinyGPSPlus.h"
 
+static const char *TAG = "vh_gps";
+
 static lv_obj_t *tile;
 static lv_obj_t *date;
 static lv_obj_t *time_;
@@ -17,25 +19,43 @@ static lv_obj_t *tile_path;
 
 static void label_event_cb(lv_event_t *e)
 {
-    lv_obj_t *label = lv_event_get_target(e);
-    lv_msg_t *m = lv_event_get_msg(e);
-
-    // const char *formatter = (char *)lv_msg_get_user_data(m);
-    const gps_data_t *v = (gps_data_t *)lv_msg_get_payload(m);
-
-    int zoom = 15;
-    if (m->id == 2222)
+    auto m = lv_event_get_msg(e);
+    if (!m)
     {
+        ESP_LOGE(TAG, "label_event_cb::msg::empty");
+        return;
+    }
+    if (m->id != MSG_NEW_GPS)
+    {
+        ESP_LOGE(TAG, "msg->id invlaid=%d, exected=%d", m->id, MSG_NEW_GPS);
+        return;
+    }
+    auto p = lv_msg_get_payload(m);
+    if (!p)
+    {
+        ESP_LOGE(TAG, "msg payload is missing");
+        return;
+    }
+    auto v = (gps_data_t *)p;
+    if (v && v->tick_ms > 0)
+    {
+        int zoom = 15;
+        Serial.println("update gps");
         lv_label_set_text(hdop, fmt::format("HDOP: {}", v->hdop).c_str());
         lv_label_set_text(date, fmt::format("D: {}", v->tick_ms).c_str());
         lv_label_set_text(time_, fmt::format("T: {}", v->tick_ms).c_str());
         lv_label_set_text(lat, fmt::format("LAT: {:.5f}", v->lat).c_str());
         lv_label_set_text(lon, fmt::format("LON: {:.5f}", v->lon).c_str());
+        vTaskDelay(1 / portTICK_PERIOD_MS);
         lv_label_set_text(speed_, fmt::format("SPD: {:.2f}", v->speed).c_str());
         lv_label_set_text(alt, fmt::format("ALT: {}", v->height).c_str());
         lv_label_set_text(age, fmt::format("AGE: {}", v->age).c_str());
         lv_label_set_text(sat, fmt::format("SAT: {}", v->satelites).c_str());
         lv_label_set_text(fix, fmt::format("FIX: {}", v->has_fix).c_str());
+    }
+    else
+    {
+        ESP_LOGE(TAG, "gps data is invalid or outdated.");
     }
 }
 
@@ -43,7 +63,7 @@ lv_obj_t *vh_gps_tile_create(lv_obj_t *parent)
 {
     tile = vh_create_container(parent, 320, 480);
     lv_obj_center(tile);
-    lv_msg_subsribe_obj(2222, tile, 0);
+    lv_msg_subsribe_obj(MSG_NEW_GPS, tile, 0);
     lv_obj_add_event_cb(tile, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
 
     speed_ = lv_label_create(tile);

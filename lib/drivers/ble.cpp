@@ -39,6 +39,10 @@ void ble_task_code(void *parameter)
                 init_scan();
             }
         }
+
+        // Serial.print("stack::ble::");
+        // Serial.println(uxTaskGetStackHighWaterMark(NULL));
+
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 }

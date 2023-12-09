@@ -77,7 +77,7 @@
 #define LV_IMG_CACHE_DEF_SIZE 1
 
 /*Maximum buffer size to allocate for rotation. Only used if software rotation is enabled in the display driver.*/
-#define LV_DISP_ROT_MAX_BUF (16 * 1024)
+#define LV_DISP_ROT_MAX_BUF (12 * 1024)
 
 /*-------------
  * GPU
@@ -101,7 +101,7 @@
  *LV_LOG_LEVEL_ERROR       Only critical issue, when the system may fail
  *LV_LOG_LEVEL_USER        Only logs added by the user
  *LV_LOG_LEVEL_NONE        Do not log anything*/
-#define LV_LOG_LEVEL LV_LOG_LEVEL_INFO
+#define LV_LOG_LEVEL LV_LOG_LEVEL_WARN
 
 /*1: Print the log with 'printf';
  *0: User need to register a callback with `lv_log_register_print_cb()`*/

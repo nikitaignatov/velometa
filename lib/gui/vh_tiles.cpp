@@ -41,9 +41,9 @@ lv_obj_t *create_btn(lv_obj_t *parent, bool next)
 {
     int offset = 15;
     int size = 50;
-    lv_color_t color = lv_color_hex(0x090909);
-    lv_obj_t *btn = lv_btn_create(parent);
-    lv_obj_t *label = lv_label_create(btn);
+    auto color = lv_color_hex(0x090909);
+    auto btn = lv_btn_create(parent);
+    auto label = lv_label_create(btn);
     lv_obj_set_style_bg_color(label, color, 0);
     lv_obj_set_style_bg_color(btn, color, 0);
     lv_obj_set_size(btn, size, size);
@@ -68,18 +68,18 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     dashboard_tile = lv_tileview_add_tile(tv, 0, 0, LV_DIR_NONE);
     scan_tile = lv_tileview_add_tile(tv, 1, 0, LV_DIR_NONE);
     map_tile = lv_tileview_add_tile(tv, 2, 0, LV_DIR_NONE);
-    lv_obj_t *tile4 = lv_tileview_add_tile(tv, 3, 0, LV_DIR_NONE);
-    lv_obj_t *tile5 = lv_tileview_add_tile(tv, 4, 0, LV_DIR_NONE);
-    lv_obj_t *gps_tile = lv_tileview_add_tile(tv, 5, 0, LV_DIR_NONE);
-    lv_obj_t *btn_next = create_btn(parent, true);
-    lv_obj_t *btn_prev = create_btn(parent, false);
+    auto tile4 = lv_tileview_add_tile(tv, 3, 0, LV_DIR_NONE);
+    auto tile5 = lv_tileview_add_tile(tv, 4, 0, LV_DIR_NONE);
+    auto gps_tile = lv_tileview_add_tile(tv, 5, 0, LV_DIR_NONE);
+    auto btn_next = create_btn(parent, true);
+    auto btn_prev = create_btn(parent, false);
 
     vh_create_brightness_slider(scan_tile);
     vh_map_init(map_tile);
     vh_create_dashboard(dashboard_tile);
-    vh_create_mock_btn(dashboard_tile);
+    vh_create_mock_btn(parent);
 
-    auto *p = vh_gps_tile_create(gps_tile);
+    auto p = vh_gps_tile_create(gps_tile);
 
     return tv;
 }

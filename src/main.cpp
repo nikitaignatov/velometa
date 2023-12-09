@@ -1,3 +1,5 @@
+
+#include "config.hpp"
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <Arduino.h>
@@ -7,9 +9,9 @@
 #include "gps.hpp"
 #include "mock_data.hpp"
 
-uint16_t map_frequency = 200;
+uint16_t map_frequency = 150;
+SemaphoreHandle_t vh_display_semaphore;
 
-#define DEVELOPMENT
 
 #if USE_EPAPER
 #include "display_420.hpp"
@@ -32,6 +34,12 @@ void setup()
 {
     Serial.begin(115200);
     Serial.println("VeloHUB");
+
+    vh_display_semaphore = xSemaphoreCreateMutex();
+    if (vh_display_semaphore == NULL)
+    {
+        Serial.println("Failed to create display semaphore");
+    }
 
 #ifdef DEVELOPMENT
     delay(4000);
@@ -100,7 +108,7 @@ void setup()
     xTaskCreatePinnedToCore(
         display_task_code, /* Function to implement the task */
         "display_task",    /* Name of the task */
-        16 * 1024,         /* Stack size in words */
+        24 * 1024,         /* Stack size in words */
         NULL,              /* Task input parameter */
         0,                 /* Priority of the task */
         &display_task,     /* Task handle. */
@@ -110,7 +118,7 @@ void setup()
     xTaskCreatePinnedToCore(
         mock_task_code, /* Function to implement the task */
         "mock_task",    /* Name of the task */
-        4 * 1024,       /* Stack size in words */
+        8 * 1024,       /* Stack size in words */
         NULL,           /* Task input parameter */
         0,              /* Priority of the task */
         NULL,           /* Task handle. */

@@ -12,6 +12,7 @@
 #include "config.hpp"
 #include "types.hpp"
 #include "vh_container.hpp"
+#include "vh_fonts.hpp"
 #include "lgfx.hpp"
 
 extern LGFX lcd;

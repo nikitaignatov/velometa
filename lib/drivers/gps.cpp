@@ -199,7 +199,7 @@ void gps_process_task_code(void *parameter)
         while (xQueueReceive(vh_gps_queue, &msg, 100 / portTICK_RATE_MS) == pdPASS)
         {
             // todo process gps data
-            publish(MSG_NEW_GPS_HDOP, msg);
+            publish(MSG_NEW_GPS, msg);
         }
     }
 }

@@ -8,6 +8,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/event_groups.h"
+#include "semphr.h"
 
 #define VH_SENSOR_BIT_MOCK_DATA 1
 #define VH_SENSOR_BIT_GPS_READY 2
@@ -20,6 +21,8 @@ extern QueueHandle_t vh_raw_measurement_queue;
 extern QueueHandle_t vh_metrics_queue;
 extern QueueHandle_t vh_gps_queue;
 extern EventGroupHandle_t sensor_status_bits;
+extern SemaphoreHandle_t vh_display_semaphore;
+
 
 typedef enum
 {
@@ -136,7 +139,8 @@ typedef struct
     double hdop;
     double age;
     bool has_fix;
-    int satelites;
+    uint32_t satelites;
+    bool mocked;
 } gps_data_t;
 
 extern void publish_gps(gps_data_t data);
