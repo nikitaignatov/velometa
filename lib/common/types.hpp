@@ -23,7 +23,6 @@ extern QueueHandle_t vh_gps_queue;
 extern EventGroupHandle_t sensor_status_bits;
 extern SemaphoreHandle_t vh_display_semaphore;
 
-
 typedef enum
 {
     heartrate = 0,       // bpm
@@ -142,6 +141,51 @@ typedef struct
     uint32_t satelites;
     bool mocked;
 } gps_data_t;
+typedef struct
+{
+    uint32_t tick;
+    double hr;
+    double power;
+    double speed;
+    double cadence;
+    double temperature;
+    double pressure;
+    double humidity;
+    double lat;
+    double lon;
+    double speed_gps;
+    double elevation_gps;
+    uint32_t satelites;
+    bool mocked;
+} raw_telemetry_data_t;
+typedef struct
+{
+    uint32_t tick;
+    uint16_t power;
+    uint16_t speed;
+    uint16_t pressure;
+    uint32_t lat;
+    uint32_t lon;
+    uint16_t speed_gps;
+    uint8_t hr;
+    uint8_t cadence;
+    uint8_t elevation_gps;
+    uint8_t satelites;
+    uint8_t humidity;
+    uint8_t temperature;
+} raw_telemetry_data1_t;
+typedef struct
+{
+    uint16_t tick;
+    uint16_t power;
+    uint16_t speed;
+    uint8_t hr;
+    uint8_t cadence;
+    uint32_t lat;
+    uint32_t lon;
+} raw_telemetry_data2_t;
+
+// int k = sizeof(raw_telemetry_data2_t);
 
 extern void publish_gps(gps_data_t data);
 

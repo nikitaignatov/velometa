@@ -38,13 +38,13 @@ void mock_task_code(void *parameter)
         publish(MSG_NEW_SPEED, s);
         m = {
             .ts = 0,
-            .value = (float)random(45, 200) / (float)1,
+            .value = (float)random(110, 200) / (float)1,
         };
         h = update_stats(h, m);
         publish(MSG_NEW_HR, h);
         m = {
             .ts = 0,
-            .value = (float)random(90, 300) / (float)1,
+            .value = (float)random(10, 600) / (float)1,
         };
         p = update_stats(p, m);
         publish(MSG_NEW_POWER, p);

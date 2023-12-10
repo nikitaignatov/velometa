@@ -61,7 +61,7 @@ void sensor_task_code(void *parameter)
                 n = update_stats(activity.power, m);
                 activity.power = n;
 
-                publish(MSG_NEW_POWER, n);
+                // publish(MSG_NEW_POWER, n);
 
                 break;
             case measurement_t::speed:
@@ -73,7 +73,7 @@ void sensor_task_code(void *parameter)
                 n = update_stats(activity.speed, m);
                 activity.speed = n;
 
-                publish(MSG_NEW_SPEED, n);
+                // publish(MSG_NEW_SPEED, n);
                 // Serial.printf("SPEED\t: %.2f km/h\n", msg.value / (float_t)msg.scale);
                 break;
             case measurement_t::elevation:

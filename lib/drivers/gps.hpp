@@ -1,6 +1,8 @@
 #ifndef _VELOHUB_GPS_HPP_
 #define _VELOHUB_GPS_HPP_
 
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include "config.hpp"
 #include "types.hpp"
 #include "vh_display.hpp" // TODO: this should not be here
@@ -8,6 +10,7 @@
 #include <float.h>
 #include <math.h>
 #include <TinyGPSPlus.h>
+
 
 struct pixel_t
 {

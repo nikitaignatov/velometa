@@ -225,7 +225,7 @@
 /*Optionally declare custom fonts here.
  *You can use these fonts as default font too and they will be available globally.
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
-#define LV_FONT_CUSTOM_DECLARE  LV_FONT_DECLARE(simplymono8) LV_FONT_DECLARE(simplymono12) LV_FONT_DECLARE(simplymono16) LV_FONT_DECLARE(simplymono24) LV_FONT_DECLARE(simplymono32) LV_FONT_DECLARE(simplymono48) LV_FONT_DECLARE(simplymono64) 
+#define LV_FONT_CUSTOM_DECLARE  LV_FONT_DECLARE(simplymono8) LV_FONT_DECLARE(simplymono12) LV_FONT_DECLARE(simplymono16) LV_FONT_DECLARE(simplymono24) LV_FONT_DECLARE(simplymono32) LV_FONT_DECLARE(simplymono48) LV_FONT_DECLARE(simplymono_bold48) LV_FONT_DECLARE(simplymono64) 
 
 /*Always set a default font*/
 #define LV_FONT_DEFAULT &simplymono16

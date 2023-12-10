@@ -42,16 +42,16 @@ static void label_event_cb(lv_event_t *e)
         int zoom = 15;
         Serial.println("update gps");
         lv_label_set_text(hdop, fmt::format("HDOP: {}", v->hdop).c_str());
-        lv_label_set_text(date, fmt::format("D: {}", v->tick_ms).c_str());
-        lv_label_set_text(time_, fmt::format("T: {}", v->tick_ms).c_str());
-        lv_label_set_text(lat, fmt::format("LAT: {:.5f}", v->lat).c_str());
-        lv_label_set_text(lon, fmt::format("LON: {:.5f}", v->lon).c_str());
+        lv_label_set_text(date, fmt::format("D   : {}", v->tick_ms).c_str());
+        lv_label_set_text(time_, fmt::format("T   : {}", v->tick_ms).c_str());
+        lv_label_set_text(lat, fmt::format("LAT : {:.5f}", v->lat).c_str());
+        lv_label_set_text(lon, fmt::format("LON : {:.5f}", v->lon).c_str());
         vTaskDelay(1 / portTICK_PERIOD_MS);
-        lv_label_set_text(speed_, fmt::format("SPD: {:.2f}", v->speed).c_str());
-        lv_label_set_text(alt, fmt::format("ALT: {}", v->height).c_str());
-        lv_label_set_text(age, fmt::format("AGE: {}", v->age).c_str());
-        lv_label_set_text(sat, fmt::format("SAT: {}", v->satelites).c_str());
-        lv_label_set_text(fix, fmt::format("FIX: {}", v->has_fix).c_str());
+        lv_label_set_text(speed_, fmt::format("SPD : {:.2f}", v->speed).c_str());
+        lv_label_set_text(alt, fmt::format("ALT : {}", v->height).c_str());
+        lv_label_set_text(age, fmt::format("AGE : {}", v->age).c_str());
+        lv_label_set_text(sat, fmt::format("SAT : {}", v->satelites).c_str());
+        lv_label_set_text(fix, fmt::format(v->has_fix ? "FIX : #009900 {}#" : "FIX : #990000 {}#", v->has_fix).c_str());
     }
     else
     {
@@ -78,6 +78,8 @@ lv_obj_t *vh_gps_tile_create(lv_obj_t *parent)
     sat = lv_label_create(tile);
     fix = lv_label_create(tile);
     tile_path = lv_label_create(tile);
+
+    lv_label_set_recolor(fix, true);
 
     lv_obj_align(date, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_obj_align(time_, LV_ALIGN_TOP_LEFT, 0, 20);

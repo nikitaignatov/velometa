@@ -70,7 +70,6 @@ bool init_sdspi()
     return ESP_OK;
 }
 
-
 static void appendFile(fs::FS &fs, const char *path, const char *message)
 {
     Serial.printf("Appending to file: %s\n", path);
@@ -90,7 +89,6 @@ static void appendFile(fs::FS &fs, const char *path, const char *message)
     }
     file.close();
 }
-
 
 void write_task_code(void *parameter)
 {
@@ -134,26 +132,38 @@ void write_task_code(void *parameter)
         std::string lines = "";
 
         xEventGroupWaitBits(sensor_status_bits, (1 << 1), pdFALSE, pdTRUE, portMAX_DELAY);
-        // while (xQueueReceive(telemetry, &msg, 10 / portTICK_RATE_MS) == pdPASS)
-        // {
-        //     if (count == 0)
-        //     {
-        //         lines = fmt::format("{},{},{},{},{}\n", msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
-        //     }
-        //     else
-        //     {
-        //         lines = fmt::format("{}{},{},{},{},{}\n", lines, msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
-        //     }
-
-        //     count++;
-        // }
-        if (lines.length() > 1)
+        if (xSemaphoreTake(vh_display_semaphore, (TickType_t)20) == pdTRUE)
         {
-            Serial.println("DUMP TO CSV:");
-            Serial.println(lines.c_str());
-            appendFile(SD, "/gps.csv", lines.c_str());
-        }
+            while (xQueueReceive(vh_gps_queue, &msg, 10 / portTICK_RATE_MS) == pdPASS)
+            {
+                if (msg.mocked)
+                {
+                    continue;
+                }
+                if (count == 0)
+                {
+                    lines = fmt::format("{},{},{},{},{}\n", msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
+                }
+                else
+                {
+                    lines = fmt::format("{}{},{},{},{},{}\n", lines, msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
+                }
 
-        vTaskDelay(60 * 1000 / portTICK_PERIOD_MS);
+                count++;
+            }
+            if (lines.length() > 1)
+            {
+                Serial.println("DUMP TO CSV:");
+                Serial.println(lines.c_str());
+                appendFile(SD, "/gps.csv", lines.c_str());
+            }
+
+            xSemaphoreGive(vh_display_semaphore);
+            vTaskDelay(60 * 1000 / portTICK_PERIOD_MS);
+        }
+        else
+        {
+            ESP_LOGE("metric_info_t", "failed to take semaphor");
+        }
     }
 }

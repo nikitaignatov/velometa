@@ -9,9 +9,8 @@
 #include "gps.hpp"
 #include "mock_data.hpp"
 
-uint16_t map_frequency = 150;
+uint16_t map_frequency = 500;
 SemaphoreHandle_t vh_display_semaphore;
-
 
 #if USE_EPAPER
 #include "display_420.hpp"
@@ -29,6 +28,7 @@ QueueHandle_t vh_raw_measurement_queue;
 QueueHandle_t vh_metrics_queue;
 QueueHandle_t vh_gps_queue;
 EventGroupHandle_t sensor_status_bits;
+int n_elements = 4* 3600;
 
 void setup()
 {
@@ -44,6 +44,33 @@ void setup()
 #ifdef DEVELOPMENT
     delay(4000);
 #endif
+    //PSRAM Initialisation
+    if (psramInit())
+    {
+        Serial.println("\nThe PSRAM is correctly initialized");
+    }
+    else
+    {
+        Serial.println("\nPSRAM does not work");
+    }
+
+    //Create an array of n_elements
+    int available_PSRAM_size = ESP.getFreePsram();
+    Serial.println((String) "PSRAM Size available (bytes): " + available_PSRAM_size);
+
+    raw_telemetry_data2_t *telemetry = (raw_telemetry_data2_t *)ps_malloc(n_elements * sizeof(raw_telemetry_data2_t)); //Create an integer array of n_elements
+    telemetry[0] = (raw_telemetry_data2_t){};
+    telemetry[999] = (raw_telemetry_data2_t){}; //We access array values like classic array
+
+    int available_PSRAM_size_after = ESP.getFreePsram();
+    Serial.println((String) "PSRAM Size available (bytes): " + available_PSRAM_size_after); // Free memory space has decreased
+    int array_size = available_PSRAM_size - available_PSRAM_size_after;
+    Serial.println((String) "Array size in PSRAM in bytes: " + array_size);
+
+    //Delete array
+    free(telemetry); //The allocated memory is freed.
+    Serial.println((String) "PSRAM Size available (bytes): " + ESP.getFreePsram());
+
     sensor_status_bits = xEventGroupCreate();
 
     vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
@@ -158,6 +185,16 @@ void setup()
         0,               /* Priority of the task */
         &gps_task,       /* Task handle. */
         1);              /* Core where the task should run */
+#endif
+#ifdef FEATURE_GPS_ENABLED
+    xTaskCreatePinnedToCore(
+        gps_process_task_code,   /* Function to implement the task */
+        "gps_process_task_code", /* Name of the task */
+        4 * 1024,                /* Stack size in words */
+        NULL,                    /* Task input parameter */
+        0,                       /* Priority of the task */
+        &gps_task,               /* Task handle. */
+        1);                      /* Core where the task should run */
 #endif
 
     vTaskDelete(NULL);
