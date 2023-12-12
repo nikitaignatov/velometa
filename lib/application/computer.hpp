@@ -2,8 +2,10 @@
 
 #include "types.hpp"
 #include "metric.hpp"
+#include <algorithm>
+
 const uint16_t H_SECONDS = 3600;
-const uint8_t RIDE_HOURS_MAX = 5;
+const uint8_t RIDE_HOURS_MAX = 4;
 const uint8_t H_MINUTES = 60;
 
 typedef struct
@@ -34,6 +36,18 @@ typedef struct
 
 static ride_data_t *telemetry;
 
+static metric_s_t new_reading(metric_s_t total, raw_measurement_msg_t measurement)
+{
+    auto value = measurement.value;
+    total.last = value;
+    total.sum += value;
+    total.count++;
+    total.min = std::min(total.min, (float)value);
+    total.max = std::max(total.max, (float)value);
+    total.avg = total.sum / total.count;
+    return total;
+}
+
 class RideMinute
 {
     uint16_t begin, end;
@@ -56,10 +70,16 @@ public:
             {
             case measurement_t::heartrate:
                 telemetry->hr[s] = msg.value;
+                hr = new_reading(hr, msg);
+                return;
             case measurement_t::power:
                 telemetry->power[s] = msg.value;
+                power = new_reading(power, msg);
+                return;
             case measurement_t::speed:
                 telemetry->speed[s] = msg.value;
+                speed = new_reading(speed, msg);
+                return;
             default:
                 break;
             }
@@ -98,25 +118,27 @@ public:
 class Ride
 {
     uint16_t seconds = 0;
+    uint64_t ts_start = 0;
+    uint64_t ts_end = 0;
     metric_s_t power, hr, speed;
     std::array<RideHour, RIDE_HOURS_MAX> hours;
 
 public:
     void init()
     {
-        ride_data_t *telemetry = (ride_data_t *)ps_malloc(RIDE_HOURS_MAX * H_SECONDS * sizeof(ride_data_t));
+        telemetry = (ride_data_t *)ps_malloc(RIDE_HOURS_MAX * H_SECONDS * sizeof(ride_data_t));
         for (auto hour : hours)
         {
             hour.init(0, H_SECONDS);
         }
     }
-    void tick()
+    void set_tick(uint16_t seconds)
     {
-        this->seconds++;
+        this->seconds = seconds;
     }
     void add_measurement(raw_measurement_msg_t msg)
     {
-        auto index = seconds / H_SECONDS;
+        auto index = msg.ts / H_SECONDS;
         auto hour = hours[index];
         hour.add_measurement(msg, seconds);
     }
