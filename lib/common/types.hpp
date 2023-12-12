@@ -1,7 +1,9 @@
 #ifndef _VELOHUB_TYPES_HPP_
 #define _VELOHUB_TYPES_HPP_
 
+#include "esp32-hal.h"
 #include <stdint.h>
+#include <array>
 #include <vector>
 #include <string>
 #include <float.h>
@@ -158,34 +160,6 @@ typedef struct
     uint32_t satelites;
     bool mocked;
 } raw_telemetry_data_t;
-typedef struct
-{
-    uint32_t tick;
-    uint16_t power;
-    uint16_t speed;
-    uint16_t pressure;
-    uint32_t lat;
-    uint32_t lon;
-    uint16_t speed_gps;
-    uint8_t hr;
-    uint8_t cadence;
-    uint8_t elevation_gps;
-    uint8_t satelites;
-    uint8_t humidity;
-    uint8_t temperature;
-} raw_telemetry_data1_t;
-typedef struct
-{
-    uint16_t tick;
-    uint16_t power;
-    uint16_t speed;
-    uint8_t hr;
-    uint8_t cadence;
-    uint32_t lat;
-    uint32_t lon;
-} raw_telemetry_data2_t;
-
-// int k = sizeof(raw_telemetry_data2_t);
 
 extern void publish_gps(gps_data_t data);
 

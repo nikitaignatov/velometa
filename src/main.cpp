@@ -8,6 +8,7 @@
 #include "sensor.hpp"
 #include "gps.hpp"
 #include "mock_data.hpp"
+#include "computer.hpp"
 
 uint16_t map_frequency = 500;
 SemaphoreHandle_t vh_display_semaphore;
@@ -28,8 +29,7 @@ QueueHandle_t vh_raw_measurement_queue;
 QueueHandle_t vh_metrics_queue;
 QueueHandle_t vh_gps_queue;
 EventGroupHandle_t sensor_status_bits;
-int n_elements = 4* 3600;
-
+Ride ride;
 void setup()
 {
     Serial.begin(115200);
@@ -54,21 +54,9 @@ void setup()
         Serial.println("\nPSRAM does not work");
     }
 
-    //Create an array of n_elements
     int available_PSRAM_size = ESP.getFreePsram();
     Serial.println((String) "PSRAM Size available (bytes): " + available_PSRAM_size);
-
-    raw_telemetry_data2_t *telemetry = (raw_telemetry_data2_t *)ps_malloc(n_elements * sizeof(raw_telemetry_data2_t)); //Create an integer array of n_elements
-    telemetry[0] = (raw_telemetry_data2_t){};
-    telemetry[999] = (raw_telemetry_data2_t){}; //We access array values like classic array
-
-    int available_PSRAM_size_after = ESP.getFreePsram();
-    Serial.println((String) "PSRAM Size available (bytes): " + available_PSRAM_size_after); // Free memory space has decreased
-    int array_size = available_PSRAM_size - available_PSRAM_size_after;
-    Serial.println((String) "Array size in PSRAM in bytes: " + array_size);
-
-    //Delete array
-    free(telemetry); //The allocated memory is freed.
+    ride.init();
     Serial.println((String) "PSRAM Size available (bytes): " + ESP.getFreePsram());
 
     sensor_status_bits = xEventGroupCreate();
