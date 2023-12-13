@@ -17,37 +17,35 @@ void vh_mock_data_toggle()
 void mock_task_code(void *parameter)
 {
     Serial.println("mock_task_code");
-    metric_info_t msg = {};
 
-    metric_t m;
     gps_data_t g;
-    metric_info_t s = {};
-    metric_info_t h = {};
-    metric_info_t p = {};
-    metric_info_t n = {};
+    raw_measurement_msg_t msg;
     for (;;)
     {
         vTaskDelay(map_frequency / portTICK_PERIOD_MS);
         xEventGroupWaitBits(sensor_status_bits, VH_SENSOR_BIT_MOCK_DATA, pdFALSE, pdTRUE, portMAX_DELAY);
 
-        m = {
-            .ts = 0,
-            .value = (float)random(15, 60) / (float)1,
+        msg = (raw_measurement_msg_t){
+            .measurement = measurement_t::speed,
+            .ts = 1,
+            .value = random(15, 60),
+            .scale = 1,
         };
-        s = update_stats(s, m);
-        publish(MSG_NEW_SPEED, s);
-        m = {
-            .ts = 0,
-            .value = (float)random(110, 200) / (float)1,
+        xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
+        msg = (raw_measurement_msg_t){
+            .measurement = measurement_t::heartrate,
+            .ts = 1,
+            .value = random(110, 200),
+            .scale = 1,
         };
-        h = update_stats(h, m);
-        publish(MSG_NEW_HR, h);
-        m = {
-            .ts = 0,
-            .value = (float)random(10, 600) / (float)1,
+        xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
+        msg = (raw_measurement_msg_t){
+            .measurement = measurement_t::power,
+            .ts = 1,
+            .value = random(10, 600),
+            .scale = 1,
         };
-        p = update_stats(p, m);
-        publish(MSG_NEW_POWER, p);
+        xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
         g = {
             .tick_ms = (uint64_t)random(90, 300),
             .date = (uint64_t)random(90, 300),

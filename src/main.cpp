@@ -1,14 +1,13 @@
-
+#include "esp_log.h"
 #include "config.hpp"
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 #include <Arduino.h>
 #include "types.hpp"
 #include "ble.hpp"
-#include "sensor.hpp"
 #include "gps.hpp"
 #include "mock_data.hpp"
-#include "computer.hpp"
+#include "activity.hpp"
 
 uint16_t map_frequency = 500;
 SemaphoreHandle_t vh_display_semaphore;
@@ -21,7 +20,7 @@ SemaphoreHandle_t vh_display_semaphore;
 
 TaskHandle_t ble_task;
 TaskHandle_t display_task;
-TaskHandle_t sensor_task;
+TaskHandle_t activity_task;
 TaskHandle_t gps_task;
 
 std::vector<sensor_definition_t> ble_sensors;
@@ -29,7 +28,7 @@ QueueHandle_t vh_raw_measurement_queue;
 QueueHandle_t vh_metrics_queue;
 QueueHandle_t vh_gps_queue;
 EventGroupHandle_t sensor_status_bits;
-Ride ride;
+
 void setup()
 {
     Serial.begin(115200);
@@ -56,7 +55,7 @@ void setup()
 
     int available_PSRAM_size = ESP.getFreePsram();
     Serial.println((String) "PSRAM Size available (bytes): " + available_PSRAM_size);
-    ride.init();
+
     Serial.println((String) "PSRAM Size available (bytes): " + ESP.getFreePsram());
 
     sensor_status_bits = xEventGroupCreate();
@@ -157,13 +156,13 @@ void setup()
         0);              /* Core where the task should run */
 
     xTaskCreatePinnedToCore(
-        sensor_task_code,   /* Function to implement the task */
-        "sensor_task_code", /* Name of the task */
-        16 * 1024,          /* Stack size in words */
-        NULL,               /* Task input parameter */
-        0,                  /* Priority of the task */
-        &sensor_task,       /* Task handle. */
-        1);                 /* Core where the task should run */
+        activity_task_code,   /* Function to implement the task */
+        "activity_task_code", /* Name of the task */
+        24 * 1024,            /* Stack size in words */
+        NULL,                 /* Task input parameter */
+        0,                    /* Priority of the task */
+        &activity_task,       /* Task handle. */
+        1);                   /* Core where the task should run */
 #ifdef FEATURE_GPS_ENABLED
     xTaskCreatePinnedToCore(
         gps_task_code,   /* Function to implement the task */

@@ -2,7 +2,7 @@
 
 void publish(uint32_t topic, metric_info_t payload)
 {
-    if (xSemaphoreTake(vh_display_semaphore, (TickType_t)20) == pdTRUE)
+    if (xSemaphoreTake(vh_display_semaphore, (TickType_t)50) == pdTRUE)
     {
         lv_msg_send(topic, &payload);
         xSemaphoreGive(vh_display_semaphore);
@@ -15,7 +15,7 @@ void publish(uint32_t topic, metric_info_t payload)
 
 void publish(uint32_t topic, gps_data_t payload)
 {
-    if (xSemaphoreTake(vh_display_semaphore, (TickType_t)20) == pdTRUE)
+    if (xSemaphoreTake(vh_display_semaphore, (TickType_t)50) == pdTRUE)
     {
         lv_msg_send(topic, &payload);
         xSemaphoreGive(vh_display_semaphore);
