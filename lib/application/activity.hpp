@@ -11,39 +11,32 @@ const uint16_t H_SECONDS = 3600;
 const uint8_t RIDE_HOURS_MAX = 4;
 const uint8_t H_MINUTES = 60;
 
-typedef struct
+struct window_counter_t
 {
-    float *lat;
-    float *lon;
-    uint16_t *elevation;
-    uint16_t *pressure;
-    uint16_t *power;
-    uint16_t *speed;
-    uint8_t *hr;
-    uint8_t *cadence;
-    uint8_t *slope;
-} ride_data_t;
-
-class ActivityMinute
-{
-    uint16_t begin, end;
-    metric_info_t power, hr, speed;
-    ride_data_t *seconds;
-
 public:
-    void init(uint16_t being, uint16_t end);
-    void add_measurement(raw_measurement_msg_t msg, uint32_t s);
-};
+    uint16_t duration;
+    uint16_t window_end;
+    uint16_t window_start;
+    uint16_t min;
+    uint16_t max;
+    uint16_t avg;
+    uint16_t sum;
+    uint16_t count;
+    void add(window_counter_t *self, raw_measurement_msg_t msg, uint16_t old)
+    {
+        self->window_end++;
+        if (self->count < self->duration)
+        {
+            self->count++;
+        }
+        else
+        {
+            self->sum -= old;
+        }
 
-class ActivityHour
-{
-    uint16_t begin, end;
-    metric_info_t power, hr, speed;
-    std::array<ActivityMinute, H_MINUTES> minutes;
-
-public:
-    void init(uint16_t being, uint16_t end);
-    void add_measurement(raw_measurement_msg_t msg, int seconds);
+        self->sum += msg.value;
+        self->avg = self->sum / (std::max<uint16_t>(1, self->count));
+    };
 };
 
 class Activity
@@ -52,7 +45,19 @@ class Activity
     uint64_t ts_start = 0;
     uint64_t ts_end = 0;
     metric_info_t power, hr, speed;
-    std::array<ActivityHour, RIDE_HOURS_MAX> hours;
+
+    // 5s,15s,30s,60s,90s,120s,300s,600s,900s
+    std::array<window_counter_t, 10> counters{{
+        {.duration = 5},
+        {.duration = 15},
+        {.duration = 30},
+        {.duration = 60},
+        {.duration = 90},
+        {.duration = 120},
+        {.duration = 300},
+        {.duration = 600},
+        {.duration = 900},
+    }};
 
 public:
     void init();

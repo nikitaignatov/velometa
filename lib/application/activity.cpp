@@ -16,73 +16,6 @@ static metric_info_t new_reading(metric_info_t total, raw_measurement_msg_t meas
     return total;
 }
 
-void ActivityMinute::init(uint16_t being, uint16_t end)
-{
-    this->seconds = seconds;
-    this->begin = begin;
-    this->end = end;
-}
-
-void ActivityMinute::add_measurement(raw_measurement_msg_t msg, uint32_t s)
-{
-    if (s >= begin && s <= end)
-    {
-        ESP_LOGI(TAG, "minute::add_measurement type[%d] value[%d]", msg.measurement, msg.value);
-        switch (msg.measurement)
-        {
-        case measurement_t::heartrate:
-            telemetry.hr[s] = msg.value;
-            hr = new_reading(hr, msg);
-            return;
-        case measurement_t::power:
-            telemetry.power[s] = msg.value;
-            power = new_reading(power, msg);
-            return;
-        case measurement_t::speed:
-            telemetry.speed[s] = msg.value;
-            speed = new_reading(speed, msg);
-            return;
-        default:
-            break;
-        }
-    }
-}
-
-void ActivityHour::init(uint16_t being, uint16_t end)
-{
-    this->begin = begin;
-    this->end = end;
-    int i = 0;
-    for (auto minute : minutes)
-    {
-        minute.init(i, i + H_MINUTES);
-        i = i + H_MINUTES;
-    }
-}
-
-void ActivityHour::add_measurement(raw_measurement_msg_t msg, int seconds)
-{
-    auto h = seconds / H_SECONDS;
-    auto m = h % 60;
-    auto minute = minutes[m];
-    ESP_LOGD(TAG, "hour::add_measurement mDnute[%d]", minute);
-    minute.add_measurement(msg, seconds);
-    switch (msg.measurement)
-    {
-    case measurement_t::heartrate:
-        hr = new_reading(hr, msg);
-        return;
-    case measurement_t::power:
-        power = new_reading(power, msg);
-        return;
-    case measurement_t::speed:
-        speed = new_reading(speed, msg);
-        return;
-    default:
-        break;
-    }
-}
-
 void Activity::init()
 {
     auto size = RIDE_HOURS_MAX * H_SECONDS;
@@ -98,11 +31,6 @@ void Activity::init()
         .cadence = (uint8_t *)ps_malloc(size * sizeof(uint8_t)),
         .slope = (uint8_t *)ps_malloc(size * sizeof(uint8_t)),
     };
-
-    for (auto hour : hours)
-    {
-        hour.init(0, H_SECONDS);
-    }
 }
 void Activity::set_tick(uint16_t seconds)
 {
@@ -116,18 +44,26 @@ metric_info_t Activity::get_speed() { return speed; }
 void Activity::add_measurement(raw_measurement_msg_t msg)
 {
     auto index = msg.ts / H_SECONDS;
-    auto hour = hours[index];
     ESP_LOGD(TAG, "activity::add_measurement hour[%d]", hour);
-    hour.add_measurement(msg, seconds);
     switch (msg.measurement)
     {
     case measurement_t::heartrate:
+        telemetry.hr[seconds] = msg.value;
         hr = new_reading(hr, msg);
+        for (auto &interval : this->counters)
+        {
+            auto index = std::max(0, seconds - interval.count);
+            uint16_t old = telemetry.hr[index];
+            interval.add(&interval, msg, old);
+            ESP_LOGW(TAG, "period %ds = %d | %d | %d | %d | %d", interval.duration, interval.avg, interval.count, interval.sum, seconds, index);
+        }
         return;
     case measurement_t::power:
+        telemetry.power[seconds] = msg.value;
         power = new_reading(power, msg);
         return;
     case measurement_t::speed:
+        telemetry.speed[seconds] = msg.value;
         speed = new_reading(speed, msg);
         return;
     default:

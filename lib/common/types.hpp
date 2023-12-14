@@ -161,6 +161,19 @@ typedef struct
     bool mocked;
 } raw_telemetry_data_t;
 
+typedef struct
+{
+    float *lat;
+    float *lon;
+    uint16_t *elevation;
+    uint16_t *pressure;
+    uint16_t *power;
+    uint16_t *speed;
+    uint8_t *hr;
+    uint8_t *cadence;
+    uint8_t *slope;
+} ride_data_t;
+
 extern void publish_gps(gps_data_t data);
 
 metric_info_t update_stats(metric_info_t p, metric_t m);
