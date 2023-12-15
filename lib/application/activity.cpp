@@ -43,28 +43,35 @@ metric_info_t Activity::get_speed() { return speed; }
 
 void Activity::add_measurement(raw_measurement_msg_t msg)
 {
-    auto index = msg.ts / H_SECONDS;
     ESP_LOGD(TAG, "activity::add_measurement hour[%d]", hour);
     switch (msg.measurement)
     {
     case measurement_t::heartrate:
         telemetry.hr[seconds] = msg.value;
         hr = new_reading(hr, msg);
-        for (auto &interval : this->counters)
+        for (auto &interval : this->hr_counters)
         {
-            auto index = std::max(0, seconds - interval.count);
-            uint16_t old = telemetry.hr[index];
-            interval.add(&interval, msg, old);
-            ESP_LOGW(TAG, "period %ds = %d | %d | %d | %d | %d", interval.duration, interval.avg, interval.count, interval.sum, seconds, index);
+            interval.add(&interval, msg);
+            ESP_LOGD(TAG, "period %ds \t avg: %d \t count: %d \tfrom: %d \tto: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
         }
         return;
     case measurement_t::power:
         telemetry.power[seconds] = msg.value;
         power = new_reading(power, msg);
+        for (auto &interval : this->power_counters)
+        {
+            interval.add(&interval, msg);
+            ESP_LOGD(TAG, "period %ds \t avg: %d \t count: %d \tfrom: %d \tto: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
+        }
         return;
     case measurement_t::speed:
         telemetry.speed[seconds] = msg.value;
         speed = new_reading(speed, msg);
+        for (auto &interval : this->speed_counters)
+        {
+            interval.add(&interval, msg);
+            ESP_LOGD(TAG, "period %ds \t avg: %d \t count: %d \tfrom: %d \tto: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
+        }
         return;
     default:
         break;
@@ -80,12 +87,16 @@ void activity_task_code(void *parameter)
     raw_measurement_msg_t msg;
     for (;;)
     {
-        if (xQueueReceive(vh_raw_measurement_queue, &msg, 1000 / portTICK_RATE_MS) == pdPASS)
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+
+        auto seconds = (uint16_t)millis() / 1000;
+        activity.set_tick(seconds);
+        while (xQueueReceive(vh_raw_measurement_queue, &msg, 5 / portTICK_RATE_MS) == pdPASS)
         {
-            ESP_LOGI(TAG, "start xQueueReceive");
-            ESP_LOGI(TAG, "start add_measurement");
+            ESP_LOGD(TAG, "start xQueueReceive");
+            ESP_LOGD(TAG, "start add_measurement");
             activity.add_measurement(msg);
-            ESP_LOGI(TAG, "end add_measurement");
+            ESP_LOGD(TAG, "end add_measurement");
 
             switch (msg.measurement)
             {
@@ -101,14 +112,10 @@ void activity_task_code(void *parameter)
             case measurement_t::elevation:
                 break;
             default:
-                ESP_LOGI(TAG, "Unhandled Message type: %i, Value: %i\n", msg.measurement, msg.value);
+                ESP_LOGW(TAG, "Unhandled Message type: %i, Value: %i\n", msg.measurement, msg.value);
                 break;
             }
-            ESP_LOGI(TAG, "end xQueueReceive");
-        }
-        else
-        {
-            ESP_LOGI(TAG, "No items on vh_raw_measurement_queue.");
+            ESP_LOGD(TAG, "end xQueueReceive");
         }
     }
 }

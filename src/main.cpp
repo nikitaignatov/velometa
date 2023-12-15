@@ -9,7 +9,7 @@
 #include "mock_data.hpp"
 #include "activity.hpp"
 
-uint16_t map_frequency = 500;
+uint16_t map_frequency = 1000;
 SemaphoreHandle_t vh_display_semaphore;
 
 #if USE_EPAPER

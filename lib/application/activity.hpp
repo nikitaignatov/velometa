@@ -22,19 +22,20 @@ public:
     uint16_t avg;
     uint16_t sum;
     uint16_t count;
-    void add(window_counter_t *self, raw_measurement_msg_t msg, uint16_t old)
+    void add(window_counter_t *self, raw_measurement_msg_t msg)
     {
         self->window_end++;
+        self->sum += msg.value;
+
         if (self->count < self->duration)
         {
             self->count++;
         }
         else
         {
-            self->sum -= old;
+            self->sum -= self->avg;
         }
 
-        self->sum += msg.value;
         self->avg = self->sum / (std::max<uint16_t>(1, self->count));
     };
 };
@@ -48,6 +49,39 @@ class Activity
 
     // 5s,15s,30s,60s,90s,120s,300s,600s,900s
     std::array<window_counter_t, 10> counters{{
+        {.duration = 5},
+        {.duration = 15},
+        {.duration = 30},
+        {.duration = 60},
+        {.duration = 90},
+        {.duration = 120},
+        {.duration = 300},
+        {.duration = 600},
+        {.duration = 900},
+    }};
+    std::array<window_counter_t, 10> hr_counters{{
+        {.duration = 5},
+        {.duration = 15},
+        {.duration = 30},
+        {.duration = 60},
+        {.duration = 90},
+        {.duration = 120},
+        {.duration = 300},
+        {.duration = 600},
+        {.duration = 900},
+    }};
+    std::array<window_counter_t, 10> power_counters{{
+        {.duration = 5},
+        {.duration = 15},
+        {.duration = 30},
+        {.duration = 60},
+        {.duration = 90},
+        {.duration = 120},
+        {.duration = 300},
+        {.duration = 600},
+        {.duration = 900},
+    }};
+    std::array<window_counter_t, 10> speed_counters{{
         {.duration = 5},
         {.duration = 15},
         {.duration = 30},
