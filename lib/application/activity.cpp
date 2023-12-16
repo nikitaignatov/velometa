@@ -4,18 +4,6 @@ static const char *TAG = "activity_task_code";
 static Activity activity;
 static ride_data_t telemetry;
 
-static metric_info_t new_reading(metric_info_t total, raw_measurement_msg_t measurement)
-{
-    auto value = measurement.value;
-    total.last = value;
-    total.sum += value;
-    total.count++;
-    total.min = std::min(total.min, (float)value);
-    total.max = std::max(total.max, (float)value);
-    total.avg = total.sum / total.count;
-    return total;
-}
-
 void Activity::init()
 {
     auto size = RIDE_HOURS_MAX * H_SECONDS;
@@ -38,9 +26,9 @@ void Activity::set_tick(uint16_t seconds)
 }
 
 window_counter_t Activity::get_hr(uint16_t duration) { return counters[measurement_t::heartrate].at(0); }
-metric_info_t Activity::get_hr() { return hr; }
-metric_info_t Activity::get_power() { return power; }
-metric_info_t Activity::get_speed() { return speed; }
+window_counter_t Activity::get_hr() { return counters[measurement_t::heartrate].at(8); }
+window_counter_t Activity::get_power() { return counters[measurement_t::power].at(8); }
+window_counter_t Activity::get_speed() { return counters[measurement_t::speed].at(8); }
 
 void Activity::add_measurement(raw_measurement_msg_t msg)
 {
@@ -55,15 +43,12 @@ void Activity::add_measurement(raw_measurement_msg_t msg)
     {
     case measurement_t::heartrate:
         telemetry.hr[seconds] = msg.value;
-        hr = new_reading(hr, msg);
         return;
     case measurement_t::power:
         telemetry.power[seconds] = msg.value;
-        power = new_reading(power, msg);
         return;
     case measurement_t::speed:
         telemetry.speed[seconds] = msg.value;
-        speed = new_reading(speed, msg);
         return;
     default:
         break;
@@ -93,13 +78,13 @@ void activity_task_code(void *parameter)
             switch (msg.measurement)
             {
             case measurement_t::heartrate:
-                publish(MSG_NEW_HR, activity.get_hr(5));
+                publish(MSG_NEW_HR, activity.get_hr());
                 break;
             case measurement_t::power:
-                publish(MSG_NEW_POWER, activity.get_hr(5));
+                publish(MSG_NEW_POWER, activity.get_power());
                 break;
             case measurement_t::speed:
-                publish(MSG_NEW_SPEED, activity.get_hr(5));
+                publish(MSG_NEW_SPEED, activity.get_speed());
                 break;
             case measurement_t::elevation:
                 break;

@@ -40,7 +40,6 @@ public:
     void set_label(std::string value);
     void set_opposite(bool value);
     void set_zone_converter(std::function<int(float)> converter);
-    void update(metric_info_t *metric);
     void update(window_counter_t *metric);
     lv_obj_t *get_object();
 };

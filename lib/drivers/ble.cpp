@@ -51,21 +51,6 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
 {
     void onResult(BLEAdvertisedDevice device)
     {
-        // auto device_name = fmt::format("{}({})", device.getName(), device.getAddress().toString());
-        // int c = 0;
-        // bool missing = true;
-        // for (auto d : sys.sensors.near_by_devices)
-        // {
-        //     if (d.compare(device_name) == 0)
-        //         missing = false;
-        //     Serial.print(c++);
-        //     Serial.print(" -> ");
-        //     Serial.println(device_name.c_str());
-        //     Serial.println("------------");
-        // }
-        // if (missing)
-        //     sys.sensors.near_by_devices.push_back(device_name);
-
         for (auto &sensor : ble_sensors)
         {
             if (sensor.client && sensor.client->isConnected())

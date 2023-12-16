@@ -20,6 +20,5 @@
 #include "vh_theme.hpp"
 
 extern uint16_t map_frequency;
-extern system_t sys;
 
 void display_task_code(void *parameter);

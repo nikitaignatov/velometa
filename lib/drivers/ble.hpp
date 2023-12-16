@@ -10,7 +10,6 @@
 #include <BLEDevice.h>
 
 static auto missing_address = BLEAddress((uint8_t *)"\0\0\0\0\0\0");
-extern system_t sys;
 enum metric_type_t
 {
     METRIC_NOT_DEFINED = 0,

@@ -12,13 +12,11 @@ const uint16_t H_SECONDS = 3600;
 const uint8_t RIDE_HOURS_MAX = 4;
 const uint8_t H_MINUTES = 60;
 
-
 class Activity
 {
     uint16_t seconds = 0;
     uint64_t ts_start = 0;
     uint64_t ts_end = 0;
-    metric_info_t power, hr, speed;
 
     // 5s,15s,30s,60s,90s,120s,300s,600s,900s
     std::map<measurement_t, std::array<window_counter_t, 10>> counters{
@@ -71,9 +69,9 @@ public:
     void set_tick(uint16_t seconds);
     void add_measurement(raw_measurement_msg_t msg);
     window_counter_t get_hr(uint16_t duration);
-    metric_info_t get_hr();
-    metric_info_t get_power();
-    metric_info_t get_speed();
+    window_counter_t get_hr();
+    window_counter_t get_power();
+    window_counter_t get_speed();
 };
 
 void activity_task_code(void *parameter);

@@ -58,27 +58,6 @@ typedef struct
     float value;
 } metric_t;
 
-typedef struct
-{
-    uint32_t ts;
-    float last;
-    float min;
-    float max;
-    float avg;
-    float sum;
-    float count;
-    float std;
-    float var;
-} metric_info_t;
-
-typedef struct
-{
-    metric_info_t hr;
-    metric_info_t power;
-    metric_info_t speed;
-    metric_info_t cadence;
-} activity_metrics_t;
-
 typedef enum
 {
     number = 0,
@@ -124,13 +103,6 @@ typedef struct
 typedef struct
 {
     uint64_t tick_ms;
-    sensors_t sensors;
-    activity_metrics_t activity;
-    int mocked;
-} system_t;
-typedef struct
-{
-    uint64_t tick_ms;
     uint64_t date;
     uint64_t time;
     double lat;
@@ -143,6 +115,7 @@ typedef struct
     uint32_t satelites;
     bool mocked;
 } gps_data_t;
+
 typedef struct
 {
     uint32_t tick;
@@ -207,5 +180,4 @@ public:
 
 extern void publish_gps(gps_data_t data);
 
-metric_info_t update_stats(metric_info_t p, metric_t m);
 #endif

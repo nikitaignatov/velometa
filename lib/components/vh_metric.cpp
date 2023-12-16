@@ -81,13 +81,13 @@ void MetricW::update(window_counter_t *metric)
 {
     Serial.println("update start");
     auto zone_value = zone_converter(metric->last);
-    lv_label_set_text(value, fmt::format("{:.0f}", metric->last).c_str());
+    lv_label_set_text(value, fmt::format("{}", metric->last).c_str());
 
-    lv_label_set_text(min, fmt::format("{:.0f}", metric->max).c_str());
-    lv_label_set_text(max, fmt::format("{:.0f}", metric->max).c_str());
+    lv_label_set_text(min, fmt::format("{}", metric->max).c_str());
+    lv_label_set_text(max, fmt::format("{}", metric->max).c_str());
     zone_value = zone_converter(metric->avg);
-    auto color = zone_color(zone_value, "{:.0f}");
-    lv_label_set_text(avg, fmt::format("{:.0f}", metric->avg).c_str());
+    auto color = zone_color(zone_value, "{}");
+    lv_label_set_text(avg, fmt::format("{}", metric->avg).c_str());
     lv_obj_set_style_text_color(avg, lv_color_hex(color), 0);
 
     zone_value = zone_converter(metric->last);
