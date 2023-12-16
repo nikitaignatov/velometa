@@ -37,6 +37,7 @@ void Activity::set_tick(uint16_t seconds)
     this->seconds = seconds;
 }
 
+window_counter_t Activity::get_hr(uint16_t duration) { return counters[measurement_t::heartrate].at(0); }
 metric_info_t Activity::get_hr() { return hr; }
 metric_info_t Activity::get_power() { return power; }
 metric_info_t Activity::get_speed() { return speed; }
@@ -44,34 +45,25 @@ metric_info_t Activity::get_speed() { return speed; }
 void Activity::add_measurement(raw_measurement_msg_t msg)
 {
     ESP_LOGD(TAG, "activity::add_measurement hour[%d]", hour);
+
+    for (auto &interval : this->counters[msg.measurement])
+    {
+        interval.add(&interval, msg);
+        ESP_LOGD(TAG, "period %ds \t avg: %d \t count: %d \tfrom: %d \tto: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
+    }
     switch (msg.measurement)
     {
     case measurement_t::heartrate:
         telemetry.hr[seconds] = msg.value;
         hr = new_reading(hr, msg);
-        for (auto &interval : this->hr_counters)
-        {
-            interval.add(&interval, msg);
-            ESP_LOGD(TAG, "period %ds \t avg: %d \t count: %d \tfrom: %d \tto: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
-        }
         return;
     case measurement_t::power:
         telemetry.power[seconds] = msg.value;
         power = new_reading(power, msg);
-        for (auto &interval : this->power_counters)
-        {
-            interval.add(&interval, msg);
-            ESP_LOGD(TAG, "period %ds \t avg: %d \t count: %d \tfrom: %d \tto: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
-        }
         return;
     case measurement_t::speed:
         telemetry.speed[seconds] = msg.value;
         speed = new_reading(speed, msg);
-        for (auto &interval : this->speed_counters)
-        {
-            interval.add(&interval, msg);
-            ESP_LOGD(TAG, "period %ds \t avg: %d \t count: %d \tfrom: %d \tto: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
-        }
         return;
     default:
         break;
@@ -101,13 +93,13 @@ void activity_task_code(void *parameter)
             switch (msg.measurement)
             {
             case measurement_t::heartrate:
-                publish(MSG_NEW_HR, activity.get_hr());
+                publish(MSG_NEW_HR, activity.get_hr(5));
                 break;
             case measurement_t::power:
-                publish(MSG_NEW_POWER, activity.get_power());
+                publish(MSG_NEW_POWER, activity.get_hr(5));
                 break;
             case measurement_t::speed:
-                publish(MSG_NEW_SPEED, activity.get_speed());
+                publish(MSG_NEW_SPEED, activity.get_hr(5));
                 break;
             case measurement_t::elevation:
                 break;

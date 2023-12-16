@@ -1,6 +1,6 @@
 #include "vh_display.hpp"
 
-void publish(uint32_t topic, metric_info_t payload)
+void publish(uint32_t topic, window_counter_t payload)
 {
     if (xSemaphoreTake(vh_display_semaphore, (TickType_t)50) == pdTRUE)
     {

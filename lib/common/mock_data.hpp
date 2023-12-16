@@ -7,7 +7,6 @@
 
 extern uint16_t map_frequency;
 
-extern void publish(uint32_t topic, metric_info_t payload);
 extern void publish(uint32_t topic, gps_data_t payload);
 
 void vh_mock_data_toggle();

@@ -77,7 +77,7 @@ static int zone_color(int zone, std::string f)
     }
 }
 
-void MetricW::update(metric_info_t *metric)
+void MetricW::update(window_counter_t *metric)
 {
     Serial.println("update start");
     auto zone_value = zone_converter(metric->last);
@@ -106,7 +106,7 @@ static void metric_event_cb(lv_event_t *e)
 {
     auto msg = lv_event_get_msg(e);
     auto metric = (MetricW *)lv_msg_get_user_data(msg);
-    auto value = (metric_info_t *)lv_msg_get_payload(msg);
+    auto value = (window_counter_t *)lv_msg_get_payload(msg);
     metric->update(value);
 }
 

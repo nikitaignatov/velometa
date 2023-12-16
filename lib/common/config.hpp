@@ -35,3 +35,4 @@
 #define MSG_NEW_HR 3
 #define MSG_NEW_HEADING 4
 #define MSG_NEW_GPS 5
+#define MSG_NEW_HR_W 6
