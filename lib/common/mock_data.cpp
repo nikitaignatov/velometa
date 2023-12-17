@@ -14,9 +14,16 @@ void vh_mock_data_toggle()
     }
 }
 
+static uint16_t random(int a, int b)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(a, b);
+}
+
 void mock_task_code(void *parameter)
 {
-    Serial.println("mock_task_code");
+    ESP_LOGI("mock", "mock_task_code");
 
     gps_data_t g;
     raw_measurement_msg_t msg;

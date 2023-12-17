@@ -3,7 +3,6 @@
 #include <lvgl.h>
 #include <functional>
 #include <fmt/core.h>
-#include <Arduino.h>
 #include <fmt/ranges.h>
 #include <string>
 #include "config.hpp"
@@ -17,7 +16,8 @@ int zone_from_power(float value);
 
 class MetricW
 {
-    uint16_t width = 158, height = 80, x = 0, y = 0;
+    uint16_t width = 158, height = 80, x = 0, y = 0, interval = 1;
+    measurement_t type;
     uint32_t subscribed_msg_id = 0;
     // metric_info_t *metric;
     lv_obj_t *container = 0;

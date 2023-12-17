@@ -79,7 +79,7 @@ static int zone_color(int zone, std::string f)
 
 void MetricW::update(window_counter_t *metric)
 {
-    Serial.println("update start");
+    ESP_LOGI("metric_update", "begin");
     auto zone_value = zone_converter(metric->last);
     lv_label_set_text(value, fmt::format("{}", metric->last).c_str());
 
@@ -94,7 +94,7 @@ void MetricW::update(window_counter_t *metric)
     color = zone_color(zone_value, "{}");
     lv_label_set_text(zone, fmt::format("{}", zone_value).c_str());
     lv_obj_set_style_bg_color(zone, lv_color_hex(color), 0);
-    Serial.println("update2");
+    ESP_LOGI("metric_update", "end");
 }
 
 /**

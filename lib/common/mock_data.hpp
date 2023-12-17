@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
+#include <random>
 #include "config.hpp"
 #include "types.hpp"
 #include "freertos/event_groups.h"
