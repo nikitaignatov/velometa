@@ -18,7 +18,8 @@ static uint16_t random(int a, int b)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distr(a, b);
+    std::uniform_int_distribution<uint16_t> distr(a, b);
+    return distr(gen);
 }
 
 void mock_task_code(void *parameter)
