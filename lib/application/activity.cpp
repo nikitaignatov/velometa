@@ -36,7 +36,7 @@ void Activity::add_measurement(raw_measurement_msg_t msg)
 
     for (auto &interval : this->counters[msg.measurement])
     {
-        interval.add(&interval, msg);
+        interval.add(&interval, (uint16_t)msg.value, (uint16_t *)&telemetry.hr[interval.window_start]);
         ESP_LOGD(TAG, "period %ds \t avg: %d \t count: %d \tfrom: %d \tto: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
     }
     switch (msg.measurement)

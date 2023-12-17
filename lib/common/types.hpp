@@ -11,6 +11,7 @@
 #include "freertos/queue.h"
 #include "freertos/event_groups.h"
 #include "semphr.h"
+#include "window_counter.hpp"
 
 #define VH_SENSOR_BIT_MOCK_DATA 1
 #define VH_SENSOR_BIT_GPS_READY 2
@@ -147,36 +148,6 @@ typedef struct
     uint8_t *slope;
 } ride_data_t;
 
-struct window_counter_t
-{
-public:
-    uint16_t duration;
-    uint16_t window_end;
-    uint16_t window_start;
-    uint16_t last;
-    uint16_t min;
-    uint16_t max;
-    uint16_t avg;
-    uint16_t sum;
-    uint16_t count;
-    void add(window_counter_t *self, raw_measurement_msg_t msg)
-    {
-        self->last = msg.value;
-        self->window_end++;
-        self->sum += msg.value;
-
-        if (self->count < self->duration)
-        {
-            self->count++;
-        }
-        else
-        {
-            self->sum -= self->avg;
-        }
-
-        self->avg = self->sum / (std::max<uint16_t>(1, self->count));
-    };
-};
 
 extern void publish_gps(gps_data_t data);
 
