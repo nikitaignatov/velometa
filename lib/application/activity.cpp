@@ -4,6 +4,11 @@ static const char *TAG = "activity_task_code";
 static Activity activity;
 static ride_data_t telemetry;
 
+Activity *current_activity()
+{
+    return &activity;
+}
+
 void Activity::init()
 {
     auto size = RIDE_HOURS_MAX * H_SECONDS;
@@ -52,7 +57,7 @@ void Activity::set_start(uint16_t seconds)
     this->ts_start = seconds;
 }
 
-window_counter_t Activity::get_hr(uint16_t duration) { return counters[measurement_t::heartrate].at(0); }
+window_counter_t Activity::get_hr(uint16_t duration) { return counters[measurement_t::heartrate].at(duration); }
 window_counter_t Activity::get_hr() { return counters[measurement_t::heartrate].at(0); }
 window_counter_t Activity::get_power() { return counters[measurement_t::power].at(0); }
 window_counter_t Activity::get_speed() { return counters[measurement_t::speed].at(0); }
@@ -68,15 +73,15 @@ void Activity::add_measurement(raw_measurement_msg_t msg)
         {
         case measurement_t::heartrate:
             interval.add(&interval, (uint16_t)msg.value, telemetry.hr, seconds);
-            telemetry.hr[interval.window_end] = msg.value;
+            telemetry.hr[interval.get_position()] = msg.value;
             break;
         case measurement_t::power:
             interval.add(&interval, (uint16_t)msg.value, telemetry.power, seconds);
-            telemetry.power[interval.window_end] = msg.value;
+            telemetry.power[interval.get_position()] = msg.value;
             break;
         case measurement_t::speed:
             interval.add(&interval, (uint16_t)msg.value, telemetry.speed, seconds);
-            telemetry.speed[interval.window_end] = msg.value;
+            telemetry.speed[interval.get_position()] = msg.value;
             break;
         default:
             break;

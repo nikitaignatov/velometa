@@ -79,22 +79,22 @@ static int zone_color(int zone, std::string f)
 
 void MetricW::update(window_counter_t *metric)
 {
-    ESP_LOGI("metric_update", "begin");
-    auto zone_value = zone_converter(metric->last);
-    lv_label_set_text(value, fmt::format("{}", metric->last).c_str());
+    ESP_LOGD("metric_update", "begin");
+    auto zone_value = zone_converter(metric->get_last());
+    lv_label_set_text(value, fmt::format("{}", metric->get_last()).c_str());
 
-    lv_label_set_text(min, fmt::format("{}", metric->max).c_str());
-    lv_label_set_text(max, fmt::format("{}", metric->max).c_str());
-    zone_value = zone_converter(metric->avg);
+    lv_label_set_text(min, fmt::format("{}", metric->get_min()).c_str());
+    lv_label_set_text(max, fmt::format("{}", metric->get_max()).c_str());
+    zone_value = zone_converter(metric->get_avg());
     auto color = zone_color(zone_value, "{}");
-    lv_label_set_text(avg, fmt::format("{}", metric->avg).c_str());
+    lv_label_set_text(avg, fmt::format("{}", metric->get_avg()).c_str());
     lv_obj_set_style_text_color(avg, lv_color_hex(color), 0);
 
-    zone_value = zone_converter(metric->last);
+    zone_value = zone_converter(metric->get_last());
     color = zone_color(zone_value, "{}");
     lv_label_set_text(zone, fmt::format("{}", zone_value).c_str());
     lv_obj_set_style_bg_color(zone, lv_color_hex(color), 0);
-    ESP_LOGI("metric_update", "end");
+    ESP_LOGD("metric_update", "end");
 }
 
 /**
@@ -121,7 +121,7 @@ void MetricW::set_opposite(bool input)
 {
     this->opposite = input;
     lv_obj_align(value, opposite ? LV_ALIGN_BOTTOM_LEFT : LV_ALIGN_BOTTOM_RIGHT, 0, 0);
-    lv_obj_align(min, opposite ? LV_ALIGN_TOP_LEFT : LV_ALIGN_TOP_RIGHT, 0, 0);
+    // lv_obj_align(min, opposite ? LV_ALIGN_TOP_LEFT : LV_ALIGN_TOP_RIGHT, 0, 0);
     lv_obj_align(avg, opposite ? LV_ALIGN_TOP_RIGHT : LV_ALIGN_TOP_LEFT, 0, 0);
     lv_obj_align(zone, opposite ? LV_ALIGN_BOTTOM_RIGHT : LV_ALIGN_BOTTOM_LEFT, 0, 0);
     lv_obj_align(label, opposite ? LV_ALIGN_TOP_LEFT : LV_ALIGN_TOP_RIGHT, 0, 0);

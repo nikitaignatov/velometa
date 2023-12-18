@@ -74,6 +74,7 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     auto btn_next = create_btn(parent, true);
     auto btn_prev = create_btn(parent, false);
 
+    vh_create_activity_hr_stats(tile5);
     vh_create_brightness_slider(scan_tile);
     vh_map_init(map_tile);
     vh_create_dashboard(dashboard_tile);

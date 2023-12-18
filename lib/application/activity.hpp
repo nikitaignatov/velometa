@@ -80,3 +80,4 @@ public:
 };
 
 void activity_task_code(void *parameter);
+Activity *current_activity();

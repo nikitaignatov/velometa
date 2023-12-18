@@ -14,10 +14,9 @@ void vh_mock_data_toggle()
     }
 }
 
+std::default_random_engine gen;
 static uint16_t random(int a, int b)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_int_distribution<uint16_t> distr(a, b);
     return distr(gen);
 }
