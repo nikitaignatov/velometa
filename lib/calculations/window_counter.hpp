@@ -3,64 +3,53 @@
 #include <deque>
 #include <stdint.h>
 #include <array>
+#include <functional>
 
 struct window_counter_t
 {
-    std::deque<uint16_t> min_deque = {};
-    std::deque<uint16_t> max_deque = {};
+    std::deque<uint32_t> min_deque = {};
+    std::deque<uint32_t> max_deque = {};
 
-    inline void add_min(uint16_t value)
+private:
+    inline void add_deque_min(std::deque<uint32_t> *deque, uint32_t value) { add_deque(deque, value, std::less{}); }
+    inline void add_deque_max(std::deque<uint32_t> *deque, uint32_t value) { add_deque(deque, value, std::greater{}); }
+
+    template <typename Comparator>
+    inline void add_deque(std::deque<uint32_t> *deque, uint32_t value, Comparator compare)
     {
-        while (max_deque.size() > 0 && value > max_deque.back())
+        while (deque->size() > 0 && compare(value, deque->back()))
         {
-            max_deque.pop_back();
+            deque->pop_back();
         }
-        max_deque.push_back(value);
+        if (deque->size() == 0 || value != deque->back())
+        {
+            deque->push_back(value);
+        }
     }
 
-    inline void remove_last_min(uint16_t last)
+    inline void remove_last(std::deque<uint32_t> *deque, uint32_t last)
     {
-        if (min_deque.front() == last)
+        if (deque->size() > 1 && deque->front() == last)
         {
-            min_deque.pop_front();
-        }
-    }
-
-    inline void add_max(uint16_t value)
-    {
-        while (min_deque.size() > 0 && value < min_deque.back())
-        {
-            min_deque.pop_back();
-        }
-        min_deque.push_back(value);
-    }
-
-    inline void remove_last_max(uint16_t last)
-    {
-        if (max_deque.front() == last)
-        {
-            max_deque.pop_front();
+            deque->pop_front();
         }
     }
 
 public:
-    uint16_t duration;
-    uint16_t window_end;
-    uint16_t window_start;
-    uint16_t last;
-    uint16_t min = std::numeric_limits<uint16_t>::max();
-    uint16_t max = std::numeric_limits<uint16_t>::min();
-    uint16_t avg;
-    uint16_t sum;
-    uint16_t count;
-
-    void add(window_counter_t *self, uint16_t value, uint16_t *telemetry)
+    uint32_t duration = 0;
+    uint32_t last = 0;
+    uint32_t min = std::numeric_limits<uint32_t>::max();
+    uint32_t max = std::numeric_limits<uint32_t>::min();
+    uint32_t avg = 0;
+    uint64_t sum = 0;
+    uint32_t count = 0;
+    uint32_t window_end = 0;
+    void add(window_counter_t *self, uint32_t value, uint16_t *telemetry, uint32_t seconds)
     {
         self->last = value;
-        self->window_end++;
         self->sum += value;
-        add_min(value);
-        add_max(value);
+        add_deque_max(&self->max_deque, value);
+        add_deque_min(&self->min_deque, value);
 
         if (self->count < self->duration)
         {
@@ -68,15 +57,25 @@ public:
         }
         else
         {
-            auto last = telemetry[self->window_start];
+            auto last_index = std::max<uint32_t>(0, window_end - self->count);
+            auto last = (uint32_t)telemetry[last_index];
             self->sum -= last;
-            remove_last_min(last);
-            remove_last_max(last);
+            remove_last(&self->min_deque, last);
+            remove_last(&self->max_deque, last);
         }
 
         self->max = max_deque.front();
         self->min = min_deque.front();
-        self->avg = self->sum / (std::max<uint16_t>(1, self->count));
-        self->window_start = self->window_end - self->count;
-    };
+
+        self->window_end++;
+        self->avg = (uint32_t)(self->sum / std::max<uint32_t>(1, self->count));
+#ifdef ESP_LOGW
+        ESP_LOGW("S", "c:%d, %d:%d, sum:%llu, avg:%d last:%d", self->count, seconds, window_end, self->sum, self->avg, window_end - self->count);
+#endif
+    }
+    uint32_t get_min() { return min; }
+    uint32_t get_max() { return max; }
+    uint32_t get_avg() { return avg; }
+    uint32_t get_count() { return count; }
+    uint32_t get_duration() { return duration; }
 };

@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "types.hpp"
 #include "esp_log.h"
+#include "task.h"
 #include <algorithm>
 #include <map>
 #include "vh_display.hpp"
@@ -66,7 +67,11 @@ class Activity
 
 public:
     void init();
+    void tick();
+    uint16_t get_tick();
     void set_tick(uint16_t seconds);
+    void set_start(uint16_t seconds);
+    void set_end(uint16_t seconds);
     void add_measurement(raw_measurement_msg_t msg);
     window_counter_t get_hr(uint16_t duration);
     window_counter_t get_hr();

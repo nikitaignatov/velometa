@@ -143,9 +143,9 @@ typedef struct
     uint16_t *pressure;
     uint16_t *power;
     uint16_t *speed;
-    uint8_t *hr;
-    uint8_t *cadence;
-    uint8_t *slope;
+    uint16_t *hr;
+    uint16_t *cadence;
+    uint16_t *slope;
 } ride_data_t;
 
 
