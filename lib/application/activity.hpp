@@ -76,6 +76,7 @@ public:
     window_counter_t get_hr(uint16_t duration);
     window_counter_t get_hr();
     window_counter_t get_power();
+    window_counter_t get_power(uint16_t duration);
     window_counter_t get_speed();
 };
 

@@ -15,6 +15,7 @@
 #include "vh_fonts.hpp"
 #include "lgfx.hpp"
 #include "vh_metric.hpp"
+#include "vh_chart.hpp"
 
 extern LGFX lcd;
 

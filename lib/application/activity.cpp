@@ -60,6 +60,7 @@ void Activity::set_start(uint16_t seconds)
 window_counter_t Activity::get_hr(uint16_t duration) { return counters[measurement_t::heartrate].at(duration); }
 window_counter_t Activity::get_hr() { return counters[measurement_t::heartrate].at(0); }
 window_counter_t Activity::get_power() { return counters[measurement_t::power].at(0); }
+window_counter_t Activity::get_power(uint16_t duration) { return counters[measurement_t::power].at(duration); }
 window_counter_t Activity::get_speed() { return counters[measurement_t::speed].at(0); }
 
 void Activity::add_measurement(raw_measurement_msg_t msg)

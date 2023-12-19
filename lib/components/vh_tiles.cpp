@@ -11,6 +11,7 @@ lv_obj_t *vh_get_main_tile() { return dashboard_tile; }
 lv_obj_t *vh_get_settings_tile() { return scan_tile; }
 lv_obj_t *vh_get_map_tile() { return map_tile; }
 
+
 static void prev_tile_cb(lv_event_t *e)
 {
     if (active > 0)
@@ -70,7 +71,8 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     map_tile = lv_tileview_add_tile(tv, 2, 0, LV_DIR_NONE);
     auto tile4 = lv_tileview_add_tile(tv, 3, 0, LV_DIR_NONE);
     auto tile5 = lv_tileview_add_tile(tv, 4, 0, LV_DIR_NONE);
-    auto gps_tile = lv_tileview_add_tile(tv, 5, 0, LV_DIR_NONE);
+    auto tile6 = lv_tileview_add_tile(tv, 5, 0, LV_DIR_NONE);
+    auto gps_tile = lv_tileview_add_tile(tv, 6, 0, LV_DIR_NONE);
     auto btn_next = create_btn(parent, true);
     auto btn_prev = create_btn(parent, false);
 

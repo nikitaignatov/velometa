@@ -18,4 +18,6 @@ void vh_create_dashboard(lv_obj_t *parent)
     pwr_w.set_label("POWER");
     pwr_w.set_opposite(true);
     lv_obj_align(pwr_w.get_object(), LV_ALIGN_TOP_LEFT, 0, 0);
+
+    vh_create_chart(parent);
 }

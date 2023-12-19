@@ -1,4 +1,5 @@
 #include "vh_screen_activity_hr_stats.hpp"
+
 static lv_obj_t *table;
 static void draw_part_event_cb(lv_event_t *e)
 {
