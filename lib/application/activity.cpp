@@ -57,6 +57,8 @@ void Activity::set_start(uint16_t seconds)
     this->ts_start = seconds;
 }
 
+
+
 window_counter_t Activity::get_hr(uint16_t duration) { return counters[measurement_t::heartrate].at(duration); }
 window_counter_t Activity::get_hr() { return counters[measurement_t::heartrate].at(0); }
 window_counter_t Activity::get_power() { return counters[measurement_t::power].at(0); }
@@ -125,7 +127,7 @@ void activity_task_code(void *parameter)
 
     if (xSemaphore == NULL)
     {
-        ESP_LOGE(TAG, "failed to create semaphore");
+        ESP_LOGD(TAG, "failed to create semaphore");
     }
     xTaskCreatePinnedToCore(
         update_sec_task,

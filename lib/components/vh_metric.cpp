@@ -25,31 +25,31 @@ void MetricW::init(lv_obj_t *parent)
 
     value = lv_label_create(container);
     lv_obj_add_style(value, &style_metric_value, 0);
-    lv_label_set_recolor(value, true);
+    // lv_label_set_recolor(value, true);
     lv_label_set_text(value, "#999999 ---#");
 
     min = lv_label_create(container);
-    lv_label_set_recolor(min, true);
+    // lv_label_set_recolor(min, true);
     lv_label_set_text(min, "#999999 ---#");
     lv_obj_set_size(min, 0, 0);
 
     max = lv_label_create(container);
-    lv_label_set_recolor(max, true);
+    // lv_label_set_recolor(max, true);
     lv_label_set_text(max, "#999999 ---#");
     lv_obj_align(max, LV_ALIGN_TOP_MID, 0, 0);
 
     avg = lv_label_create(container);
-    lv_label_set_recolor(avg, true);
+    // lv_label_set_recolor(avg, true);
     lv_label_set_text(avg, "#999999 ---#");
 
     zone = lv_label_create(container);
-    lv_label_set_recolor(zone, true);
+    // lv_label_set_recolor(zone, true);
     lv_label_set_text(zone, "#999999 -#");
     lv_obj_add_style(zone, &style_metric_value, 0);
 
     label = lv_label_create(container);
     lv_obj_add_style(label, &style_metric_label, 0);
-    lv_label_set_recolor(label, true);
+    // lv_label_set_recolor(label, true);
     set_opposite(opposite);
 }
 

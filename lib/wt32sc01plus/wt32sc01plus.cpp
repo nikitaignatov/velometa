@@ -129,7 +129,7 @@ void display_task_code(void *parameter)
     }
     else
     {
-      ESP_LOGE("display_task_code", "failed to take semaphor");
+      ESP_LOGD("display_task_code", "failed to take semaphor");
     }
   }
 }

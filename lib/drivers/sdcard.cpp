@@ -163,7 +163,7 @@ void write_task_code(void *parameter)
         }
         else
         {
-            ESP_LOGE("metric_info_t", "failed to take semaphor");
+            ESP_LOGD("metric_info_t", "failed to take semaphor");
         }
     }
 }

@@ -33,9 +33,9 @@ void mock_task_code(void *parameter)
         xEventGroupWaitBits(sensor_status_bits, VH_SENSOR_BIT_MOCK_DATA, pdFALSE, pdTRUE, portMAX_DELAY);
 
         msg = (raw_measurement_msg_t){
-            .measurement = measurement_t::speed,
+            .measurement = measurement_t::power,
             .ts = 1,
-            .value = random(15, 60),
+            .value = random(10, 600),
             .scale = 1,
         };
         xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
@@ -47,9 +47,9 @@ void mock_task_code(void *parameter)
         };
         xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
         msg = (raw_measurement_msg_t){
-            .measurement = measurement_t::power,
+            .measurement = measurement_t::speed,
             .ts = 1,
-            .value = random(10, 600),
+            .value = random(15, 60),
             .scale = 1,
         };
         xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);

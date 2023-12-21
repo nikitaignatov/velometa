@@ -122,7 +122,7 @@ void setup()
     xTaskCreatePinnedToCore(
         display_task_code, /* Function to implement the task */
         "display_task",    /* Name of the task */
-        24 * 1024,         /* Stack size in words */
+        32 * 1024,         /* Stack size in words */
         NULL,              /* Task input parameter */
         0,                 /* Priority of the task */
         &display_task,     /* Task handle. */
@@ -136,7 +136,7 @@ void setup()
         NULL,           /* Task input parameter */
         0,              /* Priority of the task */
         NULL,           /* Task handle. */
-        1);             /* Core where the task should run */
+        0);             /* Core where the task should run */
     xTaskCreatePinnedToCore(
         write_task_code, /* Function to implement the task */
         "write_task",    /* Name of the task */
@@ -144,7 +144,7 @@ void setup()
         NULL,            /* Task input parameter */
         0,               /* Priority of the task */
         NULL,            /* Task handle. */
-        1);              /* Core where the task should run */
+        0);              /* Core where the task should run */
 
     xTaskCreatePinnedToCore(
         ble_task_code,   /* Function to implement the task */
@@ -162,7 +162,7 @@ void setup()
         NULL,                 /* Task input parameter */
         0,                    /* Priority of the task */
         &activity_task,       /* Task handle. */
-        1);                   /* Core where the task should run */
+        0);                   /* Core where the task should run */
 #ifdef FEATURE_GPS_ENABLED
     xTaskCreatePinnedToCore(
         gps_task_code,   /* Function to implement the task */
@@ -171,7 +171,7 @@ void setup()
         NULL,            /* Task input parameter */
         0,               /* Priority of the task */
         &gps_task,       /* Task handle. */
-        1);              /* Core where the task should run */
+        0);              /* Core where the task should run */
 #endif
 #ifdef FEATURE_GPS_ENABLED
     xTaskCreatePinnedToCore(
@@ -180,8 +180,8 @@ void setup()
         4 * 1024,                /* Stack size in words */
         NULL,                    /* Task input parameter */
         0,                       /* Priority of the task */
-        &gps_task,               /* Task handle. */
-        1);                      /* Core where the task should run */
+        NULL,               /* Task handle. */
+        0);                      /* Core where the task should run */
 #endif
 
     vTaskDelete(NULL);
