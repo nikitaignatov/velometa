@@ -4,11 +4,11 @@ Bike computer for training purpose. The goal is build a device that can present 
 
 ## Sensor reading
 
-- Watt
-- HR
-- Speed
+- [x] Watt
+- [x] HR
+- [x] Speed
 - Cadence
-- GPS
+- [x] GPS
 
 ## Experimental
 
@@ -25,16 +25,16 @@ Bike computer for training purpose. The goal is build a device that can present 
 
 ## Calculated Metric
 
-- normalized Power
-- training stress value
+- [x] Zones
+  - [x] HR
+  - [x] Power
+- ride ftp
+- xPower (avg weighted)
+- BikeScore (training load)
 - W'
 - Work above threshold
 - HR drift (decoupling)
 - CdA
-- Zones
-  - HR
-  - Power
-- ride ftp
 
 ## Sensor connectivity(integration
 

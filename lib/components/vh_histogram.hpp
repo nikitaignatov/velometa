@@ -7,4 +7,4 @@
 #include "activity.hpp"
 #include "vh_fonts.hpp"
 
-void vh_create_chart(lv_obj_t *parent, lv_coord_t width, lv_coord_t height, uint16_t points_pr_series);
+void vh_create_histogram(lv_obj_t *parent, lv_coord_t width, lv_coord_t height, uint16_t points_pr_series);

@@ -55,7 +55,7 @@ void window_counter_t::add(window_counter_t *self, uint32_t value, uint16_t *tel
 
 uint32_t window_counter_t::get_avg()
 {
-    return count == 0 ? 0 : static_cast<uint32_t>(sum / count);
+    return count == 0 ? 0 : static_cast<uint32_t>(static_cast<double>(sum) / count);
 }
 uint32_t window_counter_t::get_avg_w()
 {

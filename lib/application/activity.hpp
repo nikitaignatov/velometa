@@ -3,6 +3,7 @@
 #include <lvgl.h>
 #include "config.hpp"
 #include "types.hpp"
+#include "zones.hpp"
 #include "esp_log.h"
 #include "task.h"
 #include <algorithm>
@@ -19,12 +20,34 @@ class Activity
     uint64_t ts_start = 0;
     uint64_t ts_end = 0;
 
+    uint16_t hr_zone_count = 0;
+    std::map<uint16_t, int> hr_zone_hist{
+        {1, 0},
+        {2, 0},
+        {3, 0},
+        {4, 0},
+        {5, 0},
+    };
+    uint16_t power_zone_count = 0;
+    std::map<uint16_t, int> power_zone_hist{
+        {1, 0},
+        {2, 0},
+        {3, 0},
+        {4, 0},
+        {5, 0},
+        {6, 0},
+        {7, 0},
+    };
+
     // 5s,15s,30s,60s,90s,120s,300s,600s,900s
-    std::map<measurement_t, std::array<window_counter_t, 10>> counters{
+    std::map<measurement_t, std::array<window_counter_t, 16>> counters{
         {
             measurement_t::heartrate,
-            std::array<window_counter_t, 10>{{
+            std::array<window_counter_t, 16>{{
+                {.duration = 1},
+                {.duration = 3},
                 {.duration = 5},
+                {.duration = 10},
                 {.duration = 15},
                 {.duration = 30},
                 {.duration = 60},
@@ -33,12 +56,19 @@ class Activity
                 {.duration = 300},
                 {.duration = 600},
                 {.duration = 900},
+                {.duration = 1200},
+                {.duration = 1800},
+                {.duration = 3600},
+                {.duration = 3600},
             }},
         },
         {
             measurement_t::power,
-            std::array<window_counter_t, 10>{{
+            std::array<window_counter_t, 16>{{
+                {.duration = 1},
+                {.duration = 3},
                 {.duration = 5},
+                {.duration = 10},
                 {.duration = 15},
                 {.duration = 30},
                 {.duration = 60},
@@ -47,12 +77,19 @@ class Activity
                 {.duration = 300},
                 {.duration = 600},
                 {.duration = 900},
+                {.duration = 1200},
+                {.duration = 1800},
+                {.duration = 3600},
+                {.duration = 3600},
             }},
         },
         {
             measurement_t::speed,
-            std::array<window_counter_t, 10>{{
+            std::array<window_counter_t, 16>{{
+                {.duration = 1},
+                {.duration = 3},
                 {.duration = 5},
+                {.duration = 10},
                 {.duration = 15},
                 {.duration = 30},
                 {.duration = 60},
@@ -61,6 +98,10 @@ class Activity
                 {.duration = 300},
                 {.duration = 600},
                 {.duration = 900},
+                {.duration = 1200},
+                {.duration = 1800},
+                {.duration = 3600},
+                {.duration = 3600},
             }},
         },
     };
@@ -78,6 +119,8 @@ public:
     window_counter_t get_power();
     window_counter_t get_power(uint16_t duration);
     window_counter_t get_speed();
+    std::map<uint16_t, uint16_t> get_hr_zone_hist();
+    std::map<uint16_t, uint16_t> get_power_zone_hist();
 };
 
 void activity_task_code(void *parameter);

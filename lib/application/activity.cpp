@@ -57,39 +57,75 @@ void Activity::set_start(uint16_t seconds)
     this->ts_start = seconds;
 }
 
-
-
 window_counter_t Activity::get_hr(uint16_t duration) { return counters[measurement_t::heartrate].at(duration); }
 window_counter_t Activity::get_hr() { return counters[measurement_t::heartrate].at(0); }
 window_counter_t Activity::get_power() { return counters[measurement_t::power].at(0); }
 window_counter_t Activity::get_power(uint16_t duration) { return counters[measurement_t::power].at(duration); }
 window_counter_t Activity::get_speed() { return counters[measurement_t::speed].at(0); }
 
+std::map<uint16_t, uint16_t> Activity::get_hr_zone_hist()
+{
+    auto count = std::max<uint16_t>(1, hr_zone_count);
+    std::map<uint16_t, uint16_t> result;
+    for (auto z : hr_zone_hist)
+    {
+        result.emplace(z.first, (z.second * 100) / count);
+    }
+    return result;
+}
+
+std::map<uint16_t, uint16_t> Activity::get_power_zone_hist()
+{
+    auto count = std::max<uint16_t>(1, power_zone_count);
+    std::map<uint16_t, uint16_t> result;
+    for (auto z : power_zone_hist)
+    {
+        result.emplace(z.first, (z.second * 100) / count);
+    }
+    return result;
+}
+
 void Activity::add_measurement(raw_measurement_msg_t msg)
 {
     ESP_LOGD(TAG, "activity::add_measurement hour[%d]", hour);
-
-    for (auto &interval : this->counters[msg.measurement])
+    uint32_t key;
+    switch (msg.measurement)
     {
-        ESP_LOGD(TAG, "period %ds \t value: %d", interval.duration, msg.value);
-        switch (msg.measurement)
+    case measurement_t::heartrate:
+        key = calculate_hr_zone(msg.value);
+        key = key < 1 ? 1 : key;
+        key = key > 5 ? 5 : key;
+        hr_zone_hist[key]++;
+        hr_zone_count++;
+
+        telemetry.hr[this->counters[msg.measurement][0].get_position()] = msg.value;
+        for (auto &interval : this->counters[msg.measurement])
         {
-        case measurement_t::heartrate:
             interval.add(&interval, (uint16_t)msg.value, telemetry.hr, seconds);
-            telemetry.hr[interval.get_position()] = msg.value;
-            break;
-        case measurement_t::power:
-            interval.add(&interval, (uint16_t)msg.value, telemetry.power, seconds);
-            telemetry.power[interval.get_position()] = msg.value;
-            break;
-        case measurement_t::speed:
-            interval.add(&interval, (uint16_t)msg.value, telemetry.speed, seconds);
-            telemetry.speed[interval.get_position()] = msg.value;
-            break;
-        default:
-            break;
         }
-        ESP_LOGD(TAG, "period %ds\t avg: %d count: %d from: %d to: %d", interval.duration, interval.avg, interval.count, interval.window_end - interval.duration, seconds);
+        break;
+    case measurement_t::power:
+        key = (msg.value / 10) * 10;
+        key = key < 50 ? 50 : key;
+        key = key > 200 ? 200 : key;
+        power_zone_hist[key]++;
+        power_zone_count++;
+
+        telemetry.power[this->counters[msg.measurement][0].get_position()] = msg.value;
+        for (auto &interval : this->counters[msg.measurement])
+        {
+            interval.add(&interval, (uint16_t)msg.value, telemetry.power, seconds);
+        }
+        break;
+    case measurement_t::speed:
+        telemetry.speed[this->counters[msg.measurement][0].get_position()] = msg.value;
+        for (auto &interval : this->counters[msg.measurement])
+        {
+            interval.add(&interval, (uint16_t)msg.value, telemetry.speed, seconds);
+        }
+        break;
+    default:
+        break;
     }
 }
 

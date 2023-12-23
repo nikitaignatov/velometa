@@ -81,6 +81,7 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     vh_map_init(map_tile);
     vh_create_dashboard(dashboard_tile);
     vh_create_mock_btn(parent);
+    vh_create_histogram(tile6, 320, 350, 5);
 
     auto p = vh_gps_tile_create(gps_tile);
 
