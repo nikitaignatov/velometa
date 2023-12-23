@@ -11,6 +11,7 @@
 #include "vh_mock_btn.hpp"
 #include "vh_screen_activity_hr_stats.hpp"
 #include "vh_histogram.hpp"
+#include "vh_status_bar.hpp"
 
 
 lv_obj_t *vh_tiles_init(lv_obj_t *parent);

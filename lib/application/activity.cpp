@@ -193,10 +193,10 @@ void activity_task_code(void *parameter)
             switch (msg.measurement)
             {
             case measurement_t::heartrate:
-                publish(MSG_NEW_HR, activity.get_hr());
+                publish(MSG_NEW_HR, activity.get_hr(15));
                 break;
             case measurement_t::power:
-                publish(MSG_NEW_POWER, activity.get_power());
+                publish(MSG_NEW_POWER, activity.get_power(15));
                 break;
             case measurement_t::speed:
                 publish(MSG_NEW_SPEED, activity.get_speed());

@@ -72,15 +72,6 @@ void main_screen(void)
 {
   apply_velohub_theme();
   lv_obj_t *p = vh_tiles_init(lv_scr_act());
-
-  lv_obj_t *tile1 = vh_get_main_tile();
-
-  // lv_obj_t *map_update_slider = lv_slider_create(tile1);
-  // lv_obj_align(map_update_slider, LV_ALIGN_CENTER, 0, 25);
-  // lv_slider_set_range(map_update_slider, 30, 10000);
-  // lv_slider_set_value(map_update_slider, map_frequency, lv_anim_enable_t::LV_ANIM_OFF);
-  // lv_obj_set_size(map_update_slider, 10, 300);
-  // lv_obj_add_event_cb(map_update_slider, map_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 }
 
 void display_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)

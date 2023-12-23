@@ -61,7 +61,7 @@ static void label_event_cb(lv_event_t *e)
 
 lv_obj_t *vh_gps_tile_create(lv_obj_t *parent)
 {
-    tile = vh_create_container(parent, 320, 480);
+    tile = vh_create_container(parent, 320, 450);
     lv_obj_center(tile);
     lv_msg_subsribe_obj(MSG_NEW_GPS, tile, 0);
     lv_obj_add_event_cb(tile, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);

@@ -11,7 +11,6 @@ lv_obj_t *vh_get_main_tile() { return dashboard_tile; }
 lv_obj_t *vh_get_settings_tile() { return scan_tile; }
 lv_obj_t *vh_get_map_tile() { return map_tile; }
 
-
 static void prev_tile_cb(lv_event_t *e)
 {
     if (active > 0)
@@ -66,6 +65,11 @@ lv_obj_t *create_btn(lv_obj_t *parent, bool next)
 lv_obj_t *vh_tiles_init(lv_obj_t *parent)
 {
     tv = lv_tileview_create(parent);
+    lv_obj_set_size(tv, 320, 450);
+    lv_obj_align(tv, LV_ALIGN_TOP_MID, 0, 0);
+    vh_create_status_bar(lv_scr_act(),320);
+
+
     dashboard_tile = lv_tileview_add_tile(tv, 0, 0, LV_DIR_NONE);
     scan_tile = lv_tileview_add_tile(tv, 1, 0, LV_DIR_NONE);
     map_tile = lv_tileview_add_tile(tv, 2, 0, LV_DIR_NONE);

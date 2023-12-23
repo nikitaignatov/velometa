@@ -7,6 +7,7 @@ lv_obj_t *vh_create_status_bar(lv_obj_t *parent, int width)
     lv_style_init(&style_status_bar);
     lv_style_set_text_font(&style_status_bar, &lv_font_montserrat_12);
     lv_obj_t *status_bar = vh_create_container(parent, 0, 0, width, 20, 0x000000);
+    lv_obj_align(status_bar, LV_ALIGN_BOTTOM_MID, 0, 0);
 
     lv_obj_t *lbl = lv_label_create(status_bar);
     lv_obj_add_style(lbl, &style_status_bar, 0);
