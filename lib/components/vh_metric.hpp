@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <lvgl.h>
 #include <functional>
 #include <fmt/core.h>

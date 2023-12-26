@@ -59,7 +59,7 @@ class Activity
                 {.duration = 1200},
                 {.duration = 1800},
                 {.duration = 3600},
-                {.duration = 3600},
+                {.duration = 2 * 3600},
             }},
         },
         {
@@ -80,7 +80,7 @@ class Activity
                 {.duration = 1200},
                 {.duration = 1800},
                 {.duration = 3600},
-                {.duration = 3600},
+                {.duration = 2 * 3600},
             }},
         },
         {
@@ -101,7 +101,7 @@ class Activity
                 {.duration = 1200},
                 {.duration = 1800},
                 {.duration = 3600},
-                {.duration = 3600},
+                {.duration = 2 * 3600},
             }},
         },
     };
@@ -118,6 +118,17 @@ public:
     window_counter_t get_hr();
     window_counter_t get_power();
     window_counter_t get_power(uint16_t duration);
+    float get_tl()
+    {
+        auto power = counters[measurement_t::power][15].get_avg_w();
+        auto r = static_cast<float>(power) / FTP ;
+        auto p = (seconds * counters[measurement_t::power][15].get_avg_w() * r) / (FTP * 3600) * 100;
+        return p;
+    };
+    uint32_t get_xpower()
+    {
+        return counters[measurement_t::power][15].get_avg_w();
+    };
     window_counter_t get_speed();
     std::map<uint16_t, uint16_t> get_hr_zone_hist();
     std::map<uint16_t, uint16_t> get_power_zone_hist();

@@ -3,6 +3,19 @@
 static lv_style_t style_metric_value;
 static lv_style_t style_metric_label;
 
+static std::map<int, lv_color_t> zone_color_map{
+    {0, lv_color_hex(0x999999)},
+    {1, lv_color_hex(0x999999)},
+    {2, lv_color_hex(0x058ed9)},
+    {3, lv_color_hex(0x679436)},
+    {4, lv_color_hex(0xf1c40f)},
+    {5, lv_color_hex(0xdd2d4a)},
+    {6, lv_color_hex(0x880d1e)},
+    {7, lv_color_hex(0x57167a)},
+    {8, lv_color_hex(0xff0000)},
+    {9, lv_color_hex(0xff0000)},
+};
+
 int zone_from_hr(float value)
 {
     return calculate_hr_zone(value);
@@ -53,47 +66,23 @@ void MetricW::init(lv_obj_t *parent)
     set_opposite(opposite);
 }
 
-static int zone_color(int zone, std::string f)
-{
-    switch (zone)
-    {
-    case 1:
-        return 0x999999;
-    case 2:
-        return 0x058ed9;
-    case 3:
-        return 0x679436;
-    case 4:
-        return 0xf1c40f;
-    case 5:
-        return 0xdd2d4a;
-    case 6:
-        return 0x880d1e;
-    case 7:
-        return 0x57167a;
-
-    default:
-        return 0x999999;
-    }
-}
 
 void MetricW::update(window_counter_t *metric)
 {
     ESP_LOGD("metric_update", "begin");
-    auto zone_value = zone_converter(metric->get_last());
     lv_label_set_text(value, fmt::format("{}", metric->get_last()).c_str());
 
     lv_label_set_text(min, fmt::format("{}", metric->get_min()).c_str());
     lv_label_set_text(max, fmt::format("{}", metric->get_max()).c_str());
-    zone_value = zone_converter(metric->get_avg());
-    auto color = zone_color(zone_value, "{}");
+    auto zone_value = zone_converter(metric->get_avg());
+    auto color = zone_color_map[zone_value];
     lv_label_set_text(avg, fmt::format("{}", metric->get_avg()).c_str());
-    lv_obj_set_style_text_color(avg, lv_color_hex(color), 0);
+    lv_obj_set_style_text_color(avg, color, 0);
 
     zone_value = zone_converter(metric->get_last());
-    color = zone_color(zone_value, "{}");
+    color = zone_color_map[zone_value];
     lv_label_set_text(zone, fmt::format("{}", zone_value).c_str());
-    lv_obj_set_style_bg_color(zone, lv_color_hex(color), 0);
+    lv_obj_set_style_bg_color(zone, color, 0);
     ESP_LOGD("metric_update", "end");
 }
 

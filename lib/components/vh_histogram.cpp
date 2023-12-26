@@ -4,7 +4,6 @@ static lv_obj_t *histogram;
 
 static lv_chart_series_t *ser_hr_hist;
 static lv_chart_series_t *ser_hr_zone_hist;
-
 static lv_chart_cursor_t *cursor;
 
 static void clear_default_style(lv_obj_t *chart)

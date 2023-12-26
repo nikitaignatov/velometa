@@ -2,6 +2,13 @@
 
 MetricW hrm_w;
 MetricW pwr_w;
+lv_obj_t *label;
+
+static void histogram_update_event_cb(lv_event_t *e)
+{
+    auto ac = current_activity();
+    lv_label_set_text_fmt(label, "TL: %.2f xP: %u", ac->get_tl(), ac->get_xpower());
+}
 
 void vh_create_dashboard(lv_obj_t *parent)
 {
@@ -20,4 +27,11 @@ void vh_create_dashboard(lv_obj_t *parent)
     lv_obj_align(pwr_w.get_object(), LV_ALIGN_TOP_LEFT, 0, 0);
 
     vh_create_chart(parent, 320, 150, 120);
+
+    label = lv_label_create(parent);
+    lv_label_set_text(label, "TL");
+    lv_obj_align(label, LV_ALIGN_BOTTOM_MID, 0, -100);
+
+    lv_obj_add_event_cb(label, histogram_update_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(MSG_NEW_HR, label, 0);
 }
