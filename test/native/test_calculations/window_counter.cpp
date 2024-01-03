@@ -8,6 +8,9 @@
 
 static std::array<uint16_t, 13> input_telemetry_13{{5, 1, 2, 3, 1, 8, 3, 9, 1, 2, 2, 3, 2}};
 
+void tearDown(void){}
+void setUp(void){}
+
 void test_window_3_min_max_avg_last(void)
 {
     window_counter_t w{.duration = 3};
