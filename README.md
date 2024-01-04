@@ -1,4 +1,4 @@
-# VeloScreen
+# velometa
 
 Bike computer for training purpose. The goal is build a device that can present the required information during trainng rides outdoors or indoors.
 
