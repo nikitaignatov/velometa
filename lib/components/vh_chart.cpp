@@ -76,5 +76,5 @@ void vh_create_chart(lv_obj_t *parent, lv_coord_t width, lv_coord_t height, uint
     lv_label_set_recolor(label, true);
     lv_label_set_text(label, "#ff0000 HR avg3s# #990000 HR last# & #FFD95A P avgw3s # #4a3939 P avg3s #");
     lv_obj_set_style_text_font(label, font_small, 0);
-    lv_obj_align_to(label, chart_, LV_ALIGN_OUT_BOTTOM_MID, 0, -5);
+    lv_obj_align_to(label, chart_, LV_ALIGN_OUT_BOTTOM_MID, 0, -12);
 }
