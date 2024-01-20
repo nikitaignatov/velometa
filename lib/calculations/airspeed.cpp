@@ -1,5 +1,17 @@
 #include "airspeed.hpp"
 
+float Airspeed::inlet(float input)
+{
+    _inlet = input;
+    return _inlet;
+}
+
+float Airspeed::throat(float input)
+{
+    _throat = input;
+    return _throat;
+}
+
 float Airspeed::pressure(float input)
 {
     _pressure = input;
@@ -53,6 +65,21 @@ float Airspeed::density()
     float y = Pva / Rv * Tk;
     float p = x + y;      // total air pressure, Pascals ( multiply mb by 100 to get Pascals)
     return p / (Rd * Tk); // kg/m3
+}
+
+float Airspeed::speed(float differential_pressure)
+{
+    float h = 0.010;
+    float inlet = h * (_inlet / 100);
+    float throat = h * (_throat / 100);
+    float ratio = inlet / throat;
+    float factor = ((pow(ratio, 2) - 1) * density());
+    if (differential_pressure == 0)
+        return 0;
+    else if (differential_pressure < 0)
+        return sqrt((2 * -differential_pressure) / factor);
+    else
+        return -sqrt(2 * (differential_pressure) / factor);
 }
 
 float Airspeed::altitude()
