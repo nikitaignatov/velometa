@@ -7,7 +7,7 @@ lv_obj_t *label;
 static void histogram_update_event_cb(lv_event_t *e)
 {
     auto ac = current_activity();
-    lv_label_set_text_fmt(label, "load: %.2f w power: %u intensity: %u%", ac->get_tl(), ac->get_xpower(),ac->get_intensity());
+    lv_label_set_text_fmt(label, "L: %.2f wP: %u I: %u%", ac->get_tl(), ac->get_xpower(),ac->get_intensity());
 }
 
 void vh_create_dashboard(lv_obj_t *parent)
