@@ -21,12 +21,9 @@ extern FATFS *fatfs;
 
 void vh_setup(void)
 {
-  // delay(5000);
-  Serial.begin(115200);
   lcd.init(); // Initialize LovyanGFX
   lv_init();  // Initialize lvgl
   lv_fs_stdio_init();
-
 
   // lv_fs_file_t f;
   // lv_fs_res_t res = lv_fs_open(&f, "S:/tiles/15/17493/10240.bin", LV_FS_MODE_RD);
@@ -121,8 +118,9 @@ void touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
 
 void display_task_code(void *parameter)
 {
-  Serial.println("display_task_code");
+  ESP_LOGI("display_task_code", "start");
   vh_setup();
+  ESP_LOGI("display_task_code", "vh_setup complete");
   for (;;)
   {
     vTaskDelay(2 / portTICK_PERIOD_MS);

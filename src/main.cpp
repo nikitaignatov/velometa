@@ -34,9 +34,14 @@ EventGroupHandle_t sensor_status_bits;
 void setup()
 {
     Serial.begin(115200);
-    Serial.println("VeloHUB");
+    delay(50);
+    Serial.println("Velometa");
 
     vh_display_semaphore = xSemaphoreCreateMutex();
+    sensor_status_bits = xEventGroupCreate();
+    vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
+    vh_gps_queue = xQueueCreate(120, sizeof(gps_data_t));
+
     if (vh_display_semaphore == NULL)
     {
         Serial.println("Failed to create display semaphore");
@@ -45,25 +50,42 @@ void setup()
 #ifdef DEVELOPMENT
     delay(4000);
 #endif
+
+    fatfs = fs_mount_sd_card();
+    Serial.print(fatfs->fsize);
+    Serial.println(" init_sdspi");
+
+#ifdef USE_EPAPER
+    display_init();
+    xTaskCreatePinnedToCore(
+        display_task_code,   /* Function to implement the task */
+        "display_task_code", /* Name of the task */
+        10 * 1024,           /* Stack size in words */
+        NULL,                /* Task input parameter */
+        0,                   /* Priority of the task */
+        &display_task,       /* Task handle. */
+        1);                  /* Core where the task should run */
+#else
+    xTaskCreatePinnedToCore(
+        display_task_code, /* Function to implement the task */
+        "display_task",    /* Name of the task */
+        32 * 1024,         /* Stack size in words */
+        NULL,              /* Task input parameter */
+        0,                 /* Priority of the task */
+        &display_task,     /* Task handle. */
+        1);                /* Core where the task should run */
+#endif
+
     //PSRAM Initialisation
     if (psramInit())
     {
         Serial.println("\nThe PSRAM is correctly initialized");
+        Serial.println((String) "PSRAM Size available (bytes): " + ESP.getFreePsram());
     }
     else
     {
         Serial.println("\nPSRAM does not work");
     }
-
-    int available_PSRAM_size = ESP.getFreePsram();
-    Serial.println((String) "PSRAM Size available (bytes): " + available_PSRAM_size);
-
-    Serial.println((String) "PSRAM Size available (bytes): " + ESP.getFreePsram());
-
-    sensor_status_bits = xEventGroupCreate();
-
-    vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
-    vh_gps_queue = xQueueCreate(120, sizeof(gps_data_t));
 
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_HR,
@@ -105,31 +127,6 @@ void setup()
         .parse_data = ble_parse_speed_wheel_rpm_data,
         .enabled = true,
     });
-
-    fatfs = fs_mount_sd_card();
-    Serial.print(fatfs->fsize);
-    Serial.println(" init_sdspi");
-
-#ifdef USE_EPAPER
-    display_init();
-    xTaskCreatePinnedToCore(
-        display_task_code,   /* Function to implement the task */
-        "display_task_code", /* Name of the task */
-        10 * 1024,           /* Stack size in words */
-        NULL,                /* Task input parameter */
-        0,                   /* Priority of the task */
-        &display_task,       /* Task handle. */
-        1);                  /* Core where the task should run */
-#else
-    xTaskCreatePinnedToCore(
-        display_task_code, /* Function to implement the task */
-        "display_task",    /* Name of the task */
-        32 * 1024,         /* Stack size in words */
-        NULL,              /* Task input parameter */
-        0,                 /* Priority of the task */
-        &display_task,     /* Task handle. */
-        1);                /* Core where the task should run */
-#endif
 
     xTaskCreatePinnedToCore(
         mock_task_code, /* Function to implement the task */
@@ -182,7 +179,7 @@ void setup()
         4 * 1024,                /* Stack size in words */
         NULL,                    /* Task input parameter */
         0,                       /* Priority of the task */
-        NULL,               /* Task handle. */
+        NULL,                    /* Task handle. */
         0);                      /* Core where the task should run */
 #endif
 

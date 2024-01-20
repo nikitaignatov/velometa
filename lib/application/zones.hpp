@@ -13,18 +13,18 @@ uint8_t calculate_hr_zone(uint16_t hr);
 // HR
 
 #define HR_Z1_MIN 0
-#define HR_Z1_MAX 116
+#define HR_Z1_MAX 118
 
-#define HR_Z2_MIN 117
-#define HR_Z2_MAX 155
+#define HR_Z2_MIN 119
+#define HR_Z2_MAX 156
 
-#define HR_Z3_MIN 156
-#define HR_Z3_MAX 173
+#define HR_Z3_MIN 157
+#define HR_Z3_MAX 175
 
-#define HR_Z4_MIN 174
-#define HR_Z4_MAX 193
+#define HR_Z4_MIN 176
+#define HR_Z4_MAX 194
 
-#define HR_Z5_MIN 193
+#define HR_Z5_MIN 195
 #define HR_Z5_MAX 250
 
 // Power
