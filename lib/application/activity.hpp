@@ -120,14 +120,28 @@ public:
     window_counter_t get_power(uint16_t duration);
     float get_tl()
     {
-        auto power = counters[measurement_t::power][15].get_avg_w();
-        auto r = static_cast<float>(power) / FTP ;
-        auto p = (seconds * counters[measurement_t::power][15].get_avg_w() * r) / (FTP * 3600) * 100;
-        return p;
+        auto conuter = counters[measurement_t::power][15];
+        if (conuter.count > 0)
+        {
+            auto power = counters[measurement_t::power][15].get_avg_w();
+            auto r = static_cast<float>(power) / FTP;
+            auto p = (seconds * counters[measurement_t::power][15].get_avg_w() * r) / (FTP * 3600) * 100;
+            return p;
+        }
+        return 0;
     };
     uint32_t get_xpower()
     {
-        return counters[measurement_t::power][15].get_avg_w();
+        auto conuter = counters[measurement_t::power][15];
+        if (conuter.count > 0)
+        {
+            return counters[measurement_t::power][15].get_avg_w();
+        }
+        return 0;
+    };
+    uint32_t get_intensity()
+    {
+        return get_xpower() * 100 / FTP;
     };
     window_counter_t get_speed();
     std::map<uint16_t, uint16_t> get_hr_zone_hist();

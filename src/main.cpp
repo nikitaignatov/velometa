@@ -8,10 +8,12 @@
 #include "gps.hpp"
 #include "mock_data.hpp"
 #include "activity.hpp"
+#include <ff.h>
 
 uint16_t map_frequency = 1000;
 SemaphoreHandle_t vh_display_semaphore;
 
+FATFS *fatfs;
 #if USE_EPAPER
 #include "display_420.hpp"
 #elif USE_LCD
@@ -104,8 +106,8 @@ void setup()
         .enabled = true,
     });
 
-    auto r = fs_mount_sd_card();
-    Serial.print(r->fsize);
+    fatfs = fs_mount_sd_card();
+    Serial.print(fatfs->fsize);
     Serial.println(" init_sdspi");
 
 #ifdef USE_EPAPER
@@ -137,14 +139,14 @@ void setup()
         0,              /* Priority of the task */
         NULL,           /* Task handle. */
         0);             /* Core where the task should run */
-    xTaskCreatePinnedToCore(
-        write_task_code, /* Function to implement the task */
-        "write_task",    /* Name of the task */
-        4 * 1024,        /* Stack size in words */
-        NULL,            /* Task input parameter */
-        0,               /* Priority of the task */
-        NULL,            /* Task handle. */
-        0);              /* Core where the task should run */
+    // xTaskCreatePinnedToCore(
+    //     write_task_code, /* Function to implement the task */
+    //     "write_task",    /* Name of the task */
+    //     4 * 1024,        /* Stack size in words */
+    //     NULL,            /* Task input parameter */
+    //     0,               /* Priority of the task */
+    //     NULL,            /* Task handle. */
+    //     0);              /* Core where the task should run */
 
     xTaskCreatePinnedToCore(
         ble_task_code,   /* Function to implement the task */

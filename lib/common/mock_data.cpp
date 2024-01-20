@@ -35,7 +35,7 @@ void mock_task_code(void *parameter)
         msg = (raw_measurement_msg_t){
             .measurement = measurement_t::power,
             .ts = 1,
-            .value = random(10, 600),
+            .value = random(150, 180),
             .scale = 1,
         };
         xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
@@ -57,8 +57,8 @@ void mock_task_code(void *parameter)
             .tick_ms = (uint64_t)random(90, 300),
             .date = (uint64_t)random(90, 300),
             .time = (uint64_t)random(90, 300),
-            .lat = (double)random(50000, 55999) / 1000.0,
-            .lon = (double)random(10000, 12999) / 1000.0,
+            .lat = (double)random(55769, 55788) / 1000.0,
+            .lon = (double)random(12151, 12195) / 1000.0,
             .speed = (double)random(500, 5599) / 100.0,
             .height = (double)random(30, 30000) / 100.0,
             .hdop = (double)random(1, 200) / 10.0,

@@ -1,9 +1,14 @@
 #include "sdcard.hpp"
-static FATFS fatfs;
+extern FATFS fatfs;
 
 FATFS *fs_mount_sd_card()
 {
     init_sdspi();
+
+
+    // pinMode(SD_CS, OUTPUT); //SD Card SS
+    // SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
+    // SD.begin(SD_CS);
 
     f_mount(&fatfs, "S:", 1);
     return &fatfs;
@@ -95,7 +100,7 @@ void write_task_code(void *parameter)
     Serial.println("write_task_code");
 
     pinMode(SD_CS, OUTPUT); //SD Card SS
-    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
+    // SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
     SD.begin(SD_CS);
     uint8_t cardType = SD.cardType();
 
