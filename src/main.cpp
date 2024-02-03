@@ -10,6 +10,8 @@
 #include "activity.hpp"
 #include <ff.h>
 
+RTC_DATA_ATTR int start_count = 0;
+
 uint16_t map_frequency = 1000;
 SemaphoreHandle_t vh_display_semaphore;
 
@@ -33,9 +35,18 @@ EventGroupHandle_t sensor_status_bits;
 
 void setup()
 {
+    start_count++;
     Serial.begin(115200);
     delay(50);
     Serial.println("Velometa");
+
+    if (start_count > 1)
+    {
+        // if start count is more than one, before initialization
+        // this will allow to flash the MCU via USB
+        Serial.printf("Start count is %d. waiting 10sec.\n", start_count);
+        delay(10e3);
+    }
 
     vh_display_semaphore = xSemaphoreCreateMutex();
     sensor_status_bits = xEventGroupCreate();
@@ -46,10 +57,6 @@ void setup()
     {
         Serial.println("Failed to create display semaphore");
     }
-
-#ifdef DEVELOPMENT
-    delay(4000);
-#endif
 
     fatfs = fs_mount_sd_card();
     Serial.print(fatfs->fsize);
@@ -182,7 +189,7 @@ void setup()
         NULL,                    /* Task handle. */
         0);                      /* Core where the task should run */
 #endif
-
+    start_count = 0;
     vTaskDelete(NULL);
 }
 

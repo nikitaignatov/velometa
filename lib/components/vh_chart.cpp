@@ -23,7 +23,7 @@ static void update_event_cb(lv_event_t *e)
         lv_chart_set_next_value(chart_, ser_hr_last, hr.get_last());
         lv_chart_set_next_value(chart_, ser_hr_avg, hr.get_avg());
 
-        if (chart->ymin[0] != hrm.get_min() - offset || chart->ymax[0] != hrm.get_max() + offset)
+        if (chart->ymin[0] > hrm.get_min() - offset || chart->ymax[0] < hrm.get_max() + offset)
         {
             lv_chart_set_range(chart_, LV_CHART_AXIS_PRIMARY_Y, hrm.get_min() - offset, hrm.get_max() + offset);
         }
@@ -76,5 +76,5 @@ void vh_create_chart(lv_obj_t *parent, lv_coord_t width, lv_coord_t height, uint
     lv_label_set_recolor(label, true);
     lv_label_set_text(label, "#ff0000 HR avg3s# #990000 HR last# & #FFD95A P avgw3s # #4a3939 P avg3s #");
     lv_obj_set_style_text_font(label, font_small, 0);
-    lv_obj_align_to(label, chart_, LV_ALIGN_OUT_BOTTOM_MID, 0, -12);
+    lv_obj_align_to(label, chart_, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
 }

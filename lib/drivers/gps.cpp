@@ -7,7 +7,7 @@ static const int RXPin = 21, TXPin = 22;
 #elif BOARD == WTSC01_PLUS
 static const int RXPin = 11, TXPin = 10;
 #endif
-static const uint32_t GPSBaud = 9600;
+static const uint32_t GPSBaud = 115200;
 TinyGPSPlus gps;
 HardwareSerial ss(1);
 
