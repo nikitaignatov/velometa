@@ -5,7 +5,7 @@
 #define TILE_WIDTH 256
 #define TILE_WIDTH 256
 #define TILE_HEIGHT TILE_WIDTH
-
+#define DISABLE_MAP
 static const char *TAG = "vh_map";
 
 lv_obj_t *map_window;
@@ -92,7 +92,6 @@ void vh_map_init(lv_obj_t *parent)
     lv_obj_set_size(map2, WINDOW_WIDTH - TILE_WIDTH, WINDOW_HEIGH);
     lv_obj_align_to(map2, map, LV_ALIGN_TOP_LEFT, TILE_WIDTH, 0);
 
-
     lv_obj_add_event_cb(map, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
     lv_msg_subsribe_obj(MSG_NEW_GPS, map, 0);
 
@@ -104,6 +103,10 @@ void vh_map_init(lv_obj_t *parent)
 
 static void vh_map_update(int zoom, int x, int y)
 {
+
+#ifdef DISABLE_MAP
+    return;
+#endif
     auto path = fmt::format("S:/tiles/{}/{}/{}.bin", zoom, x, y);
     lv_img_set_src(map, path.c_str());
 }

@@ -18,6 +18,7 @@ enum metric_type_t
     POWER_CRANK_RPM,
     SPEED_WHEEL_RPM,
     SPEED_CRANK_RPM,
+    AIRSPEED_KMH,
 };
 
 typedef struct
@@ -31,6 +32,7 @@ typedef struct
     void (*parse_data)(uint8_t *pData, size_t length);
     bool enabled;
     sensor_state_t state;
+    esp_ble_addr_type_t address_type;
 
 } sensor_definition_t;
 
@@ -41,5 +43,6 @@ void ble_task_code(void *parameter);
 void ble_parse_hr_data(uint8_t *pData, size_t length);
 void ble_parse_power_watt_data(uint8_t *pData, size_t length);
 void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length);
+void ble_parse_airspeed(uint8_t *pData, size_t length);
 
 #endif

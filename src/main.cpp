@@ -102,7 +102,8 @@ void setup()
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_hr_data,
-        .enabled = true,
+        .enabled = false,
+        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
     });
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_HR2,
@@ -112,7 +113,8 @@ void setup()
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_hr_data,
-        .enabled = true,
+        .enabled = false,
+        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
     });
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_POWER,
@@ -122,7 +124,8 @@ void setup()
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_power_watt_data,
-        .enabled = true,
+        .enabled = false,
+        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
     });
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_SPEED,
@@ -132,7 +135,19 @@ void setup()
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_speed_wheel_rpm_data,
+        .enabled = false,
+        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+    });
+    ble_sensors.push_back((sensor_definition_t){
+        .device_name = DEVICE_NAME_AIRSPEED,
+        .metric = metric_type_t::AIRSPEED_KMH,
+        .service_id = BLEUUID("0895EC4E-F5A8-47AD-BDDE-FDEBB46D6F93"),
+        .characteristic_id = BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7511"),
+        .address = missing_address,
+        .client = nullptr,
+        .parse_data = ble_parse_airspeed,
         .enabled = true,
+        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_PUBLIC,
     });
 
     xTaskCreatePinnedToCore(

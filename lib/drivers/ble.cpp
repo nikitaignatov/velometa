@@ -19,23 +19,24 @@ void ble_task_code(void *parameter)
     {
         for (auto sensor : ble_sensors)
         {
-            ESP_LOGV(TAG, "Check sensor %s. address:%s\n", sensor.device_name, sensor.address.toString().c_str());
+            ESP_LOGI(TAG, "Check sensor %s. address:%s\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
 
             if (sensor.client && sensor.client->isConnected())
             {
                 sensor.state.connected = true;
+                Serial.printf("Connected to sensor %s\n", sensor.device_name.c_str());
                 continue;
             }
             else if (!missing_address.equals(sensor.address))
             {
                 sensor.state.connected = false;
-                Serial.printf("Connect to sensor %s\n", sensor.device_name);
+                Serial.printf("Connect to sensor %s\n", sensor.device_name.c_str());
                 connect(sensor);
             }
             else if (sensor.enabled)
             {
                 sensor.state.connected = false;
-                Serial.printf("Scan enabled sensor %s. address:%s\n", sensor.device_name, sensor.address.toString().c_str());
+                Serial.printf("Scan enabled sensor %s. address:%s\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
                 init_scan();
             }
         }
@@ -59,13 +60,15 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
             }
             if (device.haveServiceUUID() && device.isAdvertisingService(sensor.service_id))
             {
-                Serial.printf("%s scan result: %s\n", sensor.device_name, device.getName().c_str());
-                // TODO: 
+                Serial.printf("%s scan result: %s\n", sensor.device_name.c_str(), device.getName().c_str());
+                // TODO:
                 if (String(device.getName().c_str()).equalsIgnoreCase(String(sensor.device_name.c_str())))
                 {
-                    Serial.println("scan result match");
+                    Serial.printf("scan result match %s\n", sensor.device_name.c_str());
                     sensor.address = BLEAddress(device.getAddress());
+                    Serial.printf("create client init %s", sensor.address.toString().c_str());
                     sensor.client = BLEDevice::createClient();
+                    Serial.println("create client done");
                     sensor.state.name = sensor.device_name;
                 }
             }
@@ -81,7 +84,7 @@ void init_scan()
     pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
     pBLEScan->setActiveScan(true);
     Serial.println("init scan");
-    pBLEScan->start(15);
+    pBLEScan->start(30);
     Serial.println("init done");
 }
 
@@ -89,7 +92,7 @@ void notifyCallback(sensor_definition_t sensor, BLERemoteCharacteristic *pBLERem
 {
     sensor.parse_data(pData, length);
 
-    Serial.printf("%s[ %s ]\n", sensor.device_name, sensor.address.toString().c_str());
+    Serial.printf("%s[ %s ]\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
     // Serial.printf("%s[ %s ] payload: [", sensor.device_name, sensor.address.toString().c_str());
     // for (size_t i = 0; i < length; i++)
     // {
@@ -109,7 +112,7 @@ bool connect(sensor_definition_t sensor)
         return false;
     }
 
-    auto connected = sensor.client->connect(address, esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM);
+    auto connected = sensor.client->connect(address, sensor.address_type);
 
     Serial.printf("Connection: %d\n", connected);
 
@@ -122,7 +125,9 @@ bool connect(sensor_definition_t sensor)
     }
     else
     {
-        Serial.print("Connected to serivce ");
+        Serial.print("Connected to device");
+        Serial.print(sensor.device_name.c_str());
+        Serial.print(" Service UUID: ");
         Serial.println(sensor.service_id.toString().c_str());
     }
 
@@ -132,6 +137,7 @@ bool connect(sensor_definition_t sensor)
         auto characteristic = svc->getCharacteristic(sensor.characteristic_id);
         characteristic->registerForNotify([sensor](BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
                                           { notifyCallback(sensor, pBLERemoteCharacteristic, pData, length, isNotify); });
+        Serial.println("Subscribed to char");
         return true;
     }
     else
@@ -305,5 +311,28 @@ void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length)
     }
     else
     {
+    }
+}
+
+void ble_parse_airspeed(uint8_t *pData, size_t length)
+{
+    auto value = String(pData, length);
+
+    if (value.length() > 0)
+    {
+        raw_measurement_msg_t msg = {
+            .measurement = measurement_t::airspeed,
+            .ts = xx_time_get_time(),
+            .value = (int32_t)round(value.toFloat()),
+            .scale = 1};
+        if (vh_raw_measurement_queue)
+        {
+            xQueueSend(vh_raw_measurement_queue, &msg, 0);
+        }
+        Serial.printf("Airspeed: %d -- ", value);
+    }
+    else
+    {
+        0;
     }
 }
