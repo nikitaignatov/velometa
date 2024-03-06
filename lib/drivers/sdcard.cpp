@@ -1,10 +1,10 @@
 #include "sdcard.hpp"
 extern FATFS fatfs;
+static const char *TAG = "write_task_code";
 
 FATFS *fs_mount_sd_card()
 {
     init_sdspi();
-
 
     // pinMode(SD_CS, OUTPUT); //SD Card SS
     // SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
@@ -97,49 +97,61 @@ static void appendFile(fs::FS &fs, const char *path, const char *message)
 
 void write_task_code(void *parameter)
 {
-    Serial.println("write_task_code");
+    ESP_LOGI(TAG, "write_task_code start");
+
+    auto fatfs = fs_mount_sd_card();
+    ESP_LOGI(TAG, "fs_mount_sd_card %d init_sdspi", fatfs->fsize);
 
     pinMode(SD_CS, OUTPUT); //SD Card SS
-    // SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
+    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
     SD.begin(SD_CS);
+    ESP_LOGI(TAG, "SD.begin done");
+
     uint8_t cardType = SD.cardType();
 
     if (cardType == CARD_NONE)
     {
-        Serial.println("No SD card attached");
+        ESP_LOGE(TAG, "No SD card attached");
+
         return;
     }
 
-    Serial.print("SD Card Type: ");
+    ESP_LOGW(TAG, "SD Card Type: ");
     if (cardType == CARD_MMC)
     {
-        Serial.println("MMC");
+        ESP_LOGW(TAG, "MMC");
     }
     else if (cardType == CARD_SD)
     {
-        Serial.println("SDSC");
+        ESP_LOGW(TAG, "SDSC");
     }
     else if (cardType == CARD_SDHC)
     {
-        Serial.println("SDHC");
+        ESP_LOGW(TAG, "SDHC");
     }
     else
     {
-        Serial.println("UNKNOWN");
+        ESP_LOGW(TAG, "UNKNOWN");
     }
 
     uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-    Serial.printf("SD Card Size: %lluMB\n", cardSize);
+    ESP_LOGW(TAG, "SD Card Size: %lluMB\n", cardSize);
+
     gps_data_t msg;
+    raw_measurement_msg_t csv_msg;
+    ESP_LOGW(TAG, "BEGIN LOOP");
+
     for (;;)
     {
+
         int count = 0;
         std::string lines = "";
 
-        xEventGroupWaitBits(sensor_status_bits, (1 << 1), pdFALSE, pdTRUE, portMAX_DELAY);
-        if (xSemaphoreTake(vh_display_semaphore, (TickType_t)20) == pdTRUE)
+        // xEventGroupWaitBits(sensor_status_bits, (1 << 0), pdFALSE, pdTRUE, portMAX_DELAY);
+        ESP_LOGW(TAG, "CSV LOOP");
+        // if (xSemaphoreTake(vh_display_semaphore, (TickType_t)20) == pdTRUE)
         {
-            while (xQueueReceive(vh_gps_queue, &msg, 10 / portTICK_RATE_MS) == pdPASS)
+            while (xQueueReceive(vh_gps_queue, &msg, 0) == pdPASS && count < 100)
             {
                 if (msg.mocked)
                 {
@@ -158,17 +170,44 @@ void write_task_code(void *parameter)
             }
             if (lines.length() > 1)
             {
-                Serial.println("DUMP TO CSV:");
-                Serial.println(lines.c_str());
+                ESP_LOGI(TAG, "Dump to gps.csv");
+                ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
                 appendFile(SD, "/gps.csv", lines.c_str());
             }
 
+            int count = 0;
+            std::string lines = "";
+            while (xQueueReceive(vm_csv_queue, &csv_msg, 0) == pdPASS)
+            {
+                if (count == 0)
+                {
+                    lines = fmt::format("{},{},{}\n", csv_msg.ts, csv_msg.measurement, csv_msg.value);
+                }
+                else
+                {
+                    lines = fmt::format("{}{},{},{}\n", lines,  csv_msg.ts, csv_msg.measurement, csv_msg.value);
+                }
+
+                count++;
+            }
+
+            if (lines.length() > 1)
+            {
+                ESP_LOGI(TAG, "Dump to measurements.csv");
+                // ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
+                appendFile(SD, "/measurements.csv", lines.c_str());
+            }
+            else
+            {
+                ESP_LOGW(TAG, "NO DATA for measurements.csv");
+            }
+
             xSemaphoreGive(vh_display_semaphore);
-            vTaskDelay(60 * 1000 / portTICK_PERIOD_MS);
+            vTaskDelay(10 * 1000 / portTICK_PERIOD_MS);
         }
-        else
-        {
-            ESP_LOGD("metric_info_t", "failed to take semaphor");
-        }
+        // else
+        // {
+        //     ESP_LOGD(TAG, "failed to take semaphor");
+        // }
     }
 }

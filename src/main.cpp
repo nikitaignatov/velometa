@@ -23,6 +23,7 @@ FATFS *fatfs;
 #endif
 
 TaskHandle_t ble_task;
+TaskHandle_t airspeed_task;
 TaskHandle_t display_task;
 TaskHandle_t activity_task;
 TaskHandle_t gps_task;
@@ -31,27 +32,21 @@ std::vector<sensor_definition_t> ble_sensors;
 QueueHandle_t vh_raw_measurement_queue;
 QueueHandle_t vh_metrics_queue;
 QueueHandle_t vh_gps_queue;
+QueueHandle_t vm_csv_queue;
+
 EventGroupHandle_t sensor_status_bits;
 
 void setup()
 {
-    start_count++;
     Serial.begin(115200);
     delay(50);
     Serial.println("Velometa");
-
-    if (start_count > 1)
-    {
-        // if start count is more than one, before initialization
-        // this will allow to flash the MCU via USB
-        Serial.printf("Start count is %d. waiting 10sec.\n", start_count);
-        delay(10e3);
-    }
 
     vh_display_semaphore = xSemaphoreCreateMutex();
     sensor_status_bits = xEventGroupCreate();
     vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
     vh_gps_queue = xQueueCreate(120, sizeof(gps_data_t));
+    vm_csv_queue = xQueueCreate(300, sizeof(raw_measurement_msg_t));
 
     if (vh_display_semaphore == NULL)
     {
@@ -98,56 +93,62 @@ void setup()
         .device_name = DEVICE_NAME_HR,
         .metric = metric_type_t::HR_BPM,
         .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
-        .characteristic_id = BLEUUID((uint16_t)0x2A37),
+        .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_hr_data,
         .enabled = false,
         .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+        .has_notification = true,
     });
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_HR2,
         .metric = metric_type_t::HR_BPM,
         .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
-        .characteristic_id = BLEUUID((uint16_t)0x2A37),
+        .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_hr_data,
         .enabled = false,
         .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+        .has_notification = true,
     });
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_POWER,
         .metric = metric_type_t::POWER_WATT,
         .service_id = BLEUUID("00001818-0000-1000-8000-00805f9b34fb"),
-        .characteristic_id = BLEUUID((uint16_t)0x2A63),
+        .characteristic_id = {{measurement_t::power, BLEUUID((uint16_t)0x2A63)}},
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_power_watt_data,
         .enabled = false,
         .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+        .has_notification = true,
     });
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_SPEED,
         .metric = metric_type_t::SPEED_WHEEL_RPM,
         .service_id = BLEUUID("00001816-0000-1000-8000-00805f9b34fb"),
-        .characteristic_id = BLEUUID((uint16_t)0x2A5B),
+        .characteristic_id = {{measurement_t::speed, BLEUUID((uint16_t)0x2A5B)}},
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_speed_wheel_rpm_data,
         .enabled = false,
         .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+        .has_notification = true,
     });
+
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_AIRSPEED,
         .metric = metric_type_t::AIRSPEED_KMH,
         .service_id = BLEUUID("0895EC4E-F5A8-47AD-BDDE-FDEBB46D6F93"),
-        .characteristic_id = BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7511"),
+        .characteristic_id = airspeed_metrics_def,
         .address = missing_address,
         .client = nullptr,
         .parse_data = ble_parse_airspeed,
         .enabled = true,
         .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_PUBLIC,
+        .has_notification = true,
     });
 
     xTaskCreatePinnedToCore(
@@ -161,7 +162,7 @@ void setup()
     // xTaskCreatePinnedToCore(
     //     write_task_code, /* Function to implement the task */
     //     "write_task",    /* Name of the task */
-    //     4 * 1024,        /* Stack size in words */
+    //     8 * 1024,        /* Stack size in words */
     //     NULL,            /* Task input parameter */
     //     0,               /* Priority of the task */
     //     NULL,            /* Task handle. */
@@ -204,7 +205,6 @@ void setup()
         NULL,                    /* Task handle. */
         0);                      /* Core where the task should run */
 #endif
-    start_count = 0;
     vTaskDelete(NULL);
 }
 

@@ -23,34 +23,42 @@
 extern QueueHandle_t vh_raw_measurement_queue;
 extern QueueHandle_t vh_metrics_queue;
 extern QueueHandle_t vh_gps_queue;
+extern QueueHandle_t vm_csv_queue;
+
 extern EventGroupHandle_t sensor_status_bits;
 extern SemaphoreHandle_t vh_display_semaphore;
 
 typedef enum
 {
-    heartrate = 0,       // bpm
-    power = 1,           // watt
-    cadence = 2,         // rpm
-    speed = 3,           // km/h
-    distance = 4,        // km
-    elevation = 5,       // m
-    ascent = 6,          // m
-    descent = 7,         // m
-    slope = 8,           // %
-    temperature = 9,     // °C
-    pressure_abs = 10,   // mbar
-    pressure_pitot = 11, // mbar
-    humidity = 12,       // %
-    vam = 13,            // %
-    airspeed = 14,       // %
+    heartrate = 0,      // bpm
+    power = 1,          // watt
+    cadence = 2,        // rpm
+    speed = 3,          // km/h
+    distance = 4,       // km
+    elevation = 5,      // m
+    ascent = 6,         // m
+    descent = 7,        // m
+    slope = 8,          // %
+    vam,                // m
+    air_temperature,    // °C
+    air_pressure_abs,   // Pa
+    air_humidity,       // %
+    air_speed,          // km/h
+    air_density,        // kg/m3
+    diff_pressure_l_pa, //Pa
+    diff_pressure_r_pa, //Pa
+    ax_ms2,             // m/s2
+    ay_ms2,             // m/s2
+    az_ms2,             // m/s2
+    wind_speed,         // km/h
+    wind_yaw,           // deg
 } measurement_t;
 
 typedef struct
 {
     measurement_t measurement;
     uint64_t ts;
-    int32_t value;
-    uint16_t scale;
+    float value;
 } raw_measurement_msg_t;
 
 typedef struct
@@ -147,7 +155,6 @@ typedef struct
     uint16_t *cadence;
     uint16_t *slope;
 } ride_data_t;
-
 
 extern void publish_gps(gps_data_t data);
 

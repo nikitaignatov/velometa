@@ -25,16 +25,6 @@ void vh_setup(void)
   lv_init();  // Initialize lvgl
   lv_fs_stdio_init();
 
-  // lv_fs_file_t f;
-  // lv_fs_res_t res = lv_fs_open(&f, "S:/tiles/15/17493/10240.bin", LV_FS_MODE_RD);
-  // Serial.printf("res: %d\n", res);
-  // res = lv_fs_open(&f, "S:/tiles/15/17493/10240.bin", LV_FS_MODE_RD);
-  // Serial.printf("res: %d\n", res);
-  // res = lv_fs_open(&f, "S:/p_128_20478_1bit.bin", LV_FS_MODE_RD);
-  // Serial.printf("res: S:/p_128_20478_1bit.bin %d\n", res);
-  // res = lv_fs_open(&f, "S:/gps.csv", LV_FS_MODE_RD);
-  // Serial.printf("res: S:/gps.csv %d\n", res);
-
   // Setting display to landscape
   if (lcd.width() < lcd.height())
     lcd.setRotation(2);

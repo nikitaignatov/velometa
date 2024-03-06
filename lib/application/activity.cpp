@@ -190,6 +190,15 @@ void activity_task_code(void *parameter)
             taskEXIT_CRITICAL(&spin_lock);
             ESP_LOGD(TAG, "end add_measurement");
 
+            auto counter = (window_counter_t){
+                .last = msg.value};
+                
+            auto co = msg;
+
+            // if (vm_csv_queue)
+            // {
+            //     xQueueSend(vm_csv_queue, &co, 0);
+            // }
             switch (msg.measurement)
             {
             case measurement_t::heartrate:
@@ -201,10 +210,10 @@ void activity_task_code(void *parameter)
             case measurement_t::speed:
                 publish(MSG_NEW_SPEED, activity.get_speed());
                 break;
-            case measurement_t::elevation:
-                break;
             default:
-                ESP_LOGW(TAG, "Unhandled Message type: %i, Value: %i\n", msg.measurement, msg.value);
+
+                publish(msg.measurement, msg);
+                ESP_LOGW(TAG, "Unhandled Message type: %i, Value: %0.4f", msg.measurement, msg.value);
                 break;
             }
             ESP_LOGD(TAG, "end xQueueReceive");

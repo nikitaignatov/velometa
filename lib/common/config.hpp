@@ -1,7 +1,7 @@
 #include "esp_log.h"
 
 #define DEVELOPMENT 
-#define SETUP 1
+#define SETUP 2
 
 #if SETUP == 1
 #define DEVICE_NAME_HR "HR6 0031452"
@@ -16,6 +16,7 @@
 #define DEVICE_NAME_HR2 "HR8 30743"
 #define DEVICE_NAME_POWER "ASSIOMA13805L"
 #define DEVICE_NAME_SPEED "CS8L-S 45539"
+#define DEVICE_NAME_AIRSPEED "VELOMETA_AIRSPEED"
 #define DEVICE_NAME_GPS "XXX"
 #endif
 

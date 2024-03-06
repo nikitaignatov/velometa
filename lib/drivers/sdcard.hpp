@@ -3,7 +3,6 @@
 
 #include "types.hpp"
 
-static const char *TAG = "display";
 #define MOUNT_POINT "/sdcard"
 
 #include <fmt/core.h>

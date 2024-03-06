@@ -73,21 +73,18 @@ void gps_task_code(void *parameter)
                 }
                 time = gps.time.value();
 
-                auto height = static_cast<uint16_t>(abs(gps.altitude.meters()));
-                auto speed = static_cast<uint16_t>(gps.speed.kmph() * 100.0);
-
                 raw_measurement_msg_t msg = {
                     .measurement = measurement_t::speed,
                     .ts = gps.date.value() * 1000,
-                    .value = speed,
-                    .scale = 100};
+                    .value = gps.speed.kmph(),
+                };
                 xQueueSend(vh_raw_measurement_queue, &msg, 0);
 
                 msg = {
                     .measurement = measurement_t::elevation,
                     .ts = gps.date.value() * 1000,
-                    .value = height,
-                    .scale = 1};
+                    .value = gps.altitude.meters(),
+                };
                 xQueueSend(vh_raw_measurement_queue, &msg, 0);
 
                 data = (gps_data_t){

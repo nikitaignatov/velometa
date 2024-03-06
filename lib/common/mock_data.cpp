@@ -15,7 +15,7 @@ void vh_mock_data_toggle()
 }
 
 std::default_random_engine gen;
-static uint16_t random(int a, int b)
+static float random(int a, int b)
 {
     std::uniform_int_distribution<uint16_t> distr(a, b);
     return distr(gen);
@@ -36,21 +36,18 @@ void mock_task_code(void *parameter)
             .measurement = measurement_t::power,
             .ts = 1,
             .value = random(150, 180),
-            .scale = 1,
         };
         xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
         msg = (raw_measurement_msg_t){
             .measurement = measurement_t::heartrate,
             .ts = 1,
             .value = random(110, 200),
-            .scale = 1,
         };
         xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
         msg = (raw_measurement_msg_t){
             .measurement = measurement_t::speed,
             .ts = 1,
             .value = random(15, 60),
-            .scale = 1,
         };
         xQueueSend(vh_raw_measurement_queue, &msg, 50 / portTICK_RATE_MS);
         g = {

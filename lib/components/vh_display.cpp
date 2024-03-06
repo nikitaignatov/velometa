@@ -35,3 +35,17 @@ void publish(uint32_t topic, gps_data_t payload)
         ESP_LOGD("gps_data_t", "failed to take semaphor");
     }
 }
+
+
+void publish(uint32_t topic, raw_measurement_msg_t payload)
+{
+    if (xSemaphoreTake(vh_display_semaphore, (TickType_t)200) == pdTRUE)
+    {
+        lv_msg_send(topic, &payload);
+        xSemaphoreGive(vh_display_semaphore);
+    }
+    else
+    {
+        ESP_LOGD("gps_data_t", "failed to take semaphor");
+    }
+}

@@ -1,15 +1,32 @@
 #include "ble.hpp"
 
 char const *TAG = "ble";
+std::map<measurement_t, BLEUUID> airspeed_metrics_def = {
+    {measurement_t::air_temperature, BLEUUID("cba1d466-344c-4be3-1337-189f80dd1337")},
+    // {measurement_t::air_pressure_abs, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7510")},
+    // {measurement_t::air_temperature, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7511")},
+    // {measurement_t::air_humidity, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7512")},
+    // {measurement_t::elevation, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7513")},
+    // {measurement_t::air_density, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7514")},
+    // {measurement_t::diff_pressure_l_pa, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7515")},
+    // {measurement_t::diff_pressure_r_pa, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7516")},
+    // {measurement_t::air_speed, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7517")},
+    // {measurement_t::ax_ms2, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7519")},
+    // {measurement_t::ay_ms2, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7520")},
+    // {measurement_t::az_ms2, BLEUUID("cba1d466-344c-4be3-ab3f-189f80dd7521")},
+};
+
 void notifyCallback(sensor_definition_t sensor, BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify);
 bool connect(sensor_definition_t sensor);
 void init_scan();
+
 uint64_t xx_time_get_time()
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (tv.tv_sec * 1000LL + (tv.tv_usec / 1000LL));
 }
+
 void ble_task_code(void *parameter)
 {
     ESP_LOGI(TAG, "begin");
@@ -17,26 +34,26 @@ void ble_task_code(void *parameter)
     ESP_LOGI(TAG, "setup done.");
     for (;;)
     {
-        for (auto sensor : ble_sensors)
+        for (auto &sensor : ble_sensors)
         {
-            ESP_LOGI(TAG, "Check sensor %s. address:%s\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
+            ESP_LOGI(TAG, "Check sensor %s. address:%s", sensor.device_name.c_str(), sensor.address.toString().c_str());
 
             if (sensor.client && sensor.client->isConnected())
             {
                 sensor.state.connected = true;
-                Serial.printf("Connected to sensor %s\n", sensor.device_name.c_str());
+                ESP_LOGI("", "Connected to sensor %s", sensor.device_name.c_str());
                 continue;
             }
             else if (!missing_address.equals(sensor.address))
             {
                 sensor.state.connected = false;
-                Serial.printf("Connect to sensor %s\n", sensor.device_name.c_str());
+                ESP_LOGI("", "Connect to sensor %s", sensor.device_name.c_str());
                 connect(sensor);
             }
             else if (sensor.enabled)
             {
                 sensor.state.connected = false;
-                Serial.printf("Scan enabled sensor %s. address:%s\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
+                ESP_LOGI("", "Scan enabled sensor %s. address:%s", sensor.device_name.c_str(), sensor.address.toString().c_str());
                 init_scan();
             }
         }
@@ -64,6 +81,8 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
                 // TODO:
                 if (String(device.getName().c_str()).equalsIgnoreCase(String(sensor.device_name.c_str())))
                 {
+                    ESP_LOGI(TAG, "scan result match %s ", sensor.device_name.c_str());
+
                     Serial.printf("scan result match %s\n", sensor.device_name.c_str());
                     sensor.address = BLEAddress(device.getAddress());
                     Serial.printf("create client init %s", sensor.address.toString().c_str());
@@ -84,15 +103,18 @@ void init_scan()
     pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
     pBLEScan->setActiveScan(true);
     Serial.println("init scan");
-    pBLEScan->start(30);
+    pBLEScan->start(10);
     Serial.println("init done");
 }
 
-void notifyCallback(sensor_definition_t sensor, BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
+void notifyCallback(sensor_definition_t sensor, BLERemoteCharacteristic *characteristic, uint8_t *pData, size_t length, bool isNotify)
 {
-    sensor.parse_data(pData, length);
+    ESP_LOGD("ble_connect", "Notify: [ %s ][%s]", sensor.device_name.c_str(), characteristic->getUUID().toString().c_str());
+    ESP_LOG_BUFFER_HEX_LEVEL("ble_connect", pData, length, ESP_LOG_INFO);
 
-    Serial.printf("%s[ %s ]\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
+    sensor.parse_data(pData, length, characteristic);
+
+    Serial.printf("Notify: %s[ %s ]\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
     // Serial.printf("%s[ %s ] payload: [", sensor.device_name, sensor.address.toString().c_str());
     // for (size_t i = 0; i < length; i++)
     // {
@@ -109,6 +131,7 @@ bool connect(sensor_definition_t sensor)
     auto address = sensor.address;
     if (missing_address.equals(sensor.address))
     {
+        ESP_LOGW("ble_connect", "Missing address [ %s ]", address.toString().c_str());
         return false;
     }
 
@@ -117,10 +140,11 @@ bool connect(sensor_definition_t sensor)
     Serial.printf("Connection: %d\n", connected);
 
     auto *svc = sensor.client->getService(sensor.service_id);
+
     if (svc == nullptr)
     {
-        Serial.print("Failed to find our service UUID: ");
-        Serial.println(sensor.service_id.toString().c_str());
+        ESP_LOGW("ble_connect", "Failed to find our service UUID [ %s ]", sensor.service_id.toString().c_str());
+        sensor.client->disconnect();
         return false;
     }
     else
@@ -133,11 +157,24 @@ bool connect(sensor_definition_t sensor)
 
     if (sensor.client->isConnected())
     {
-        Serial.println("connected ");
-        auto characteristic = svc->getCharacteristic(sensor.characteristic_id);
-        characteristic->registerForNotify([sensor](BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
-                                          { notifyCallback(sensor, pBLERemoteCharacteristic, pData, length, isNotify); });
-        Serial.println("Subscribed to char");
+        ESP_LOGI("ble_connect", "connected to service [ %s ]", sensor.service_id.toString().c_str());
+        if (sensor.has_notification)
+        {
+            ESP_LOGI("ble_connect", "Configure notifications for [ %s ]", sensor.device_name.c_str());
+            for (auto x : sensor.characteristic_id)
+            {
+                ESP_LOGI("ble_connect", "Register [ %s ]", x.second.toString().c_str());
+                auto characteristic = svc->getCharacteristic(x.second);
+                if (characteristic == nullptr)
+                {
+                    ESP_LOGW("ble_connect", "Characteristic [ %s ] is missing from the serivce [ %s ] .\n", x.second.toString().c_str(), sensor.service_id.toString().c_str());
+                    continue;
+                }
+                characteristic->registerForNotify([sensor](BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify)
+                                                  { notifyCallback(sensor, pBLERemoteCharacteristic, pData, length, isNotify); });
+                ESP_LOGI("ble_connect", "Registered to characteristic [ %s ] .\n", x.second.toString().c_str());
+            }
+        }
         return true;
     }
     else
@@ -147,7 +184,7 @@ bool connect(sensor_definition_t sensor)
     return false;
 }
 
-void ble_parse_hr_data(uint8_t *pData, size_t length)
+void ble_parse_hr_data(uint8_t *pData, size_t length, BLERemoteCharacteristic *characteristic)
 {
     int hr = 0;
     int i = 0;
@@ -185,7 +222,7 @@ void ble_parse_hr_data(uint8_t *pData, size_t length)
             .measurement = measurement_t::heartrate,
             .ts = xx_time_get_time(),
             .value = hr,
-            .scale = 1};
+        };
         if (vh_raw_measurement_queue)
             xQueueSend(vh_raw_measurement_queue, &msg, 0);
         Serial.printf("HR: %d -- ", hr);
@@ -196,7 +233,7 @@ void ble_parse_hr_data(uint8_t *pData, size_t length)
     }
 }
 
-void ble_parse_power_watt_data(uint8_t *pData, size_t length)
+void ble_parse_power_watt_data(uint8_t *pData, size_t length, BLERemoteCharacteristic *characteristic)
 {
     // Configure the Cycle Power Measurement characteristic
 
@@ -258,7 +295,7 @@ void ble_parse_power_watt_data(uint8_t *pData, size_t length)
             .measurement = measurement_t::power,
             .ts = xx_time_get_time(),
             .value = power,
-            .scale = 1};
+        };
         // if (vh_raw_measurement_queue)
         xQueueSend(vh_raw_measurement_queue, &msg, 0);
         Serial.printf("POWER: %d -- ", power);
@@ -271,7 +308,7 @@ bool IsBitSet(byte b, int pos)
 }
 
 static int last_tv, last_rv;
-void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length)
+void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length, BLERemoteCharacteristic *characteristic)
 {
 
     uint32_t revs_acc = 0;
@@ -296,14 +333,14 @@ void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length)
         int cdiff = (revs_acc - p);
         printf("r:%d p:%d cdiff:%d w:%d d:%d r: %f\n", last_rv, p, cdiff, cdiff * 2105, d, ((cdiff * 2105) / 100.f) / ((float_t)d / 1000.0f));
 
-        uint16_t speed = ((((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f))) * 100;
-        if (speed >= 0 && speed < 10000) // TODO: implement propper handling of edgecases.
+        uint16_t speed = ((((cdiff * 2105) / 1.e6f) / ((float_t)d / 3.6e6f)));
+        if (speed >= 0 && speed < 100) // TODO: implement propper handling of edgecases.
         {
             raw_measurement_msg_t msg = {
                 .measurement = measurement_t::speed,
                 .ts = xx_time_get_time(),
                 .value = speed,
-                .scale = 100};
+            };
             if (vh_raw_measurement_queue)
                 xQueueSend(vh_raw_measurement_queue, &msg, 0);
             Serial.printf("SPEED: %d -- ", speed);
@@ -314,25 +351,30 @@ void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length)
     }
 }
 
-void ble_parse_airspeed(uint8_t *pData, size_t length)
+typedef struct
 {
-    auto value = String(pData, length);
+    uint8_t type;
+    float value;
+} payload_t;
+void ble_parse_airspeed(uint8_t *pData, size_t length, BLERemoteCharacteristic *characteristic)
+{
+    ESP_LOG_BUFFER_HEX("ble_parse_airspeed", pData, length);
 
-    if (value.length() > 0)
+    auto id = characteristic->getUUID();
+    if (airspeed_metrics_def[measurement_t::air_temperature].equals(id))
     {
+        payload_t tmp;
+        memcpy(&tmp, pData, length);
+        ESP_LOGW("ble_parse_airspeed", "%d = %0.4f", tmp.type, tmp.value);
+
         raw_measurement_msg_t msg = {
-            .measurement = measurement_t::airspeed,
+            .measurement = (measurement_t)tmp.type,
             .ts = xx_time_get_time(),
-            .value = (int32_t)round(value.toFloat()),
-            .scale = 1};
+            .value = tmp.value,
+        };
         if (vh_raw_measurement_queue)
         {
             xQueueSend(vh_raw_measurement_queue, &msg, 0);
         }
-        Serial.printf("Airspeed: %d -- ", value);
-    }
-    else
-    {
-        0;
     }
 }
