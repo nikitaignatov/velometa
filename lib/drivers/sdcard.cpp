@@ -143,7 +143,6 @@ void write_task_code(void *parameter)
 
     for (;;)
     {
-
         int count = 0;
         std::string lines = "";
 

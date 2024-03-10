@@ -11,37 +11,6 @@ static const uint32_t GPSBaud = 115200;
 TinyGPSPlus gps;
 HardwareSerial ss(1);
 
-// uint16_t speed;
-// float_t lat, lon, height;
-/*
-var mapWidth = 1500;
-var mapHeight = 1577;
-
-var mapLonLeft = 9.8;
-var mapLonRight = 10.2;
-var mapLonDelta = mapLonRight - mapLonLeft;
-
-var mapLatBottom = 53.45;
-var mapLatBottomDegree = mapLatBottom * Math.PI / 180;
-*/
-
-pixel_t convert_geo_to_pixel(float_t latitude, float_t longitude,
-                             float_t mapWidth,           // in pixels
-                             float_t mapHeight,          // in pixels
-                             float_t mapLonLeft,         // in degrees
-                             float_t mapLonDelta,        // in degrees (mapLonRight - mapLonLeft);
-                             float_t mapLatBottom,       // in degrees
-                             float_t mapLatBottomDegree) // in Radians
-{
-    pixel_t output;
-    output.x = (longitude - mapLonLeft) * (mapWidth / mapLonDelta);
-
-    latitude = latitude * M_PI / 180;
-    float_t worldMapWidth = ((mapWidth / mapLonDelta) * 360) / (2 * M_PI);
-    float_t mapOffsetY = (worldMapWidth / 2 * log((1 + sin(mapLatBottomDegree)) / (1 - sin(mapLatBottomDegree))));
-    output.y = mapHeight - ((worldMapWidth / 2 * log((1 + sin(latitude)) / (1 - sin(latitude)))) - mapOffsetY);
-    return output;
-}
 
 void gps_task_code(void *parameter)
 {
@@ -98,21 +67,6 @@ void gps_task_code(void *parameter)
                     .has_fix = gps.sentencesWithFix(),
                     .satelites = gps.satellites.value(),
                 };
-
-                if (true)
-                {
-                    auto lat = gps.location.lat();
-                    auto lon = gps.location.lng();
-                    pixel_t p = convert_geo_to_pixel(lat, lon, 1085, 762, 12.170583828160401, (12.186787243525105 - 12.170583828160401), 55.7772468557264, 55.7772468557264 * M_PI / 180);
-                    xQueueSend(vh_gps_queue, &data, 0);
-
-                    Serial.print("X:");
-                    Serial.print(p.x);
-                    Serial.print("Y:");
-                    Serial.println(p.y);
-                    lat = p.x;
-                    lon = p.y;
-                }
 
                 // delay(1000);
                 // continue;
