@@ -73,32 +73,32 @@ static void label_event_cb(lv_event_t *e)
 }
 void vh_map_init(lv_obj_t *parent)
 {
-    map_window = vh_create_container(parent, WINDOW_WIDTH, WINDOW_HEIGH);
-    lv_obj_align(map_window, LV_ALIGN_BOTTOM_LEFT, 0, 0);
-    map = lv_img_create(map_window);
-    lv_img_set_antialias(map, false);
-    lv_img_set_src(map, "S:/p_256_20478_2bit.bin");
-    lv_img_set_antialias(map, false);
-    lv_obj_align(map, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+    // map_window = vh_create_container(parent, WINDOW_WIDTH, WINDOW_HEIGH);
+    // lv_obj_align(map_window, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+    // map = lv_img_create(map_window);
+    // lv_img_set_antialias(map, false);
+    // lv_img_set_src(map, "S:/p_256_20478_2bit.bin");
+    // lv_img_set_antialias(map, false);
+    // lv_obj_align(map, LV_ALIGN_BOTTOM_LEFT, 0, 0);
 
-    lv_obj_set_size(map, TILE_WIDTH, WINDOW_HEIGH);
-    // lv_img_set_offset_x(map, -10);
-    // lv_img_set_offset_y(map, -50);
-    // lv_obj_set_pos(map, 0, 480 - 128);
+    // lv_obj_set_size(map, TILE_WIDTH, WINDOW_HEIGH);
+    // // lv_img_set_offset_x(map, -10);
+    // // lv_img_set_offset_y(map, -50);
+    // // lv_obj_set_pos(map, 0, 480 - 128);
 
-    map2 = lv_img_create(map_window);
-    lv_img_set_antialias(map2, false);
-    lv_img_set_src(map2, "S:/p_256_20478_2bit.bin");
-    lv_obj_set_size(map2, WINDOW_WIDTH - TILE_WIDTH, WINDOW_HEIGH);
-    lv_obj_align_to(map2, map, LV_ALIGN_TOP_LEFT, TILE_WIDTH, 0);
+    // map2 = lv_img_create(map_window);
+    // lv_img_set_antialias(map2, false);
+    // lv_img_set_src(map2, "S:/p_256_20478_2bit.bin");
+    // lv_obj_set_size(map2, WINDOW_WIDTH - TILE_WIDTH, WINDOW_HEIGH);
+    // lv_obj_align_to(map2, map, LV_ALIGN_TOP_LEFT, TILE_WIDTH, 0);
 
-    lv_obj_add_event_cb(map, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(MSG_NEW_GPS, map, 0);
+    // lv_obj_add_event_cb(map, label_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
+    // lv_msg_subsribe_obj(MSG_NEW_GPS, map, 0);
 
-    lv_obj_t *led1 = lv_led_create(map_window);
-    lv_obj_center(led1);
-    lv_obj_set_size(led1, 10, 10);
-    lv_led_on(led1);
+    // lv_obj_t *led1 = lv_led_create(map_window);
+    // lv_obj_center(led1);
+    // lv_obj_set_size(led1, 10, 10);
+    // lv_led_on(led1);
 }
 
 static void vh_map_update(int zoom, int x, int y)

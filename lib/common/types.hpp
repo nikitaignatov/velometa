@@ -22,6 +22,7 @@
 
 extern QueueHandle_t vh_raw_measurement_queue;
 extern QueueHandle_t vh_metrics_queue;
+extern QueueHandle_t vh_gps_csv_queue;
 extern QueueHandle_t vh_gps_queue;
 extern QueueHandle_t vm_csv_queue;
 
@@ -112,14 +113,15 @@ typedef struct
 typedef struct
 {
     uint64_t tick_ms;
-    uint64_t date;
-    uint64_t time;
-    double lat;
-    double lon;
-    double speed;
-    double height;
-    double hdop;
-    double age;
+    float lat;
+    float lon;
+    float speed;
+    float height;
+    float heading;
+    float distance;
+    float hdop;
+    float vdop;
+    float age;
     bool has_fix;
     uint32_t satelites;
     bool mocked;

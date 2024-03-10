@@ -31,6 +31,7 @@ TaskHandle_t gps_task;
 std::vector<sensor_definition_t> ble_sensors;
 QueueHandle_t vh_raw_measurement_queue;
 QueueHandle_t vh_metrics_queue;
+QueueHandle_t vh_gps_csv_queue;
 QueueHandle_t vh_gps_queue;
 QueueHandle_t vm_csv_queue;
 
@@ -45,12 +46,33 @@ void setup()
     vh_display_semaphore = xSemaphoreCreateMutex();
     sensor_status_bits = xEventGroupCreate();
     vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
-    vh_gps_queue = xQueueCreate(120, sizeof(gps_data_t));
-    vm_csv_queue = xQueueCreate(300, sizeof(raw_measurement_msg_t));
+    vh_gps_queue = xQueueCreate(100, sizeof(gps_data_t));
+    vh_gps_csv_queue = xQueueCreate(200, sizeof(gps_data_t));
+    vm_csv_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
 
     if (vh_display_semaphore == NULL)
     {
         Serial.println("Failed to create display semaphore");
+    }
+
+    if (vh_gps_queue == NULL)
+    {
+        Serial.println("Failed to create vh_gps_queue");
+    }
+
+    if (vm_csv_queue == NULL)
+    {
+        Serial.println("Failed to create vm_csv_queue");
+    }
+
+    if (psramInit())
+    {
+        Serial.println("\nThe PSRAM is correctly initialized");
+        Serial.println((String) "PSRAM Size available (bytes): " + ESP.getFreePsram());
+    }
+    else
+    {
+        Serial.println("\nPSRAM does not work");
     }
 
     fatfs = fs_mount_sd_card();

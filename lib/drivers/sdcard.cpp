@@ -6,9 +6,9 @@ FATFS *fs_mount_sd_card()
 {
     init_sdspi();
 
-    // pinMode(SD_CS, OUTPUT); //SD Card SS
-    // SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
-    // SD.begin(SD_CS);
+    pinMode(SD_CS, OUTPUT); //SD Card SS
+    SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
+    SD.begin(SD_CS);
 
     f_mount(&fatfs, "S:", 1);
     return &fatfs;
@@ -146,11 +146,9 @@ void write_task_code(void *parameter)
         int count = 0;
         std::string lines = "";
 
-        // xEventGroupWaitBits(sensor_status_bits, (1 << 0), pdFALSE, pdTRUE, portMAX_DELAY);
         ESP_LOGW(TAG, "CSV LOOP");
-        // if (xSemaphoreTake(vh_display_semaphore, (TickType_t)20) == pdTRUE)
         {
-            while (xQueueReceive(vh_gps_queue, &msg, 0) == pdPASS && count < 100)
+            while (xQueueReceive(vh_gps_csv_queue, &msg, 0) == pdPASS && count < 400)
             {
                 if (msg.mocked)
                 {
@@ -158,20 +156,24 @@ void write_task_code(void *parameter)
                 }
                 if (count == 0)
                 {
-                    lines = fmt::format("{},{},{},{},{}\n", msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
+                    lines = fmt::format("{},{},{},{},{},{},{},{},{},{},{}\n", msg.tick_ms, msg.lat, msg.lon, msg.satelites, msg.hdop, msg.vdop, msg.has_fix, msg.speed, msg.distance, msg.heading, msg.height);
                 }
                 else
                 {
-                    lines = fmt::format("{}{},{},{},{},{}\n", lines, msg.date, msg.time, msg.lat, msg.lon, msg.satelites);
+                    lines = fmt::format("{}{},{},{},{},{},{},{},{},{},{},{}\n", lines, msg.tick_ms, msg.lat, msg.lon, msg.satelites, msg.hdop, msg.vdop, msg.has_fix, msg.speed, msg.distance, msg.heading, msg.height);
                 }
 
                 count++;
             }
             if (lines.length() > 1)
             {
-                ESP_LOGI(TAG, "Dump to gps.csv");
+                ESP_LOGI(TAG, "Dump %d lines size:%d to gps.csv",count, lines.length());
                 ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
                 appendFile(SD, "/gps.csv", lines.c_str());
+            }
+            else
+            {
+                ESP_LOGW(TAG, "NO GPS DATA for gps.csv");
             }
 
             int count = 0;
@@ -184,7 +186,7 @@ void write_task_code(void *parameter)
                 }
                 else
                 {
-                    lines = fmt::format("{}{},{},{}\n", lines,  csv_msg.ts, csv_msg.measurement, csv_msg.value);
+                    lines = fmt::format("{}{},{},{}\n", lines, csv_msg.ts, csv_msg.measurement, csv_msg.value);
                 }
 
                 count++;
@@ -201,12 +203,7 @@ void write_task_code(void *parameter)
                 ESP_LOGW(TAG, "NO DATA for measurements.csv");
             }
 
-            xSemaphoreGive(vh_display_semaphore);
-            vTaskDelay(10 * 1000 / portTICK_PERIOD_MS);
+            vTaskDelay(15 * 1000 / portTICK_PERIOD_MS);
         }
-        // else
-        // {
-        //     ESP_LOGD(TAG, "failed to take semaphor");
-        // }
     }
 }
