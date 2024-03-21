@@ -110,11 +110,11 @@ void init_scan()
 void notifyCallback(sensor_definition_t sensor, BLERemoteCharacteristic *characteristic, uint8_t *pData, size_t length, bool isNotify)
 {
     ESP_LOGD("ble_connect", "Notify: [ %s ][%s]", sensor.device_name.c_str(), characteristic->getUUID().toString().c_str());
-    ESP_LOG_BUFFER_HEX_LEVEL("ble_connect", pData, length, ESP_LOG_INFO);
+    ESP_LOG_BUFFER_HEX_LEVEL("ble_connect", pData, length, ESP_LOG_DEBUG);
 
     sensor.parse_data(pData, length, characteristic);
 
-    Serial.printf("Notify: %s[ %s ]\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
+    // Serial.printf("Notify: %s[ %s ]\n", sensor.device_name.c_str(), sensor.address.toString().c_str());
     // Serial.printf("%s[ %s ] payload: [", sensor.device_name, sensor.address.toString().c_str());
     // for (size_t i = 0; i < length; i++)
     // {
@@ -365,7 +365,7 @@ void ble_parse_airspeed(uint8_t *pData, size_t length, BLERemoteCharacteristic *
     {
         payload_t tmp;
         memcpy(&tmp, pData, length);
-        ESP_LOGW("ble_parse_airspeed", "%d = %0.4f", tmp.type, tmp.value);
+        ESP_LOGD("ble_parse_airspeed", "%d = %0.4f", tmp.type, tmp.value);
 
         raw_measurement_msg_t msg = {
             .measurement = (measurement_t)tmp.type,

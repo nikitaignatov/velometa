@@ -16,6 +16,16 @@ static const char *TAG = "gps";
 static NMEAGPS gps;
 static gps_fix fix;
 
+uint64_t ts()
+{
+    NeoGPS::clock_t seconds = fix.dateTime;
+    uint64_t ts = (seconds + (uint64_t)946684800) * (uint64_t)1000;
+    auto ms = gps.UTCms();
+    auto us = gps.UTCus();
+    ts = ts + ms;
+    return ts;
+}
+
 void gps_task_code(void *parameter)
 {
     ESP_LOGI(TAG, "gps_task_code");

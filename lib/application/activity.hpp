@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <map>
 #include "vh_display.hpp"
+#include "gps.hpp"
 
 const uint16_t H_SECONDS = 3600;
 const uint8_t RIDE_HOURS_MAX = 4;

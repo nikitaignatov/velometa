@@ -48,7 +48,7 @@ void setup()
     vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
     vh_gps_queue = xQueueCreate(100, sizeof(gps_data_t));
     vh_gps_csv_queue = xQueueCreate(200, sizeof(gps_data_t));
-    vm_csv_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
+    vm_csv_queue = xQueueCreate(2000, sizeof(raw_measurement_msg_t));
 
     if (vh_display_semaphore == NULL)
     {
@@ -111,30 +111,30 @@ void setup()
         Serial.println("\nPSRAM does not work");
     }
 
-    ble_sensors.push_back((sensor_definition_t){
-        .device_name = DEVICE_NAME_HR,
-        .metric = metric_type_t::HR_BPM,
-        .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
-        .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
-        .address = missing_address,
-        .client = nullptr,
-        .parse_data = ble_parse_hr_data,
-        .enabled = false,
-        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
-        .has_notification = true,
-    });
-    ble_sensors.push_back((sensor_definition_t){
-        .device_name = DEVICE_NAME_HR2,
-        .metric = metric_type_t::HR_BPM,
-        .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
-        .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
-        .address = missing_address,
-        .client = nullptr,
-        .parse_data = ble_parse_hr_data,
-        .enabled = false,
-        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
-        .has_notification = true,
-    });
+    // ble_sensors.push_back((sensor_definition_t){
+    //     .device_name = DEVICE_NAME_HR,
+    //     .metric = metric_type_t::HR_BPM,
+    //     .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
+    //     .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
+    //     .address = missing_address,
+    //     .client = nullptr,
+    //     .parse_data = ble_parse_hr_data,
+    //     .enabled = false,
+    //     .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+    //     .has_notification = true,
+    // });
+    // ble_sensors.push_back((sensor_definition_t){
+    //     .device_name = DEVICE_NAME_HR2,
+    //     .metric = metric_type_t::HR_BPM,
+    //     .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
+    //     .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
+    //     .address = missing_address,
+    //     .client = nullptr,
+    //     .parse_data = ble_parse_hr_data,
+    //     .enabled = false,
+    //     .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+    //     .has_notification = true,
+    // });
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_POWER,
         .metric = metric_type_t::POWER_WATT,
@@ -147,18 +147,18 @@ void setup()
         .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
         .has_notification = true,
     });
-    ble_sensors.push_back((sensor_definition_t){
-        .device_name = DEVICE_NAME_SPEED,
-        .metric = metric_type_t::SPEED_WHEEL_RPM,
-        .service_id = BLEUUID("00001816-0000-1000-8000-00805f9b34fb"),
-        .characteristic_id = {{measurement_t::speed, BLEUUID((uint16_t)0x2A5B)}},
-        .address = missing_address,
-        .client = nullptr,
-        .parse_data = ble_parse_speed_wheel_rpm_data,
-        .enabled = false,
-        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
-        .has_notification = true,
-    });
+    // ble_sensors.push_back((sensor_definition_t){
+    //     .device_name = DEVICE_NAME_SPEED,
+    //     .metric = metric_type_t::SPEED_WHEEL_RPM,
+    //     .service_id = BLEUUID("00001816-0000-1000-8000-00805f9b34fb"),
+    //     .characteristic_id = {{measurement_t::speed, BLEUUID((uint16_t)0x2A5B)}},
+    //     .address = missing_address,
+    //     .client = nullptr,
+    //     .parse_data = ble_parse_speed_wheel_rpm_data,
+    //     .enabled = false,
+    //     .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+    //     .has_notification = true,
+    // });
 
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_AIRSPEED,

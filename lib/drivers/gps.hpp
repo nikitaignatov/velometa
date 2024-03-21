@@ -17,7 +17,7 @@
 #include <NMEAGPS.h>
 #include <GPSport.h>
 
-
+uint64_t ts();
 void gps_task_code(void *parameter);
 void gps_process_task_code(void *parameter);
 #endif

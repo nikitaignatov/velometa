@@ -176,9 +176,9 @@ void write_task_code(void *parameter)
                 ESP_LOGW(TAG, "NO GPS DATA for gps.csv");
             }
 
-            int count = 0;
+            count = 0;
             std::string lines = "";
-            while (xQueueReceive(vm_csv_queue, &csv_msg, 0) == pdPASS)
+            while (xQueueReceive(vm_csv_queue, &csv_msg, 0) == pdPASS&count<100)
             {
                 if (count == 0)
                 {
