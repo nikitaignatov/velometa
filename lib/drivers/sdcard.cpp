@@ -95,6 +95,97 @@ static void appendFile(fs::FS &fs, const char *path, const char *message)
     file.close();
 }
 
+void write_gps_task_code(void *parameter)
+{
+    ESP_LOGI(TAG, "write_gps_task_code start");
+
+    gps_data_t msg;
+
+    auto delay_sec = 15;
+    auto count_limit = delay_sec * 15;
+    for (;;)
+    {
+        int count = 0;
+        std::string lines = "";
+
+        ESP_LOGW(TAG, "GPS CSV LOOP");
+        while (xQueueReceive(vh_gps_csv_queue, &msg, 0) == pdPASS && count <= count_limit)
+        {
+            if (msg.mocked)
+            {
+                continue;
+            }
+            lines = fmt::format("{}{},{},{},{},{},{},{},{},{},{},{}\n", lines, msg.tick_ms, msg.lat, msg.lon, msg.satelites, msg.hdop, msg.vdop, msg.has_fix, msg.speed, msg.distance, msg.heading, msg.height);
+            count++;
+        }
+        if (lines.length() > 1)
+        {
+            ESP_LOGI(TAG, "Dump %d lines size:%d to gps.csv", count, lines.length());
+            // ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
+
+            if (xSemaphoreTake(vm_sdcard_semaphor, (TickType_t)200) == pdTRUE)
+            {
+                appendFile(SD, "/gps.csv", lines.c_str());
+                xSemaphoreGive(vm_sdcard_semaphor);
+            }
+            else
+            {
+                ESP_LOGD("gps_data_t", "failed to take semaphor");
+            }
+        }
+        else
+        {
+            ESP_LOGW(TAG, "NO GPS DATA for gps.csv");
+        }
+
+        vTaskDelay(delay_sec * 1000 / portTICK_PERIOD_MS);
+    }
+}
+
+void write_measurements_task_code(void *parameter)
+{
+    ESP_LOGI(TAG, "write_measurements_task_code start");
+
+    raw_measurement_msg_t msg;
+
+    auto delay_sec = 10;
+    auto count_limit = delay_sec * 10 * 20;
+    for (;;)
+    {
+        int count = 0;
+        std::string lines = "";
+
+        ESP_LOGW(TAG, "MEASUREMENTS CSV LOOP");
+        while (xQueueReceive(vm_csv_queue, &msg, 0) == pdPASS & count <= count_limit)
+        {
+            lines = fmt::format("{}{},{},{}\n", lines, msg.ts, msg.measurement, msg.value);
+            count++;
+        }
+
+        if (lines.length() > 1)
+        {
+            ESP_LOGI(TAG, "Dump to measurements.csv");
+            // ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
+
+            if (xSemaphoreTake(vm_sdcard_semaphor, (TickType_t)200) == pdTRUE)
+            {
+                appendFile(SD, "/measurements.csv", lines.c_str());
+                xSemaphoreGive(vm_sdcard_semaphor);
+            }
+            else
+            {
+                ESP_LOGD("gps_data_t", "failed to take semaphor");
+            }
+        }
+        else
+        {
+            ESP_LOGW(TAG, "NO DATA for measurements.csv");
+        }
+
+        vTaskDelay(delay_sec * 1000 / portTICK_PERIOD_MS);
+    }
+}
+
 void write_task_code(void *parameter)
 {
     ESP_LOGI(TAG, "write_task_code start");
@@ -137,73 +228,23 @@ void write_task_code(void *parameter)
     uint64_t cardSize = SD.cardSize() / (1024 * 1024);
     ESP_LOGW(TAG, "SD Card Size: %lluMB\n", cardSize);
 
-    gps_data_t msg;
-    raw_measurement_msg_t csv_msg;
-    ESP_LOGW(TAG, "BEGIN LOOP");
+    xTaskCreatePinnedToCore(
+        write_gps_task_code, /* Function to implement the task */
+        "write_gps_task",    /* Name of the task */
+        8 * 1024,            /* Stack size in words */
+        NULL,                /* Task input parameter */
+        0,                   /* Priority of the task */
+        NULL,                /* Task handle. */
+        0);                  /* Core where the task should run */
 
-    for (;;)
-    {
-        int count = 0;
-        std::string lines = "";
-
-        ESP_LOGW(TAG, "CSV LOOP");
-        {
-            while (xQueueReceive(vh_gps_csv_queue, &msg, 0) == pdPASS && count < 400)
-            {
-                if (msg.mocked)
-                {
-                    continue;
-                }
-                if (count == 0)
-                {
-                    lines = fmt::format("{},{},{},{},{},{},{},{},{},{},{}\n", msg.tick_ms, msg.lat, msg.lon, msg.satelites, msg.hdop, msg.vdop, msg.has_fix, msg.speed, msg.distance, msg.heading, msg.height);
-                }
-                else
-                {
-                    lines = fmt::format("{}{},{},{},{},{},{},{},{},{},{},{}\n", lines, msg.tick_ms, msg.lat, msg.lon, msg.satelites, msg.hdop, msg.vdop, msg.has_fix, msg.speed, msg.distance, msg.heading, msg.height);
-                }
-
-                count++;
-            }
-            if (lines.length() > 1)
-            {
-                ESP_LOGI(TAG, "Dump %d lines size:%d to gps.csv",count, lines.length());
-                ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
-                appendFile(SD, "/gps.csv", lines.c_str());
-            }
-            else
-            {
-                ESP_LOGW(TAG, "NO GPS DATA for gps.csv");
-            }
-
-            count = 0;
-            std::string lines = "";
-            while (xQueueReceive(vm_csv_queue, &csv_msg, 0) == pdPASS&count<100)
-            {
-                if (count == 0)
-                {
-                    lines = fmt::format("{},{},{}\n", csv_msg.ts, csv_msg.measurement, csv_msg.value);
-                }
-                else
-                {
-                    lines = fmt::format("{}{},{},{}\n", lines, csv_msg.ts, csv_msg.measurement, csv_msg.value);
-                }
-
-                count++;
-            }
-
-            if (lines.length() > 1)
-            {
-                ESP_LOGI(TAG, "Dump to measurements.csv");
-                // ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
-                appendFile(SD, "/measurements.csv", lines.c_str());
-            }
-            else
-            {
-                ESP_LOGW(TAG, "NO DATA for measurements.csv");
-            }
-
-            vTaskDelay(15 * 1000 / portTICK_PERIOD_MS);
-        }
-    }
+    xTaskCreatePinnedToCore(
+        write_measurements_task_code, /* Function to implement the task */
+        "write_measurements_task",    /* Name of the task */
+        8 * 1024,                     /* Stack size in words */
+        NULL,                         /* Task input parameter */
+        0,                            /* Priority of the task */
+        NULL,                         /* Task handle. */
+        0);                           /* Core where the task should run */
+        
+    vTaskDelete(NULL);
 }

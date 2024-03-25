@@ -28,6 +28,8 @@ extern QueueHandle_t vm_csv_queue;
 
 extern EventGroupHandle_t sensor_status_bits;
 extern SemaphoreHandle_t vh_display_semaphore;
+extern SemaphoreHandle_t vm_sdcard_semaphor;
+
 
 typedef enum
 {

@@ -210,7 +210,7 @@ void activity_task_code(void *parameter)
                 break;
             default:
 
-                publish(msg.measurement, msg);
+                publish(msg.measurement + 100, msg);
                 // ESP_LOGW(TAG, "Unhandled Message type: %i, Value: %0.4f", msg.measurement, msg.value);
                 break;
             }

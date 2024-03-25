@@ -88,8 +88,20 @@ void gps_task_code(void *parameter)
                     .has_fix = fix.valid.location,
                     .satelites = fix.satellites,
                 };
-                xQueueSend(vh_gps_queue, &data, 0);
                 xQueueSend(vh_gps_csv_queue, &data, 0);
+                data = (gps_data_t){
+                    .tick_ms = ts,
+                    .lat = fix.latitude(),
+                    .lon = fix.longitude(),
+                    .speed = fix.speed_kph(),
+                    .height = fix.altitude_cm(),
+                    .heading = fix.heading(),
+                    .distance = fix.location.DistanceKm(prev),
+                    .age = gps.UTCms(),
+                    .has_fix = fix.valid.location,
+                    .satelites = fix.satellites,
+                };
+                xQueueSend(vh_gps_queue, &data, 0);
 
                 // ESP_LOGI(TAG, "D: %0.6f,%0.6f", fix.speed_kph(), fix.heading());
                 // ESP_LOGI(TAG, "EPOCH   : %d", seconds + 946684800);

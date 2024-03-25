@@ -14,6 +14,7 @@ RTC_DATA_ATTR int start_count = 0;
 
 uint16_t map_frequency = 1000;
 SemaphoreHandle_t vh_display_semaphore;
+SemaphoreHandle_t vm_sdcard_semaphor;
 
 FATFS *fatfs;
 #if USE_EPAPER
@@ -37,6 +38,8 @@ QueueHandle_t vm_csv_queue;
 
 EventGroupHandle_t sensor_status_bits;
 
+static const char *TAG = "main.cpp";
+
 void setup()
 {
     Serial.begin(115200);
@@ -44,6 +47,7 @@ void setup()
     Serial.println("Velometa");
 
     vh_display_semaphore = xSemaphoreCreateMutex();
+    vm_sdcard_semaphor = xSemaphoreCreateMutex();
     sensor_status_bits = xEventGroupCreate();
     vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
     vh_gps_queue = xQueueCreate(100, sizeof(gps_data_t));
@@ -52,27 +56,32 @@ void setup()
 
     if (vh_display_semaphore == NULL)
     {
-        Serial.println("Failed to create display semaphore");
+        ESP_LOGE(TAG, "Failed to create display semaphore");
+    }
+
+    if (vh_display_semaphore == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create display semaphore");
     }
 
     if (vh_gps_queue == NULL)
     {
-        Serial.println("Failed to create vh_gps_queue");
+        ESP_LOGE(TAG, "Failed to create vh_gps_queue");
     }
 
     if (vm_csv_queue == NULL)
     {
-        Serial.println("Failed to create vm_csv_queue");
+        ESP_LOGE(TAG, "Failed to create vm_csv_queue");
     }
 
     if (psramInit())
     {
-        Serial.println("\nThe PSRAM is correctly initialized");
-        Serial.println((String) "PSRAM Size available (bytes): " + ESP.getFreePsram());
+        ESP_LOGW(TAG, "\nThe PSRAM is correctly initialized");
+        ESP_LOGW(TAG, "PSRAM Size available (bytes): %d", ESP.getFreePsram());
     }
     else
     {
-        Serial.println("\nPSRAM does not work");
+        ESP_LOGE(TAG, "\nPSRAM does not work");
     }
 
     fatfs = fs_mount_sd_card();
@@ -173,14 +182,14 @@ void setup()
         .has_notification = true,
     });
 
-    xTaskCreatePinnedToCore(
-        mock_task_code, /* Function to implement the task */
-        "mock_task",    /* Name of the task */
-        8 * 1024,       /* Stack size in words */
-        NULL,           /* Task input parameter */
-        0,              /* Priority of the task */
-        NULL,           /* Task handle. */
-        0);             /* Core where the task should run */
+    // xTaskCreatePinnedToCore(
+    //     mock_task_code, /* Function to implement the task */
+    //     "mock_task",    /* Name of the task */
+    //     8 * 1024,       /* Stack size in words */
+    //     NULL,           /* Task input parameter */
+    //     0,              /* Priority of the task */
+    //     NULL,           /* Task handle. */
+    //     0);             /* Core where the task should run */
     xTaskCreatePinnedToCore(
         write_task_code, /* Function to implement the task */
         "write_task",    /* Name of the task */
