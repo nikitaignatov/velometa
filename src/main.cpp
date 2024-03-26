@@ -49,9 +49,9 @@ void setup()
     vh_display_semaphore = xSemaphoreCreateMutex();
     vm_sdcard_semaphor = xSemaphoreCreateMutex();
     sensor_status_bits = xEventGroupCreate();
-    vh_raw_measurement_queue = xQueueCreate(100, sizeof(raw_measurement_msg_t));
+    vh_raw_measurement_queue = xQueueCreate(200, sizeof(raw_measurement_msg_t));
     vh_gps_queue = xQueueCreate(100, sizeof(gps_data_t));
-    vh_gps_csv_queue = xQueueCreate(200, sizeof(gps_data_t));
+    vh_gps_csv_queue = xQueueCreate(400, sizeof(gps_data_t));
     vm_csv_queue = xQueueCreate(2000, sizeof(raw_measurement_msg_t));
 
     if (vh_display_semaphore == NULL)
