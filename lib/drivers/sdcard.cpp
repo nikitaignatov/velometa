@@ -101,8 +101,8 @@ void write_gps_task_code(void *parameter)
 
     gps_data_t msg;
 
-    auto delay_sec = 15;
-    auto count_limit = delay_sec * 15;
+    auto delay_sec = 10;
+    auto count_limit = delay_sec * 12;
     for (;;)
     {
         int count = 0;
@@ -138,7 +138,7 @@ void write_gps_task_code(void *parameter)
             ESP_LOGW(TAG, "NO GPS DATA for gps.csv");
         }
 
-        vTaskDelay(delay_sec * 1000 / portTICK_PERIOD_MS);
+        vTaskDelay(1 * 1000 / portTICK_PERIOD_MS);
     }
 }
 
@@ -148,8 +148,8 @@ void write_measurements_task_code(void *parameter)
 
     raw_measurement_msg_t msg;
 
-    auto delay_sec = 10;
-    auto count_limit = delay_sec * 10 * 20;
+    auto delay_sec = 13;
+    auto count_limit = delay_sec * 10 * 11;
     for (;;)
     {
         int count = 0;
@@ -167,7 +167,7 @@ void write_measurements_task_code(void *parameter)
             ESP_LOGI(TAG, "Dump to measurements.csv");
             // ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
 
-            if (xSemaphoreTake(vm_sdcard_semaphor, (TickType_t)200) == pdTRUE)
+            if (xSemaphoreTake(vm_sdcard_semaphor, (TickType_t)500) == pdTRUE)
             {
                 appendFile(SD, "/measurements.csv", lines.c_str());
                 xSemaphoreGive(vm_sdcard_semaphor);
@@ -182,7 +182,7 @@ void write_measurements_task_code(void *parameter)
             ESP_LOGW(TAG, "NO DATA for measurements.csv");
         }
 
-        vTaskDelay(delay_sec * 1000 / portTICK_PERIOD_MS);
+        vTaskDelay(1 * 1000 / portTICK_PERIOD_MS);
     }
 }
 
