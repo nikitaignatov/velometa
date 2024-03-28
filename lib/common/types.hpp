@@ -118,12 +118,12 @@ typedef struct
     float lat;
     float lon;
     float speed;
-    float height;
+    int32_t height;
     float heading;
     float distance;
-    float hdop;
-    float vdop;
-    float age;
+    uint16_t hdop;
+    uint16_t vdop;
+    uint32_t age;
     bool has_fix;
     uint32_t satelites;
     bool mocked;

@@ -4,7 +4,6 @@
 static const char *TAG = "vh_gps";
 
 static lv_obj_t *tile;
-static lv_obj_t *date;
 static lv_obj_t *time_;
 static lv_obj_t *hdop;
 static lv_obj_t *speed_;
@@ -42,7 +41,6 @@ static void label_event_cb(lv_event_t *e)
         int zoom = 15;
         Serial.println("update gps");
         lv_label_set_text(hdop, fmt::format("HDOP: {}", v->hdop).c_str());
-        lv_label_set_text(date, fmt::format("D   : {}", v->tick_ms).c_str());
         lv_label_set_text(time_, fmt::format("T   : {}", v->tick_ms).c_str());
         lv_label_set_text(lat, fmt::format("LAT : {:.5f}", v->lat).c_str());
         lv_label_set_text(lon, fmt::format("LON : {:.5f}", v->lon).c_str());
@@ -71,7 +69,6 @@ lv_obj_t *vh_gps_tile_create(lv_obj_t *parent)
     alt = lv_label_create(tile);
     lat = lv_label_create(tile);
     lon = lv_label_create(tile);
-    date = lv_label_create(tile);
     time_ = lv_label_create(tile);
     hdop = lv_label_create(tile);
     age = lv_label_create(tile);
@@ -81,7 +78,6 @@ lv_obj_t *vh_gps_tile_create(lv_obj_t *parent)
 
     lv_label_set_recolor(fix, true);
 
-    lv_obj_align(date, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_obj_align(time_, LV_ALIGN_TOP_LEFT, 0, 20);
     lv_obj_align(lat, LV_ALIGN_TOP_LEFT, 0, 40);
     lv_obj_align(lon, LV_ALIGN_TOP_LEFT, 0, 60);

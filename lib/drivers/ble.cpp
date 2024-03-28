@@ -353,6 +353,7 @@ void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length, BLERemoteChar
 
 typedef struct
 {
+    uint8_t id;
     uint8_t type;
     float value;
 } payload_t;
@@ -369,7 +370,7 @@ void ble_parse_airspeed(uint8_t *pData, size_t length, BLERemoteCharacteristic *
 
         raw_measurement_msg_t msg = {
             .measurement = (measurement_t)tmp.type,
-            .ts = xx_time_get_time(),
+            .ts = (uint64_t)tmp.id,
             .value = tmp.value,
         };
         if (vh_raw_measurement_queue)

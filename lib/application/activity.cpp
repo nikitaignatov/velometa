@@ -148,6 +148,7 @@ void update_sec_task(void *parameter)
         taskEXIT_CRITICAL(&spin_lock);
     }
 }
+static float _speed = 0.0;
 
 SemaphoreHandle_t xSemaphore;
 void activity_task_code(void *parameter)
@@ -174,11 +175,16 @@ void activity_task_code(void *parameter)
         NULL,
         1);
 
+    uint64_t reuse_ts = 0;
+    uint64_t id = 0;
+
     for (;;)
     {
         vTaskDelay(100 / portTICK_PERIOD_MS);
         while (xQueueReceive(vh_raw_measurement_queue, &msg, 5 / portTICK_RATE_MS) == pdPASS)
         {
+            uint64_t _ts = ts();
+
             ESP_LOGD(TAG, "start xQueueReceive");
             ESP_LOGD(TAG, "start add_measurement");
             taskENTER_CRITICAL(&spin_lock);
@@ -191,10 +197,24 @@ void activity_task_code(void *parameter)
             ESP_LOGD(TAG, "end add_measurement");
 
             auto co = msg;
-            co.ts = ts();
+            auto p = msg;
 
             if (vm_csv_queue)
             {
+                auto generic_devices = msg.measurement == measurement_t::heartrate || msg.measurement == measurement_t::power;
+                if (generic_devices)
+                {
+                    co.ts = _ts;
+                }
+                else
+                {
+                    if (co.ts != id || reuse_ts == 0)
+                    {
+                        reuse_ts = _ts;
+                        id = co.ts;
+                    }
+                    co.ts = reuse_ts;
+                }
                 xQueueSend(vm_csv_queue, &co, 0);
             }
             switch (msg.measurement)
@@ -204,9 +224,18 @@ void activity_task_code(void *parameter)
                 break;
             case measurement_t::power:
                 publish(MSG_NEW_POWER, activity.get_power(15));
+                _speed = msg.value;
+                publish(msg.measurement + 100, msg);
                 break;
             case measurement_t::speed:
-                publish(MSG_NEW_SPEED, activity.get_speed());
+                publish(msg.measurement + 100, msg);
+                // publish(MSG_NEW_SPEED, activity.get_speed());
+                break;
+            case measurement_t::air_speed:
+                p.measurement = measurement_t::wind_speed;
+                p.value = msg.value - _speed;
+                publish(msg.measurement + 100, msg);
+                publish(measurement_t::wind_speed + 100, p);
                 break;
             default:
 
