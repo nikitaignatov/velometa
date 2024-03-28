@@ -13,14 +13,14 @@ Bike computer for training purpose. The goal is build a device that can present 
 
 ## Experimental
 
-- Static Pressure/Altitude
-- Differential Pressure/Pitot tube
-- Humidity
-- Temperature
+- [x] Static Pressure/Altitude
+- [x] Differential Pressure/Pitot tube
+- [x] Humidity
+- [x] Temperature
 - Slope
 - Road Vibration
-- Airspeed
-- Wind Speed
+- [x] Airspeed
+- [x] Wind Speed
 - Wind Angle
 - Tire Pressure
 
