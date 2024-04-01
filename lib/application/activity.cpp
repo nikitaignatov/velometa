@@ -223,12 +223,12 @@ void activity_task_code(void *parameter)
                 publish(MSG_NEW_HR, activity.get_hr(15));
                 break;
             case measurement_t::power:
-                publish(MSG_NEW_POWER, activity.get_power(15));
-                _speed = msg.value;
+                publish(MSG_NEW_POWER, activity.get_power(15));                
                 publish(msg.measurement + 100, msg);
                 break;
             case measurement_t::speed:
                 publish(msg.measurement + 100, msg);
+                _speed = msg.value;
                 // publish(MSG_NEW_SPEED, activity.get_speed());
                 break;
             case measurement_t::air_speed:

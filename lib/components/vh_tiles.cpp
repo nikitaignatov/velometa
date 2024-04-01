@@ -75,21 +75,21 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     dashboard_tile = lv_tileview_add_tile(tv, 0, 0, LV_DIR_NONE);
     scan_tile = lv_tileview_add_tile(tv, 1, 0, LV_DIR_NONE);
     cda_tile = lv_tileview_add_tile(tv, 2, 0, LV_DIR_NONE);
-    map_tile = lv_tileview_add_tile(tv, 3, 0, LV_DIR_NONE);
-    auto tile4 = lv_tileview_add_tile(tv, 4, 0, LV_DIR_NONE);
-    auto tile5 = lv_tileview_add_tile(tv, 5, 0, LV_DIR_NONE);
-    auto tile6 = lv_tileview_add_tile(tv, 6, 0, LV_DIR_NONE);
-    auto gps_tile = lv_tileview_add_tile(tv, 7, 0, LV_DIR_NONE);
+    auto gps_tile = lv_tileview_add_tile(tv, 3, 0, LV_DIR_NONE);
+    // map_tile = lv_tileview_add_tile(tv, 3, 0, LV_DIR_NONE);
+    // auto tile4 = lv_tileview_add_tile(tv, 4, 0, LV_DIR_NONE);
+    // auto tile5 = lv_tileview_add_tile(tv, 5, 0, LV_DIR_NONE);
+    // auto tile6 = lv_tileview_add_tile(tv, 6, 0, LV_DIR_NONE);
     auto btn_next = create_btn(parent, true);
     auto btn_prev = create_btn(parent, false);
 
-    vh_create_activity_hr_stats(tile5);
+    // vh_create_activity_hr_stats(tile5);
     vh_create_brightness_slider(scan_tile);
     vm_show_cda_panel(cda_tile);
     vh_map_init(map_tile);
     vh_create_dashboard(dashboard_tile);
     vh_create_mock_btn(parent);
-    vh_create_histogram(tile6, 320, 350, 5);
+    // vh_create_histogram(tile6, 320, 350, 5);
 
     auto p = vh_gps_tile_create(gps_tile);
 
