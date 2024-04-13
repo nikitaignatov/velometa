@@ -1,6 +1,5 @@
 #include "screen_cda.hpp"
 
-
 static void label_event_cb(lv_event_t *e)
 {
   auto m = lv_event_get_msg(e);
@@ -95,9 +94,9 @@ void vm_show_cda_panel(lv_obj_t *parent)
   auto t = create_metric(cont, "Air T\n[ C ]", "{:.2f}", measurement_t::air_temperature);
   auto rh = create_metric(cont, "RH\n[ % ]", "{:.2f}", measurement_t::air_humidity);
 
-  auto x = create_metric(cont, "Ax: ", "{:.3f}", measurement_t::ax_ms2);
-  auto y = create_metric(cont, "Ay: ", "{:.3f}", measurement_t::ay_ms2);
-  auto z = create_metric(cont, "Az: ", "{:.3f}", measurement_t::az_ms2);
+  auto x = create_metric(cont, "Roll: ", "{:.3f}", measurement_t::roll);
+  auto y = create_metric(cont, "Pitch: ", "{:.3f}", measurement_t::pitch);
+  auto z = create_metric(cont, "Yaw: ", "{:.3f}", measurement_t::yaw);
   // auto wy = create_metric(cont, "Wind Yaw: ", "Wind Yaw: {} %", measurement_t::wind_yaw);
   // auto a = create_metric(cont, "Altitude: ", "Altitude: {} m", measurement_t::elevation);
 

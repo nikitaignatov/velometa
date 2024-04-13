@@ -30,7 +30,6 @@ extern EventGroupHandle_t sensor_status_bits;
 extern SemaphoreHandle_t vh_display_semaphore;
 extern SemaphoreHandle_t vm_sdcard_semaphor;
 
-
 typedef enum
 {
     heartrate = 0,      // bpm
@@ -48,13 +47,22 @@ typedef enum
     air_humidity,       // %
     air_speed,          // km/h
     air_density,        // kg/m3
-    diff_pressure_l_pa, //Pa
-    diff_pressure_r_pa, //Pa
+    diff_pressure_l_pa, // Pa
+    diff_pressure_r_pa, // Pa
     ax_ms2,             // m/s2
     ay_ms2,             // m/s2
     az_ms2,             // m/s2
     wind_speed,         // km/h
     wind_yaw,           // deg
+    gx_radps,           // radps
+    gy_radps,           // radps
+    gz_radps,           // radps
+    mx_ut,              // ut
+    my_ut,              // ut
+    mz_ut,              // ut
+    roll,               //
+    pitch,              //
+    yaw,                //
 } measurement_t;
 
 typedef struct
