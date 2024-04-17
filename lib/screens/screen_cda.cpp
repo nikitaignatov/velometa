@@ -94,9 +94,9 @@ void vm_show_cda_panel(lv_obj_t *parent)
   auto t = create_metric(cont, "Air T\n[ C ]", "{:.2f}", measurement_t::air_temperature);
   auto rh = create_metric(cont, "RH\n[ % ]", "{:.2f}", measurement_t::air_humidity);
 
-  auto x = create_metric(cont, "Roll: ", "{:.3f}", measurement_t::roll);
-  auto y = create_metric(cont, "Pitch: ", "{:.3f}", measurement_t::pitch);
-  auto z = create_metric(cont, "Yaw: ", "{:.3f}", measurement_t::yaw);
+  auto x = create_metric(cont, "Roll: ", "{:.1f}", measurement_t::roll);
+  auto y = create_metric(cont, "Pitch: ", "{:.1f}", measurement_t::pitch);
+  auto z = create_metric(cont, "Yaw: ", "{:.1f}", measurement_t::yaw);
   // auto wy = create_metric(cont, "Wind Yaw: ", "Wind Yaw: {} %", measurement_t::wind_yaw);
   // auto a = create_metric(cont, "Altitude: ", "Altitude: {} m", measurement_t::elevation);
 
