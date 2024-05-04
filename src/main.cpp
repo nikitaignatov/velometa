@@ -9,6 +9,8 @@
 #include "mock_data.hpp"
 #include "activity.hpp"
 #include <ff.h>
+#include "position.hpp"
+
 
 RTC_DATA_ATTR int start_count = 0;
 
@@ -28,6 +30,7 @@ TaskHandle_t airspeed_task;
 TaskHandle_t display_task;
 TaskHandle_t activity_task;
 TaskHandle_t gps_task;
+TaskHandle_t position_task;
 
 std::vector<sensor_definition_t> ble_sensors;
 QueueHandle_t vh_raw_measurement_queue;
@@ -208,6 +211,14 @@ void setup()
         &ble_task,       /* Task handle. */
         0);              /* Core where the task should run */
 
+    xTaskCreatePinnedToCore(
+        position_task_code,   /* Function to implement the task */
+        "position_tas", /* Name of the task */
+        4 * 1024,            /* Stack size in words */
+        NULL,                 /* Task input parameter */
+        0,                    /* Priority of the task */
+        &position_task,       /* Task handle. */
+        0);                   /* Core where the task should run */
     xTaskCreatePinnedToCore(
         activity_task_code,   /* Function to implement the task */
         "activity_task_code", /* Name of the task */
