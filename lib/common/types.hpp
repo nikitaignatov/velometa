@@ -20,6 +20,9 @@
 #define VH_SENSOR_BIT_SPEED_READY 16
 #define VH_SENSOR_BIT_CADENCE_READY 32
 
+class System;
+extern System sys;
+
 extern QueueHandle_t vh_raw_measurement_queue;
 extern QueueHandle_t vh_metrics_queue;
 extern QueueHandle_t vh_gps_csv_queue;
@@ -63,6 +66,7 @@ typedef enum
     roll,               //
     pitch,              //
     yaw,                //
+    position_mm,
 } measurement_t;
 
 typedef struct

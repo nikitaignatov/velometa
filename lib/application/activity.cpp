@@ -42,6 +42,17 @@ void Activity::tick()
     this->seconds++;
 }
 
+void Activity::start_activity()
+{
+    if (sys.has_fix())
+    {
+    }
+}
+
+void Activity::end_activity()
+{
+}
+
 void Activity::set_tick(uint16_t seconds)
 {
     this->seconds = seconds;
@@ -201,7 +212,7 @@ void activity_task_code(void *parameter)
 
             if (vm_csv_queue)
             {
-                auto generic_devices = msg.measurement == measurement_t::heartrate || msg.measurement == measurement_t::power;
+                auto generic_devices = msg.measurement == measurement_t::heartrate || msg.measurement == measurement_t::power || msg.measurement == measurement_t::position_mm;
                 if (generic_devices)
                 {
                     co.ts = _ts;
@@ -223,7 +234,7 @@ void activity_task_code(void *parameter)
                 publish(MSG_NEW_HR, activity.get_hr(15));
                 break;
             case measurement_t::power:
-                publish(MSG_NEW_POWER, activity.get_power(15));                
+                publish(MSG_NEW_POWER, activity.get_power(15));
                 publish(msg.measurement + 100, msg);
                 break;
             case measurement_t::speed:
@@ -236,6 +247,9 @@ void activity_task_code(void *parameter)
                 p.value = msg.value - _speed;
                 publish(msg.measurement + 100, msg);
                 publish(measurement_t::wind_speed + 100, p);
+                break;
+            case measurement_t::position_mm:
+                publish(msg.measurement + 100, msg);
                 break;
             default:
 

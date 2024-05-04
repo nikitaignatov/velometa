@@ -10,6 +10,7 @@
 #include <map>
 #include "vh_display.hpp"
 #include "gps.hpp"
+#include "system.hpp"
 
 const uint16_t H_SECONDS = 3600;
 const uint8_t RIDE_HOURS_MAX = 4;
@@ -107,13 +108,16 @@ class Activity
         },
     };
 
+    void set_start(uint16_t seconds);
+    void set_end(uint16_t seconds);
+
 public:
     void init();
     void tick();
+    void start_activity();
+    void end_activity();
     uint16_t get_tick();
     void set_tick(uint16_t seconds);
-    void set_start(uint16_t seconds);
-    void set_end(uint16_t seconds);
     void add_measurement(raw_measurement_msg_t msg);
     window_counter_t get_hr(uint16_t duration);
     window_counter_t get_hr();
