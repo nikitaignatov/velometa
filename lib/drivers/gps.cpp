@@ -5,7 +5,7 @@ static const int RXPin = 13, TXPin = 26;
 #elif BOARD == BOARD_LILY_WRIST
 static const int RXPin = 21, TXPin = 22;
 #elif BOARD == WTSC01_PLUS
-static const int RXPin = 11, TXPin = 10;
+static const int RXPin = 21, TXPin = 14;
 #endif
 static const uint32_t GPSBaud = 115200;
 // TinyGPSPlus gps;
@@ -18,12 +18,16 @@ static gps_fix fix;
 
 uint64_t ts()
 {
-    NeoGPS::clock_t seconds = fix.dateTime;
-    uint64_t ts = (seconds + (uint64_t)946684800) * (uint64_t)1000;
-    auto ms = gps.UTCms();
-    auto us = gps.UTCus();
-    ts = ts + ms;
-    return ts;
+    if (fix.valid.date && fix.valid.time)
+    {
+        NeoGPS::clock_t seconds = fix.dateTime;
+        uint64_t ts = (seconds + (uint64_t)946684800) * (uint64_t)1000;
+        auto ms = gps.UTCms();
+        auto us = gps.UTCus();
+        ts = ts + ms;
+        return ts;
+    }
+    return 0;
 }
 
 void gps_task_code(void *parameter)
