@@ -3,16 +3,21 @@
 Bike computer for training purpose. The goal is build a device that can present the required information during trainng rides outdoors or indoors.
 
 
-## Sensor reading
+## Core Sensors
+
+Cores sensors are mainly commercial BLE devices, that provide metrics like HR, Watt, Speed, Cadence and so on. Typically these sensor will provide a measurement once every second.
 
 - [x] Watt
 - [x] HR
 - [x] Speed
 - Cadence
+
+### Sensors
+  
+
+## Experimental Sensors
+
 - [x] GPS
-
-## Experimental
-
 - [x] Static Pressure/Altitude
 - [x] Differential Pressure/Pitot tube
 - [x] Humidity
@@ -21,8 +26,27 @@ Bike computer for training purpose. The goal is build a device that can present 
 - Road Vibration
 - [x] Airspeed
 - [x] Wind Speed
+- [x] Position
+  - [x] Simple distance tracking (VL53L0X)
+  - Advanced multi area distance tracking (VL53L7CX ultrawide FoV)
 - Wind Angle
 - Tire Pressure
+- O2
+- CO2
+
+### Sensors 
+
+#### BME280
+#### BME581
+#### XGZP6897D
+#### MPU9250
+#### MPU6050
+#### BMI160
+#### BMI270
+#### BMI088
+#### ADXL345
+#### ADXL355
+#### VL53L0X
 
 ## Calculated Metric
 
@@ -30,8 +54,8 @@ Bike computer for training purpose. The goal is build a device that can present 
   - [x] HR
   - [x] Power
 - ride ftp
-- xPower (avg weighted)
-- BikeScore (training load)
+- Avg Weighted Power
+- Training Load
 - W'
 - W'bal
 - Work above threshold
@@ -50,22 +74,7 @@ Bike computer for training purpose. The goal is build a device that can present 
 ## Random Ideas
 
 - Support multi-sensor for 1 metric (2 power meters)
-- Control the training bike (adjust resistance)
-
-## Metric names 
-
-The metrics used in the project are primarily based on the ones available in GoldenCheetah and Dr Phil Skiba research as explained on  [GoldenCheetah's website](http://www.goldencheetah.org/#section-contributor)
-
-| Skiba/Literature   | Coggan/TrainingPeaks        |
-| ------------------ | --------------------------- |
-| Variability Index  | Variability Index           |
-| Relative Intensity | Intensity Factor            |
-| xPower             | Normalised Power            |
-| BikeScore          | Training Stress Score       |
-| Critical Power     | Functional Threshold Power  |
-| W’                 | Functional Reserve Capacity |
-| W’bal              | dFRC                        |
-
+- Control the training bike (adjust resistance ERG)
 
 
 ## Architecture
