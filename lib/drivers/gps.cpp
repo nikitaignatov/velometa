@@ -5,7 +5,7 @@ static const int RXPin = 13, TXPin = 26;
 #elif BOARD == BOARD_LILY_WRIST
 static const int RXPin = 21, TXPin = 22;
 #elif BOARD == WTSC01_PLUS
-static const int RXPin = 21, TXPin = 14;
+static const int RXPin = 44, TXPin = 14;
 #endif
 static const uint32_t GPSBaud = 115200;
 // TinyGPSPlus gps;

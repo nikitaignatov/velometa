@@ -56,6 +56,6 @@ void position_task_code(void *parameter)
         {
             ESP_LOGI(TAG, "VL53L0X: Out of range");
         }
-        vTaskDelay(50 / portTICK_PERIOD_MS);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
