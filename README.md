@@ -36,17 +36,66 @@ Cores sensors are mainly commercial BLE devices, that provide metrics like HR, W
 
 ### Sensors 
 
+Sensors will be connected via I2C bus. 
+
 #### BME280
-#### BME581
+---
+[Webpage](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/) 
+/ 
+[Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf)
+
+Default address: **0x77**
+
+Used to measure the following parameters
+
+| Parameter         | output unit | min     | max      |
+| ----------------- | ----------- | ------- | -------- |
+| air pressure      | Pa          | 300 hPa | 1100 hPa |
+| air temperature   | °C          | -40 °C  | 85 °C    |
+| relative humidity | %           | 0 %     | 100 %    |
+#### BMP581
+---
 #### XGZP6897D
+---
+
+[Webpage](https://cfsensor.com/product/i2c-differential-pressure-sensor-xgzp6897d/) 
+/ 
+[Datasheet](https://cfsensor.com/wp-content/uploads/2022/11/XGZP6897D-Pressure-Sensor-V2.7.pdf)
+
+Default address: **0x6D**
+
+Used to measure the following parameters
+
+| Parameter             | output unit | min      | max     |
+| --------------------- | ----------- | -------- | ------- |
+| differential pressure | Pa          | -1000 Pa | 1000 Pa |
+| temperature           | °C          | -30 °C   | 120 °C  |
+
+The sensor has built in temperature compensation in the following temperature range: 0..60 °C.
+
+
 #### MPU9250
+---
 #### MPU6050
 #### BMI160
 #### BMI270
 #### BMI088
 #### ADXL345
 #### ADXL355
+---
 #### VL53L0X
+---
+[Webpage](https://www.st.com/en/imaging-and-photonics-solutions/vl53l0x.html) 
+/ 
+[Datasheet](https://www.st.com/resource/en/datasheet/vl53l0x.pdf)
+
+Default address: **0x52** or **0x29** 
+
+Used to measure the following parameters
+
+| Parameter | output unit | min  | max     |
+| --------- | ----------- | ---- | ------- |
+| distance  | mm          | 0 mm | 2000 mm |
 
 ## Calculated Metric
 
