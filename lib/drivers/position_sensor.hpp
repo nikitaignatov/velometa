@@ -11,5 +11,17 @@
 #include "Wire.h"
 #include "Adafruit_VL53L0X.h"
 
-extern uint64_t ts();
-void position_task_code(void *parameter);
+class PositionTrackingSensor
+{
+private:
+    Adafruit_VL53L0X sensor;
+
+    float y = 0.0f;
+    float a = 0.80f;
+    bool debug = false;
+    bool ready = false;
+
+public:
+    std::optional<float> get_distance_mm();
+    void init(uint8_t address);
+};
