@@ -20,7 +20,7 @@ bool DifferentialPressureSensor::read_sensor()
     auto min_pressure = -1000;
     auto max_temperature = 100;
     auto min_temperature = -20;
-    init(address);
+    change_port(address);
     sensor.readSensor(_temperature_raw, _pressure_raw);
     _pressure = std::optional<float>();
     _temperature = std::optional<float>();
@@ -52,20 +52,25 @@ bool DifferentialPressureSensor::read_sensor()
     return true;
 }
 
-void DifferentialPressureSensor::init(uint8_t _address)
+void DifferentialPressureSensor::change_port(uint8_t port)
 {
-    address = _address;
-
-    if (address == 0)
+    if (port == 0)
     {
         Wire.end();
         Wire.begin(VM_I2C_0_SDA, VM_I2C_0_SCL, 400000);
     }
-    else if (address == 1)
+    else if (port == 1)
     {
         Wire.end();
         Wire.begin(VM_I2C_1_SDA, VM_I2C_1_SCL, 400000);
     }
+}
+
+void DifferentialPressureSensor::init(uint8_t _address)
+{
+    address = _address;
+
+    change_port(_address);
 
     if (!sensor.begin()) // initialize and check the device
     {

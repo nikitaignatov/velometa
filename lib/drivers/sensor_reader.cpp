@@ -8,9 +8,8 @@ static DifferentialPressureSensor diff_pressure_2;
 
 void sensor_reader_task_code(void *parameter)
 {
-    esp_log_level_set("ARDUINO", ESP_LOG_WARN); // due to reusing same port for different pins
     ESP_LOGI(TAG, "sensor_reader_task_code");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     environmental.init(ENVIRONMENTAL_SENSOR_ADDRESS);
     auto Pa = environmental.get_air_pressure().value_or(-1);
     auto T = environmental.get_air_temperature().value_or(-1);
@@ -19,7 +18,7 @@ void sensor_reader_task_code(void *parameter)
     diff_pressure_1.init(1);
     diff_pressure_2.init(0);
     ESP_LOGI(TAG, "Diff sesnor initialized.\n");
-    // position.init(POSITION_SENSOR_ADDRESS);
+    position.init(POSITION_SENSOR_ADDRESS);
     ESP_LOGI(TAG, "Position sesnor initialized.\n");
 
     for (;;)
@@ -36,11 +35,19 @@ void sensor_reader_task_code(void *parameter)
             publish_measurement(diff_pressure_2.get_pressure(), measurement_t::diff_pressure_r_pa, measurement_ts);
         }
 
-        publish_measurement(environmental.get_air_pressure(), measurement_t::air_pressure_abs, measurement_ts);
-        publish_measurement(environmental.get_air_temperature(), measurement_t::air_temperature, measurement_ts);
-        publish_measurement(environmental.get_air_relative_humidity(), measurement_t::air_humidity, measurement_ts);
+        if (environmental.read_sensor())
+        {
+            publish_measurement(environmental.get_air_pressure(), measurement_t::air_pressure_abs, measurement_ts);
+            publish_measurement(environmental.get_air_temperature(), measurement_t::air_temperature, measurement_ts);
+            publish_measurement(environmental.get_air_relative_humidity(), measurement_t::air_humidity, measurement_ts);
+            publish_measurement(environmental.get_air_density(), measurement_t::air_density, measurement_ts);
+        }
 
-        publish_measurement(position.get_distance_mm(), measurement_t::position_mm, measurement_ts);
+        if (position.read_sensor())
+        {
+            publish_measurement(position.get_distance_mm(), measurement_t::position_mm, measurement_ts);
+        }
+
         vTaskDelay(50 / portTICK_PERIOD_MS);
     }
 }

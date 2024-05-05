@@ -37,9 +37,9 @@ Cores sensors are mainly commercial BLE devices, that provide metrics like HR, W
 ### Sensors 
 
 Sensors will be connected via I2C bus. 
+---
 
 #### BME280
----
 [Webpage](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/) 
 / 
 [Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf)
@@ -53,10 +53,12 @@ Used to measure the following parameters
 | air pressure      | Pa          | 300 hPa | 1100 hPa |
 | air temperature   | °C          | -40 °C  | 85 °C    |
 | relative humidity | %           | 0 %     | 100 %    |
+---
 #### BMP581
+
+
 ---
 #### XGZP6897D
----
 
 [Webpage](https://cfsensor.com/product/i2c-differential-pressure-sensor-xgzp6897d/) 
 / 
@@ -74,8 +76,8 @@ Used to measure the following parameters
 The sensor has built in temperature compensation in the following temperature range: 0..60 °C.
 
 
-#### MPU9250
 ---
+#### MPU9250
 #### MPU6050
 #### BMI160
 #### BMI270
@@ -84,7 +86,6 @@ The sensor has built in temperature compensation in the following temperature ra
 #### ADXL355
 ---
 #### VL53L0X
----
 [Webpage](https://www.st.com/en/imaging-and-photonics-solutions/vl53l0x.html) 
 / 
 [Datasheet](https://www.st.com/resource/en/datasheet/vl53l0x.pdf)

@@ -24,4 +24,5 @@ public:
     std::optional<float> get_temperature();
     bool read_sensor();
     void init(uint8_t address);
+    void change_port(uint8_t port);
 };

@@ -20,8 +20,10 @@ private:
     float a = 0.80f;
     bool debug = false;
     bool ready = false;
+    std::optional<float> _distance;
 
 public:
+    bool read_sensor();
     std::optional<float> get_distance_mm();
     void init(uint8_t address);
 };
