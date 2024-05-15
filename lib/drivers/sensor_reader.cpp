@@ -8,18 +8,18 @@ static DifferentialPressureSensor diff_pressure_2;
 
 void sensor_reader_task_code(void *parameter)
 {
-    ESP_LOGI(TAG, "sensor_reader_task_code");
+    ESP_LOGW(TAG, "sensor_reader_task_code");
     vTaskDelay(500 / portTICK_PERIOD_MS);
     environmental.init(ENVIRONMENTAL_SENSOR_ADDRESS);
     auto Pa = environmental.get_air_pressure().value_or(-1);
     auto T = environmental.get_air_temperature().value_or(-1);
     auto h = environmental.get_air_relative_humidity().value_or(-1);
-    ESP_LOGI(TAG, "Env sesnor reading: %.2f C; %.1f RH; %f Pa;\n", T, h, Pa);
-    diff_pressure_1.init(1);
+    ESP_LOGW(TAG, "Env sesnor reading: %.2f C; %.1f RH; %f Pa;\n", T, h, Pa);
     diff_pressure_2.init(0);
-    ESP_LOGI(TAG, "Diff sesnor initialized.\n");
+    // diff_pressure_1.init(1);
+    ESP_LOGW(TAG, "Diff sesnor initialized.\n");
     position.init(POSITION_SENSOR_ADDRESS);
-    ESP_LOGI(TAG, "Position sesnor initialized.\n");
+    ESP_LOGW(TAG, "Position sesnor initialized.\n");
 
     for (;;)
     {

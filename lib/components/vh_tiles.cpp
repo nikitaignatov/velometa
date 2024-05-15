@@ -69,8 +69,7 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     tv = lv_tileview_create(parent);
     lv_obj_set_size(tv, 320, 450);
     lv_obj_align(tv, LV_ALIGN_TOP_MID, 0, 0);
-    vh_create_status_bar(lv_scr_act(),320);
-
+    vh_create_status_bar(lv_scr_act(), 320);
 
     dashboard_tile = lv_tileview_add_tile(tv, 0, 0, LV_DIR_NONE);
     scan_tile = lv_tileview_add_tile(tv, 1, 0, LV_DIR_NONE);
@@ -88,7 +87,7 @@ lv_obj_t *vh_tiles_init(lv_obj_t *parent)
     vm_show_cda_panel(cda_tile);
     vh_map_init(map_tile);
     vh_create_dashboard(dashboard_tile);
-    vh_create_mock_btn(parent);
+    // vh_create_mock_btn(parent);
     // vh_create_histogram(tile6, 320, 350, 5);
 
     auto p = vh_gps_tile_create(gps_tile);

@@ -121,30 +121,32 @@ void setup()
         Serial.println("\nPSRAM does not work");
     }
 
-    // ble_sensors.push_back((sensor_definition_t){
-    //     .device_name = DEVICE_NAME_HR,
-    //     .metric = metric_type_t::HR_BPM,
-    //     .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
-    //     .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
-    //     .address = missing_address,
-    //     .client = nullptr,
-    //     .parse_data = ble_parse_hr_data,
-    //     .enabled = false,
-    //     .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
-    //     .has_notification = true,
-    // });
-    // ble_sensors.push_back((sensor_definition_t){
-    //     .device_name = DEVICE_NAME_HR2,
-    //     .metric = metric_type_t::HR_BPM,
-    //     .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
-    //     .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
-    //     .address = missing_address,
-    //     .client = nullptr,
-    //     .parse_data = ble_parse_hr_data,
-    //     .enabled = false,
-    //     .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
-    //     .has_notification = true,
-    // });
+    ble_sensors.push_back((sensor_definition_t){
+        .device_name = DEVICE_NAME_HR,
+        .metric = metric_type_t::HR_BPM,
+        .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
+        .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
+        .address = missing_address,
+        .client = nullptr,
+        .parse_data = ble_parse_hr_data,
+        .enabled = false,
+        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+        .has_notification = true,
+    });
+
+    ble_sensors.push_back((sensor_definition_t){
+        .device_name = DEVICE_NAME_HR2,
+        .metric = metric_type_t::HR_BPM,
+        .service_id = BLEUUID("0000180d-0000-1000-8000-00805f9b34fb"),
+        .characteristic_id = {{measurement_t::heartrate, BLEUUID((uint16_t)0x2A37)}},
+        .address = missing_address,
+        .client = nullptr,
+        .parse_data = ble_parse_hr_data,
+        .enabled = false,
+        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
+        .has_notification = true,
+    });
+
     ble_sensors.push_back((sensor_definition_t){
         .device_name = DEVICE_NAME_POWER,
         .metric = metric_type_t::POWER_WATT,
@@ -170,18 +172,18 @@ void setup()
     //     .has_notification = true,
     // });
 
-    ble_sensors.push_back((sensor_definition_t){
-        .device_name = DEVICE_NAME_AIRSPEED,
-        .metric = metric_type_t::AIRSPEED_KMH,
-        .service_id = BLEUUID("0895EC4E-F5A8-47AD-BDDE-FDEBB46D6F93"),
-        .characteristic_id = airspeed_metrics_def,
-        .address = missing_address,
-        .client = nullptr,
-        .parse_data = ble_parse_airspeed,
-        .enabled = true,
-        .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_PUBLIC,
-        .has_notification = true,
-    });
+    // ble_sensors.push_back((sensor_definition_t){
+    //     .device_name = DEVICE_NAME_AIRSPEED,
+    //     .metric = metric_type_t::AIRSPEED_KMH,
+    //     .service_id = BLEUUID("0895EC4E-F5A8-47AD-BDDE-FDEBB46D6F93"),
+    //     .characteristic_id = airspeed_metrics_def,
+    //     .address = missing_address,
+    //     .client = nullptr,
+    //     .parse_data = ble_parse_airspeed,
+    //     .enabled = true,
+    //     .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_PUBLIC,
+    //     .has_notification = true,
+    // });
 
     // xTaskCreatePinnedToCore(
     //     mock_task_code, /* Function to implement the task */
@@ -191,6 +193,7 @@ void setup()
     //     0,              /* Priority of the task */
     //     NULL,           /* Task handle. */
     //     0);             /* Core where the task should run */
+
     xTaskCreatePinnedToCore(
         write_task_code, /* Function to implement the task */
         "write_task",    /* Name of the task */
@@ -211,12 +214,12 @@ void setup()
 
     xTaskCreatePinnedToCore(
         sensor_reader_task_code, /* Function to implement the task */
-        "sensor_reader",    /* Name of the task */
-        4 * 1024,           /* Stack size in words */
-        NULL,               /* Task input parameter */
-        0,                  /* Priority of the task */
-        &sensor_reader,     /* Task handle. */
-        0);                 /* Core where the task should run */
+        "sensor_reader",         /* Name of the task */
+        4 * 1024,                /* Stack size in words */
+        NULL,                    /* Task input parameter */
+        0,                       /* Priority of the task */
+        &sensor_reader,          /* Task handle. */
+        0);                      /* Core where the task should run */
 
     xTaskCreatePinnedToCore(
         activity_task_code,   /* Function to implement the task */
@@ -226,6 +229,7 @@ void setup()
         0,                    /* Priority of the task */
         &activity_task,       /* Task handle. */
         0);                   /* Core where the task should run */
+
 #ifdef FEATURE_GPS_ENABLED
     xTaskCreatePinnedToCore(
         gps_task_code,   /* Function to implement the task */
@@ -235,8 +239,7 @@ void setup()
         0,               /* Priority of the task */
         &gps_task,       /* Task handle. */
         0);              /* Core where the task should run */
-#endif
-#ifdef FEATURE_GPS_ENABLED
+
     xTaskCreatePinnedToCore(
         gps_process_task_code,   /* Function to implement the task */
         "gps_process_task_code", /* Name of the task */
@@ -246,6 +249,7 @@ void setup()
         NULL,                    /* Task handle. */
         0);                      /* Core where the task should run */
 #endif
+
     vTaskDelete(NULL);
 }
 

@@ -240,7 +240,6 @@ void activity_task_code(void *parameter)
             case measurement_t::speed:
                 publish(msg.measurement + 100, msg);
                 _speed = msg.value;
-                // publish(MSG_NEW_SPEED, activity.get_speed());
                 break;
             case measurement_t::air_speed:
                 p.measurement = measurement_t::wind_speed;

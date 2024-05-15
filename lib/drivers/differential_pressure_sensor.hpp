@@ -15,7 +15,7 @@ class DifferentialPressureSensor
 {
 private:
     uint8_t address = 0;
-    float _pressure_raw, _temperature_raw;
+    float _pressure_raw, _temperature_raw, _offset;
     std::optional<float> _pressure, _temperature;
     XGZP6897D sensor = XGZP6897D(SENSITIVITY_FACTOR);
 

@@ -40,14 +40,14 @@
 #define MSG_NEW_HR_W 6
 
 #if BOARD == WTSC01_PLUS
-#define VM_I2C_0_SDA 11
-#define VM_I2C_0_SCL 10
+#define VM_I2C_0_SDA 10
+#define VM_I2C_0_SCL 11
 
-#define VM_I2C_1_SDA 13
-#define VM_I2C_1_SCL 12
+#define VM_I2C_1_SDA 12
+#define VM_I2C_1_SCL 13
 
-#define VM_I2C_2_SDA 21
-#define VM_I2C_2_SCL 14
+#define VM_I2C_2_SDA 14
+#define VM_I2C_2_SCL 21
 #endif
 
 #define POSITION_SENSOR_ADDRESS 0x29
