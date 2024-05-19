@@ -218,13 +218,7 @@ void ble_parse_hr_data(uint8_t *pData, size_t length, BLERemoteCharacteristic *c
 
     if (hr > 0)
     {
-        raw_measurement_msg_t msg = {
-            .measurement = measurement_t::heartrate,
-            .ts = xx_time_get_time(),
-            .value = hr,
-        };
-        if (vh_raw_measurement_queue)
-            xQueueSend(vh_raw_measurement_queue, &msg, 0);
+        publish_measurement(hr, measurement_t::heartrate, ts());
         Serial.printf("HR: %d -- ", hr);
     }
     else
@@ -291,13 +285,8 @@ void ble_parse_power_watt_data(uint8_t *pData, size_t length, BLERemoteCharacter
 
     if (power >= 0)
     {
-        raw_measurement_msg_t msg = {
-            .measurement = measurement_t::power,
-            .ts = xx_time_get_time(),
-            .value = power,
-        };
-        // if (vh_raw_measurement_queue)
-        xQueueSend(vh_raw_measurement_queue, &msg, 0);
+
+        publish_measurement(power, measurement_t::power, ts());
         Serial.printf("POWER: %d -- ", power);
     }
 }
@@ -337,8 +326,8 @@ void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length, BLERemoteChar
         if (speed >= 0 && speed < 100) // TODO: implement propper handling of edgecases.
         {
             raw_measurement_msg_t msg = {
-                .measurement = measurement_t::speed,
                 .ts = xx_time_get_time(),
+                .measurement = measurement_t::speed,
                 .value = speed,
             };
             if (vh_raw_measurement_queue)
@@ -350,7 +339,6 @@ void ble_parse_speed_wheel_rpm_data(uint8_t *pData, size_t length, BLERemoteChar
     {
     }
 }
-
 typedef struct
 {
     uint8_t id;
@@ -369,8 +357,8 @@ void ble_parse_airspeed(uint8_t *pData, size_t length, BLERemoteCharacteristic *
         ESP_LOGD("ble_parse_airspeed", "%d = %0.4f", tmp.type, tmp.value);
 
         raw_measurement_msg_t msg = {
-            .measurement = (measurement_t)tmp.type,
             .ts = (uint64_t)tmp.id,
+            .measurement = (measurement_t)tmp.type,
             .value = tmp.value,
         };
         if (vh_raw_measurement_queue)

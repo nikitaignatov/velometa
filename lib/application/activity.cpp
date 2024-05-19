@@ -192,9 +192,11 @@ void activity_task_code(void *parameter)
     for (;;)
     {
         vTaskDelay(100 / portTICK_PERIOD_MS);
-        while (xQueueReceive(vh_raw_measurement_queue, &msg, 5 / portTICK_RATE_MS) == pdPASS)
+        while (xQueueReceive(vh_raw_measurement_queue, &msg, 10 / portTICK_RATE_MS) == pdPASS)
         {
             uint64_t _ts = ts();
+
+            auto p = msg;
 
             ESP_LOGD(TAG, "start xQueueReceive");
             ESP_LOGD(TAG, "start add_measurement");
@@ -207,27 +209,6 @@ void activity_task_code(void *parameter)
             taskEXIT_CRITICAL(&spin_lock);
             ESP_LOGD(TAG, "end add_measurement");
 
-            auto co = msg;
-            auto p = msg;
-
-            if (vm_csv_queue)
-            {
-                auto generic_devices = msg.measurement == measurement_t::heartrate || msg.measurement == measurement_t::power || msg.measurement == measurement_t::position_mm;
-                if (generic_devices)
-                {
-                    co.ts = _ts;
-                }
-                else
-                {
-                    if (co.ts != id || reuse_ts == 0)
-                    {
-                        reuse_ts = _ts;
-                        id = co.ts;
-                    }
-                    co.ts = reuse_ts;
-                }
-                xQueueSend(vm_csv_queue, &co, 0);
-            }
             switch (msg.measurement)
             {
             case measurement_t::heartrate:
@@ -251,7 +232,6 @@ void activity_task_code(void *parameter)
                 publish(msg.measurement + 100, msg);
                 break;
             default:
-
                 publish(msg.measurement + 100, msg);
                 // ESP_LOGW(TAG, "Unhandled Message type: %i, Value: %0.4f", msg.measurement, msg.value);
                 break;

@@ -1,4 +1,5 @@
 #include "types.hpp"
+
 void publish_measurement(std::optional<float> input, measurement_t type, uint64_t ts)
 {
     static const char *TAG = "publish_measurement";
@@ -6,16 +7,24 @@ void publish_measurement(std::optional<float> input, measurement_t type, uint64_
     if (input.has_value())
     {
         msg = {
-            .measurement = type,
             .ts = ts,
+            .measurement = type,
             .value = input.value(),
         };
+        if (vm_csv_queue)
+        {
+            if (xQueueSend(vm_csv_queue, &msg, 10) != pdTRUE)
+            {
+                ESP_LOGE(TAG, "measurement[%d] [%.2f] was not sent to csv.\n", type, input.value());
+            }
+        }
+        else
+        {
+            ESP_LOGE(TAG, "vm_csv_queue is not initialized.\n");
+        }
         if (vh_raw_measurement_queue)
         {
-            if (xQueueSend(vh_raw_measurement_queue, &msg, 0) != pdTRUE)
-            {
-                ESP_LOGE(TAG, "measurement[%d] [%.2f] was not sent.\n", type, input.value());
-            }
+            xQueueSend(vh_raw_measurement_queue, &msg, 0);
         }
         else
         {

@@ -57,16 +57,13 @@ void DifferentialPressureSensor::change_port(uint8_t port)
     if (port == 0)
     {
         Wire.end();
-        vTaskDelay(100);
         Wire.begin(VM_I2C_0_SDA, VM_I2C_0_SCL, 400000);
     }
     else if (port == 1)
     {
         Wire.end();
-        vTaskDelay(100);
         Wire.begin(VM_I2C_1_SDA, VM_I2C_1_SCL, 400000);
     }
-    vTaskDelay(100);
 }
 
 void DifferentialPressureSensor::init(uint8_t _address)
@@ -94,5 +91,5 @@ void DifferentialPressureSensor::init(uint8_t _address)
             _offset = (_offset + _pressure_raw) / 2;
         }
     }
-    ESP_LOGE(TAG, "XGZP6897D[%d] initialized", address);
+    ESP_LOGE(TAG, "XGZP6897D[%d] with offset[%f] initialized", address, _offset);
 }

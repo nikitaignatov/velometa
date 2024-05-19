@@ -6,7 +6,7 @@ FATFS *fs_mount_sd_card()
 {
     init_sdspi();
 
-    pinMode(SD_CS, OUTPUT); //SD Card SS
+    pinMode(SD_CS, OUTPUT); // SD Card SS
     SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
     SD.begin(SD_CS);
 
@@ -19,7 +19,7 @@ bool init_sdspi()
     sdspi_device_config_t device_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     device_config.host_id = SDSPI_HOST_ID;
     device_config.gpio_cs = SD_CS;
-    //device_config.gpio_cd = -1;   // SD Card detect
+    // device_config.gpio_cd = -1;   // SD Card detect
 
     ESP_LOGI(TAG, "Initializing SD card");
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
@@ -115,7 +115,7 @@ void write_gps_task_code(void *parameter)
             {
                 continue;
             }
-            lines = fmt::format("{}{},{},{},{},{},{},{},{},{},{},{}\n", lines, msg.tick_ms, msg.lat, msg.lon, msg.satelites, msg.hdop, msg.vdop, msg.has_fix, msg.speed, msg.distance, msg.heading, msg.height);
+            lines = fmt::format("{}\n{},{},{},{},{},{},{},{},{},{},{}", lines, msg.tick_ms, msg.lat, msg.lon, msg.satelites, msg.hdop, msg.vdop, msg.has_fix, msg.speed, msg.distance, msg.heading, msg.height);
             count++;
         }
         if (lines.length() > 1)
@@ -149,22 +149,23 @@ void write_measurements_task_code(void *parameter)
     raw_measurement_msg_t msg;
 
     auto delay_sec = 13;
-    auto count_limit = delay_sec * 10 * 11;
+    auto count_limit = 256;
+    std::string lines = "";
     for (;;)
     {
         int count = 0;
-        std::string lines = "";
+        lines = "";
 
         ESP_LOGW(TAG, "MEASUREMENTS CSV LOOP");
-        while (xQueueReceive(vm_csv_queue, &msg, 0) == pdPASS & count <= count_limit)
+        while (count <= count_limit && xQueueReceive(vm_csv_queue, &msg, 1000) == pdPASS)
         {
-            lines = fmt::format("{}{},{},{}\n", lines, msg.ts, msg.measurement, msg.value);
+            lines = fmt::format("{}\n{},{},{}", lines, msg.ts, msg.measurement, msg.value);
             count++;
         }
 
         if (lines.length() > 1)
         {
-            ESP_LOGI(TAG, "Dump to measurements.csv");
+            ESP_LOGW(TAG, "Dump lines[ %d ] to measurements.csv", count);
             // ESP_LOGI(TAG, "Data:\n %s", lines.c_str());
 
             if (xSemaphoreTake(vm_sdcard_semaphor, (TickType_t)500) == pdTRUE)
@@ -181,8 +182,6 @@ void write_measurements_task_code(void *parameter)
         {
             ESP_LOGW(TAG, "NO DATA for measurements.csv");
         }
-
-        vTaskDelay(1 * 1000 / portTICK_PERIOD_MS);
     }
 }
 
@@ -193,7 +192,7 @@ void write_task_code(void *parameter)
     auto fatfs = fs_mount_sd_card();
     ESP_LOGI(TAG, "fs_mount_sd_card %d init_sdspi", fatfs->fsize);
 
-    pinMode(SD_CS, OUTPUT); //SD Card SS
+    pinMode(SD_CS, OUTPUT); // SD Card SS
     SPI.begin(SD_SCLK, SD_MISO, SD_MOSI);
     SD.begin(SD_CS);
     ESP_LOGI(TAG, "SD.begin done");
@@ -245,6 +244,6 @@ void write_task_code(void *parameter)
         0,                            /* Priority of the task */
         NULL,                         /* Task handle. */
         0);                           /* Core where the task should run */
-        
+
     vTaskDelete(NULL);
 }

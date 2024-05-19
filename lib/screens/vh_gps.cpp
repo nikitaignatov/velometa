@@ -39,7 +39,7 @@ static void label_event_cb(lv_event_t *e)
     if (v && v->tick_ms > 0)
     {
         int zoom = 15;
-        Serial.println("update gps");
+        // Serial.println("update gps");
         lv_label_set_text(hdop, fmt::format("HDOP: {}", v->hdop).c_str());
         lv_label_set_text(time_, fmt::format("T   : {}", v->tick_ms).c_str());
         lv_label_set_text(lat, fmt::format("LAT : {:.5f}", v->lat).c_str());

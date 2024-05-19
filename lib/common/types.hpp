@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <array>
 #include <vector>
+#include <optional>
 #include <string>
 #include <float.h>
 #include "freertos/FreeRTOS.h"
@@ -22,6 +23,7 @@
 
 class System;
 extern System sys;
+extern uint64_t ts();
 
 extern QueueHandle_t vh_raw_measurement_queue;
 extern QueueHandle_t vh_metrics_queue;
@@ -67,14 +69,19 @@ typedef enum
     pitch,              //
     yaw,                //
     position_mm,
+    duration_ms,
 } measurement_t;
 
 typedef struct
 {
-    measurement_t measurement;
     uint64_t ts;
+    measurement_t measurement;
     float value;
 } raw_measurement_msg_t;
+
+// const char* p = "1715879083889,16,-15.093266";
+
+// constexpr size_t sizeOfT = sizeof("1715879083889,16,-15.093266");
 
 typedef struct
 {

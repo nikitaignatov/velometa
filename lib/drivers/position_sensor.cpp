@@ -4,9 +4,9 @@ static const char *TAG = "position_sensor";
 
 bool PositionTrackingSensor::read_sensor()
 {
-    _distance = std::optional<float>();
     if (ready)
     {
+        _distance = std::optional<float>();
         VL53L0X_RangingMeasurementData_t measure;
         sensor.rangingTest(&measure, debug);
 

@@ -68,8 +68,8 @@ void gps_task_code(void *parameter)
                 prev = fix.location;
 
                 raw_measurement_msg_t msg = {
-                    .measurement = measurement_t::speed,
                     .ts = ts,
+                    .measurement = measurement_t::speed,
                     .value = fix.speed_kph(),
                 };
                 xQueueSend(vh_raw_measurement_queue, &msg, 0);
