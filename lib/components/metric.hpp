@@ -8,15 +8,16 @@
 #include <string>
 #include "config.hpp"
 #include "types.hpp"
-#include "vh_container.hpp"
 #include "vh_fonts.hpp"
 #include "zones.hpp"
+#include "container.hpp"
 
 int zone_from_hr(float value);
 int zone_from_power(float value);
 
 class MetricW
 {
+    Container *_container;
     uint16_t width = 158, height = 80, x = 0, y = 0, interval = 1;
     measurement_t type;
     uint32_t subscribed_msg_id = 0;
@@ -34,8 +35,9 @@ class MetricW
 public:
     ~MetricW()
     {
-        lv_obj_del(this->container);
+        delete this->_container;
     }
+
     void init(lv_obj_t *parent);
     void subscribe(uint32_t msg_id);
     void set_label(std::string value);

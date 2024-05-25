@@ -15,6 +15,10 @@ std::optional<float> DifferentialPressureSensor::get_temperature()
 /// @return true if all values are within operatinal range otherwise false.
 bool DifferentialPressureSensor::read_sensor()
 {
+    if (!ready)
+    {
+        return false;
+    }
     // https://cfsensor.com/wp-content/uploads/2022/11/XGZP6897D-Pressure-Sensor-V2.7.pdf
     auto max_pressure = 1000;
     auto min_pressure = -1000;
@@ -91,5 +95,6 @@ void DifferentialPressureSensor::init(uint8_t _address)
             _offset = (_offset + _pressure_raw) / 2;
         }
     }
+    ready = true;
     ESP_LOGE(TAG, "XGZP6897D[%d] with offset[%f] initialized", address, _offset);
 }

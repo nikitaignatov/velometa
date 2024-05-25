@@ -6,7 +6,8 @@ lv_obj_t *vh_create_container(lv_obj_t *parent, uint16_t x, uint16_t y, uint16_t
     lv_obj_set_pos(container, x, y);
     lv_obj_set_size(container, width, height);
     lv_obj_set_style_border_width(container, 0, 0);
-    lv_obj_set_style_bg_color(container, lv_color_hex(bg_hex), 0);
+    lv_obj_set_style_bg_color(container, lv_color_hex(0xffffff), 0);
+    lv_obj_set_style_text_color(container, lv_color_hex(0x000000), 0);
     lv_obj_set_style_pad_all(container, 0, 0);
     // lv_obj_set_style_(container, 0, 0);
     lv_obj_set_style_radius(container, 0, LV_PART_MAIN);

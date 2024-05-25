@@ -16,6 +16,7 @@ private:
     MPU6050 mpu;
     uint8_t _address;
     std::optional<float> _roll, _pitch, _yaw;
+    bool ready = true;
 
     // MPU control/status vars
     bool dmpReady = false;  // set true if DMP init was successful
@@ -25,19 +26,24 @@ private:
     uint16_t fifoCount;     // count of all bytes currently in FIFO
     uint8_t fifoBuffer[64]; // FIFO storage buffer
 
+
+public:
+    bool read_sensor();
+
     // orientation/motion vars
     Quaternion q;        // [w, x, y, z]         quaternion container
     VectorInt16 aa;      // [x, y, z]            accel sensor measurements
+    VectorInt16 gg;      // [x, y, z]            accel sensor measurements
     VectorInt16 aaReal;  // [x, y, z]            gravity-free accel sensor measurements
     VectorInt16 aaWorld; // [x, y, z]            world-frame accel sensor measurements
     VectorFloat gravity; // [x, y, z]            gravity vector
     float euler[3];      // [psi, theta, phi]    Euler angle container
     float ypr[3];        // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
-public:
-    bool read_sensor();
     std::optional<float> get_roll();
     std::optional<float> get_pitch();
     std::optional<float> get_yaw();
+    std::optional<float> ax, ay, az, gx, gy, gz, qw, qx, qy, qz;
+
     void init();
 };

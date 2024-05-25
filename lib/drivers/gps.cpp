@@ -35,23 +35,15 @@ void gps_task_code(void *parameter)
     ESP_LOGI(TAG, "gps_task_code");
     pinMode(RXPin, INPUT);
     pinMode(TXPin, OUTPUT);
-    // ss.begin(GPSBaud, SERIAL_8N1, RXPin, TXPin);
+
     gpsPort.begin(GPSBaud, SERIAL_8N1, RXPin, TXPin);
 
-    // gps.send_P(&gpsPort, F("PMTK220,1000"));
     ESP_LOGI(TAG, "gps_task_code setup done.");
     int time = 0;
-    NeoGPS::Location_t prev(55.0f, 12.0f); // Ayers Rock, AU
+    NeoGPS::Location_t prev(55.0f, 12.0f);
 
     for (;;)
     {
-        // ESP_LOGI(TAG, "gps_task_code setup done.");
-        // while (gpsPort.available())
-        // {
-        //     ESP_LOGI(TAG, "%s", gpsPort.readStringUntil('\n').c_str());
-        // }
-        // continue;
-
         while (gps.available(gpsPort))
         {
             fix = gps.read();
@@ -67,19 +59,6 @@ void gps_task_code(void *parameter)
                 ESP_LOGI(TAG, "%llu: %0.6f,%0.6f,%d,%0.2f,%0.2f,%d,%d,%d", ts, fix.latitude(), fix.longitude(), fix.satellites, fix.speed_kph(), fix.heading(), fix.altitude_cm(), fix.hdop, fix.vdop, fix.location.DistanceKm(prev));
                 prev = fix.location;
 
-                raw_measurement_msg_t msg = {
-                    .ts = ts,
-                    .measurement = measurement_t::speed,
-                    .value = fix.speed_kph(),
-                };
-                xQueueSend(vh_raw_measurement_queue, &msg, 0);
-
-                // msg = {
-                //     .measurement = measurement_t::elevation,
-                //     .ts = gps.date.value() * 1000,
-                //     .value = gps.altitude.meters(),
-                // };
-                // // xQueueSend(vh_raw_measurement_queue, &msg, 0);
                 auto data = (gps_data_t){
                     .tick_ms = ts,
                     .lat = fix.latitude(),
@@ -94,7 +73,7 @@ void gps_task_code(void *parameter)
                     .has_fix = fix.valid.location,
                     .satelites = fix.satellites,
                 };
-                xQueueSend(vh_gps_csv_queue, &data, 0);
+                xQueueSend(vh_gps_csv_queue, &data, 50 / portTICK_PERIOD_MS);
                 data = (gps_data_t){
                     .tick_ms = ts,
                     .lat = fix.latitude(),
@@ -110,6 +89,12 @@ void gps_task_code(void *parameter)
                     .satelites = fix.satellites,
                 };
                 xQueueSend(vh_gps_queue, &data, 0);
+                raw_measurement_msg_t msg = {
+                    .ts = ts,
+                    .measurement = measurement_t::speed,
+                    .value = fix.speed_kph(),
+                };
+                xQueueSend(vh_raw_measurement_queue, &msg, 0);
             }
         }
     }

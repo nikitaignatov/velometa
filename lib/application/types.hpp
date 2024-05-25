@@ -70,6 +70,19 @@ typedef enum
     yaw,                //
     position_mm,
     duration_ms,
+    qw,
+    qx,
+    qy,
+    qz,
+    arx,
+    ary,
+    arz,
+    awx,
+    awy,
+    awz,
+    gravityx,
+    gravityy,
+    gravityz,
 } measurement_t;
 
 typedef struct
@@ -181,6 +194,6 @@ typedef struct
 
 extern void publish_gps(gps_data_t data);
 
-void publish_measurement(std::optional<float> input, measurement_t type, uint64_t ts);
+void publish_measurement(std::optional<float> input, measurement_t type, uint64_t ts, bool screen = true);
 
 #endif

@@ -1,4 +1,4 @@
-#include "vh_metric.hpp"
+#include "metric.hpp"
 
 static lv_style_t style_metric_value;
 static lv_style_t style_metric_label;
@@ -33,7 +33,9 @@ void MetricW::init(lv_obj_t *parent)
     lv_style_set_text_font(&style_metric_label, font_small);
     lv_style_set_text_font(&style_metric_value, font_xlarge);
 
-    container = vh_create_container(parent, width, height);
+    _container = new Container(parent, width, height);
+    container = _container->get_obj();
+
     lv_obj_set_size(container, width, height);
 
     value = lv_label_create(container);
@@ -66,7 +68,6 @@ void MetricW::init(lv_obj_t *parent)
     set_opposite(opposite);
 }
 
-
 void MetricW::update(window_counter_t *metric)
 {
     ESP_LOGD("metric_update", "begin");
@@ -88,8 +89,8 @@ void MetricW::update(window_counter_t *metric)
 
 /**
  * @brief static callback wrapper that will forward the event to the update function.
- * 
- * @param e 
+ *
+ * @param e
  */
 static void metric_event_cb(lv_event_t *e)
 {
@@ -101,9 +102,8 @@ static void metric_event_cb(lv_event_t *e)
 
 void MetricW::subscribe(uint32_t msg_id)
 {
-    auto that = this;
     lv_obj_add_event_cb(container, metric_event_cb, LV_EVENT_MSG_RECEIVED, NULL);
-    lv_msg_subsribe_obj(msg_id, container, that);
+    lv_msg_subsribe_obj(msg_id, container, this);
 }
 
 void MetricW::set_opposite(bool input)

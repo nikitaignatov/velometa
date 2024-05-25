@@ -23,7 +23,7 @@ void vh_create_brightness_slider(lv_obj_t *parent)
   lv_obj_t *slider = lv_slider_create(parent);
   lv_obj_center(slider);
   lv_slider_set_range(slider, min_brightness, max_brightness);
-  lv_obj_set_size(slider, 20, 300);
+  lv_obj_set_size(slider, 300, 20);
   lv_slider_set_value(slider, max_brightness / 2, lv_anim_enable_t::LV_ANIM_OFF);
   lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 

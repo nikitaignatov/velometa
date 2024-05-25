@@ -1,6 +1,5 @@
 #include "vh_theme.hpp"
 
-
 static lv_style_t style_bg;
 
 static void velohub_theme_callback(lv_theme_t *th, lv_obj_t *obj)
@@ -12,9 +11,11 @@ static void velohub_theme_callback(lv_theme_t *th, lv_obj_t *obj)
 void apply_velohub_theme(void)
 {
   lv_style_init(&style_bg);
-  lv_style_set_bg_color(&style_bg, lv_color_hex(0x000000));
+  lv_style_set_bg_color(&style_bg, lv_color_hex(0xffffff));
   lv_style_set_bg_opa(&style_bg, LV_OPA_100);
 
+  lv_style_set_text_color(&style_bg, lv_color_hex(0x000000));
+  lv_style_set_text_opa(&style_bg, LV_OPA_100);
 
   /*Initialize the new theme from the current theme*/
   lv_theme_t *th_act = lv_disp_get_theme(NULL);

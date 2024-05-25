@@ -149,7 +149,7 @@ void write_measurements_task_code(void *parameter)
     raw_measurement_msg_t msg;
 
     auto delay_sec = 13;
-    auto count_limit = 256;
+    auto count_limit = 512;
     std::string lines = "";
     for (;;)
     {
@@ -159,8 +159,37 @@ void write_measurements_task_code(void *parameter)
         ESP_LOGW(TAG, "MEASUREMENTS CSV LOOP");
         while (count <= count_limit && xQueueReceive(vm_csv_queue, &msg, 1000) == pdPASS)
         {
-            lines = fmt::format("{}\n{},{},{}", lines, msg.ts, msg.measurement, msg.value);
-            count++;
+            if (msg.value && msg.ts > 0)
+            {
+                switch (msg.measurement)
+                {
+                case measurement_t::heartrate:
+                case measurement_t::power:
+                case measurement_t::position_mm:
+                    lines = fmt::format("{}\n{},{},{:.0f}", lines, msg.ts, msg.measurement, msg.value);
+                    break;
+                case measurement_t::elevation:
+                    lines = fmt::format("{}\n{},{},{:.1f}", lines, msg.ts, msg.measurement, msg.value);
+                    break;
+                case measurement_t::air_humidity:
+                case measurement_t::air_temperature:
+                case measurement_t::air_pressure_abs:
+                case measurement_t::air_speed:
+                case measurement_t::speed:
+                    lines = fmt::format("{}\n{},{},{:.2f}", lines, msg.ts, msg.measurement, msg.value);
+                    break;
+                case measurement_t::roll:
+                case measurement_t::pitch:
+                case measurement_t::yaw:
+                case measurement_t::diff_pressure_l_pa:
+                case measurement_t::diff_pressure_r_pa:
+                    lines = fmt::format("{}\n{},{},{:.3f}", lines, msg.ts, msg.measurement, msg.value);
+                    break;
+                default:
+                    lines = fmt::format("{}\n{},{},{}", lines, msg.ts, msg.measurement, msg.value);
+                }
+                count++;
+            }
         }
 
         if (lines.length() > 1)

@@ -15,10 +15,8 @@
 #include <lvgl.h>
 #include "lv_conf.h"
 
-#include "vh_tiles.hpp"
 #include "vh_status_bar.hpp"
 #include "vh_theme.hpp"
-
-extern uint16_t map_frequency;
+#include "screen.hpp"
 
 void display_task_code(void *parameter);

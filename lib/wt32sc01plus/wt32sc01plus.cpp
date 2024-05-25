@@ -1,11 +1,12 @@
 #include "wt32sc01plus.hpp"
 LGFX lcd;
+Display *display;
 
 /*** Setup screen resolution for LVGL ***/
-static const uint16_t screenWidth = 320;
-static const uint16_t screenHeight = 480;
+static const uint16_t screen_width = 320;
+static const uint16_t screen_height = 480;
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[screenWidth * 10];
+static lv_color_t buf[screen_width * 10];
 
 // Variables for touch x,y
 #ifdef DRAW_ON_SCREEN
@@ -31,13 +32,13 @@ void vh_setup(void)
   lcd.setBrightness(128);
 
   /* LVGL : Setting up buffer to use for display */
-  lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * 10);
+  lv_disp_draw_buf_init(&draw_buf, buf, NULL, screen_width * 10);
 
   /*** LVGL : Setup & Initialize the display device driver ***/
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
-  disp_drv.hor_res = screenWidth;
-  disp_drv.ver_res = screenHeight;
+  disp_drv.hor_res = screen_width;
+  disp_drv.ver_res = screen_height;
   disp_drv.flush_cb = display_flush;
   disp_drv.draw_buf = &draw_buf;
   lv_disp_drv_register(&disp_drv);
@@ -71,7 +72,9 @@ void vh_loop()
 void main_screen(void)
 {
   apply_velohub_theme();
-  lv_obj_t *p = vh_tiles_init(lv_scr_act());
+  // lv_obj_t *p = vh_tiles_init(lv_scr_act());
+  auto screen = lv_scr_act();
+  display = new Display(screen, screen_width, screen_height);
 }
 
 void display_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)

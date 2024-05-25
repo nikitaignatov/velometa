@@ -187,7 +187,7 @@ void activity_task_code(void *parameter)
         1);
 
     uint64_t reuse_ts = 0;
-    uint64_t id = 0;
+    uint64_t wait_until = 0;
 
     for (;;)
     {
@@ -233,7 +233,6 @@ void activity_task_code(void *parameter)
                 break;
             default:
                 publish(msg.measurement + 100, msg);
-                // ESP_LOGW(TAG, "Unhandled Message type: %i, Value: %0.4f", msg.measurement, msg.value);
                 break;
             }
             ESP_LOGD(TAG, "end xQueueReceive");
