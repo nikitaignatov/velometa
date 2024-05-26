@@ -9,6 +9,7 @@ public:
     Container &operator=(const Container &temp_obj) = delete;
 
     Container(lv_obj_t *parent, uint16_t width, uint16_t height)
+        : UI_Base()
     {
         lv_obj_t *container = lv_obj_create(parent); /*Create a parent object on the current screen*/
         lv_obj_set_pos(container, 0, 0);

@@ -8,7 +8,7 @@
 #include <string>
 #include "config.hpp"
 #include "types.hpp"
-#include "vh_fonts.hpp"
+#include "fonts.hpp"
 #include "zones.hpp"
 #include "ui_base.hpp"
 

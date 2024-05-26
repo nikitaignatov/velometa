@@ -36,7 +36,7 @@ void ble_task_code(void *parameter)
     {
         for (auto &sensor : ble_sensors)
         {
-            ESP_LOGI(TAG, "Check sensor %s. address:%s", sensor.device_name.c_str(), sensor.address.toString().c_str());
+            ESP_LOGW(TAG, "Check sensor %s. address:%s", sensor.device_name.c_str(), sensor.address.toString().c_str());
 
             if (sensor.client && sensor.client->isConnected())
             {
@@ -285,7 +285,6 @@ void ble_parse_power_watt_data(uint8_t *pData, size_t length, BLERemoteCharacter
 
     if (power >= 0)
     {
-
         publish_measurement(power, measurement_t::power, ts());
         Serial.printf("POWER: %d -- ", power);
     }

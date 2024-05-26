@@ -3,8 +3,8 @@
 Display::Display(lv_obj_t *parent, uint16_t w, uint16_t h)
 {
     this->_parent = parent;
-    this->width = w;
-    this->height = h;
+    this->set_width(w);
+    this->set_height(h);
     this->tv = lv_tileview_create(parent);
 
     auto dashboard_tile = lv_tileview_add_tile(tv, 0, 0, LV_DIR_NONE);
@@ -12,10 +12,10 @@ Display::Display(lv_obj_t *parent, uint16_t w, uint16_t h)
     auto cda_tile = lv_tileview_add_tile(tv, 2, 0, LV_DIR_NONE);
     auto gps_tile = lv_tileview_add_tile(tv, 3, 0, LV_DIR_NONE);
 
-    lv_obj_set_size(tv, width, height);
+    lv_obj_set_size(tv, this->width, height);
     lv_obj_align(tv, LV_ALIGN_TOP_MID, 0, 0);
-    vh_create_status_bar(lv_scr_act(), width);
-    
+    status = new StatusBar(lv_scr_act(), this->width);
+
     btn_next = new Btn(parent, true);
     btn_next->set_text(">");
     btn_prev = new Btn(parent, false);

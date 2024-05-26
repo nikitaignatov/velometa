@@ -3,18 +3,16 @@
 #include <lvgl.h>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
-#include "vh_container.hpp"
 #include "vh_gps.hpp"
 #include "vh_screen_brightness.hpp"
 #include "vh_dashboard.hpp"
-#include "vh_status_bar.hpp"
+#include "status_bar.hpp"
 #include "screen_cda.hpp"
 #include "ui_base.hpp"
 #include "btn.hpp"
 
 class Tile
 {
-    
 };
 
 class Display
@@ -26,6 +24,7 @@ private:
     lv_obj_t *tv = nullptr;
     uint16_t width = 320, height = 450;
     Btn *btn_next = nullptr, *btn_prev = nullptr;
+    StatusBar *status = nullptr;
 
     void next_tile();
     void prev_tile();
@@ -39,6 +38,7 @@ public:
         lv_obj_del_async(tv);
         delete tv;
 
+        delete status;
         delete btn_prev;
         delete btn_next;
         delete _parent;

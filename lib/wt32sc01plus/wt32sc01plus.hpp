@@ -15,8 +15,7 @@
 #include <lvgl.h>
 #include "lv_conf.h"
 
-#include "vh_status_bar.hpp"
-#include "vh_theme.hpp"
+#include "theme.hpp"
 #include "screen.hpp"
 
 void display_task_code(void *parameter);

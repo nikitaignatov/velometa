@@ -57,12 +57,20 @@ void PositionSlider::event_cb(lv_event_t *e)
 
 void PositionSlider::subscribe(measurement_t msg_id)
 {
-    lv_msg_subsribe_obj(msg_id + 100, value, 0);
+    if (obj != nullptr)
+    {
+        lv_msg_subsribe_obj(msg_id + 100, obj, 0);
+    }
 }
 
 PositionSlider::PositionSlider(lv_obj_t *parent, measurement_t event_id, const char *label_text, const char *value_text)
     : UI_Base()
 {
+    if (parent == nullptr)
+    {
+        return;
+    }
+
     static lv_style_t style_indic;
     static lv_style_t style_bg;
 
@@ -85,6 +93,8 @@ PositionSlider::PositionSlider(lv_obj_t *parent, measurement_t event_id, const c
     lv_style_set_radius(&style_indic, 3);
 
     obj = lv_bar_create(parent);
+    set_obj(obj);
+    
     lv_obj_set_size(obj, 280, 30);
     lv_obj_add_style(obj, &style_bg, 0);
     lv_obj_add_style(obj, &style_indic, LV_PART_INDICATOR);

@@ -14,13 +14,13 @@ void publish(uint32_t topic, window_counter_t payload)
         }
         else
         {
-            ESP_LOGE("metric_info_t", "failed to take semaphor %d",topic);
+            ESP_LOGE("metric_info_t", "failed to take semaphor %d", topic);
         }
     }
     uint64_t end = esp_timer_get_time();
 
-    printf("%u iterations took %llu milliseconds (%llu microseconds per invocation)\n",
-           MEASUREMENTS, (end - start) / 1000, (end - start) / MEASUREMENTS);
+    ESP_LOGD("PUBLISH", "%u iterations took %llu milliseconds (%llu microseconds per invocation)\n",
+             MEASUREMENTS, (end - start) / 1000, (end - start) / MEASUREMENTS);
 }
 
 void publish(uint32_t topic, gps_data_t payload)
@@ -35,7 +35,6 @@ void publish(uint32_t topic, gps_data_t payload)
         ESP_LOGD("gps_data_t", "failed to take semaphor");
     }
 }
-
 
 void publish(uint32_t topic, raw_measurement_msg_t payload)
 {

@@ -71,8 +71,7 @@ void vh_loop()
 
 void main_screen(void)
 {
-  apply_velohub_theme();
-  // lv_obj_t *p = vh_tiles_init(lv_scr_act());
+  apply_velometa_theme();
   auto screen = lv_scr_act();
   display = new Display(screen, screen_width, screen_height);
 }

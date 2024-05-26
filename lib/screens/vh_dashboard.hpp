@@ -11,11 +11,10 @@
 
 #include "config.hpp"
 #include "types.hpp"
-#include "vh_container.hpp"
-#include "vh_fonts.hpp"
+#include "fonts.hpp"
 #include "lgfx.hpp"
 #include "metric.hpp"
-#include "vh_chart.hpp"
+#include "chart.hpp"
 
 extern LGFX lcd;
 
