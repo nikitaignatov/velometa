@@ -31,7 +31,7 @@ void MetricW::init(lv_obj_t *parent)
     lv_style_init(&style_metric_label);
     lv_style_init(&style_metric_value);
     lv_style_set_text_font(&style_metric_label, font_small);
-    lv_style_set_text_font(&style_metric_value, font_xlarge);
+    lv_style_set_text_font(&style_metric_value, font_xxlarge_bold);
 
     _container = new Container(parent, width, height);
     container = _container->get_obj();

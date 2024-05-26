@@ -20,8 +20,8 @@
 #define LV_MEM_SIZE (32U * 1024U) /*[bytes]*/
 #define LV_MEM_ADR 0              /*0: unused*/
 #if LV_MEM_ADR == 0
-//#define LV_MEM_POOL_INCLUDE your_alloc_library  /* Uncomment if using an external allocator*/
-//#define LV_MEM_POOL_ALLOC   your_alloc          /* Uncomment if using an external allocator*/
+// #define LV_MEM_POOL_INCLUDE your_alloc_library  /* Uncomment if using an external allocator*/
+// #define LV_MEM_POOL_ALLOC   your_alloc          /* Uncomment if using an external allocator*/
 #endif
 
 #else                                    /*LV_MEM_CUSTOM*/
@@ -225,7 +225,7 @@
 /*Optionally declare custom fonts here.
  *You can use these fonts as default font too and they will be available globally.
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
-#define LV_FONT_CUSTOM_DECLARE  LV_FONT_DECLARE(simplymono8) LV_FONT_DECLARE(simplymono12) LV_FONT_DECLARE(simplymono16) LV_FONT_DECLARE(simplymono24) LV_FONT_DECLARE(simplymono32) LV_FONT_DECLARE(simplymono48) LV_FONT_DECLARE(simplymono_bold48) LV_FONT_DECLARE(simplymono64) 
+#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(simplymono8) LV_FONT_DECLARE(simplymono12) LV_FONT_DECLARE(simplymono16) LV_FONT_DECLARE(simplymono24) LV_FONT_DECLARE(simplymono32) LV_FONT_DECLARE(simplymono48) LV_FONT_DECLARE(simplymono64) LV_FONT_DECLARE(simplymono_bold8) LV_FONT_DECLARE(simplymono_bold12) LV_FONT_DECLARE(simplymono_bold16) LV_FONT_DECLARE(simplymono_bold24) LV_FONT_DECLARE(simplymono_bold32) LV_FONT_DECLARE(simplymono_bold48) LV_FONT_DECLARE(simplymono_bold64)
 
 /*Always set a default font*/
 #define LV_FONT_DEFAULT &simplymono16
