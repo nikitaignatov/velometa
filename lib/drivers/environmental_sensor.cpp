@@ -27,6 +27,17 @@ std::optional<float> EnvironmentalSensor::get_air_pressure()
     return p;
 }
 
+std::optional<float> EnvironmentalSensor::get_elevation()
+{
+    if (_pressure.has_value())
+    {
+        auto atmospheric_hPa = _pressure.value() / 100.0f;
+        auto sealevel_hPa = 1013.15;
+        return 44330.0 * (1.0 - pow(atmospheric_hPa / sealevel_hPa, 0.1903));
+    }
+    return std::optional<float>();
+}
+
 std::optional<float> EnvironmentalSensor::get_air_temperature()
 {
     auto invalid = std::optional<float>();

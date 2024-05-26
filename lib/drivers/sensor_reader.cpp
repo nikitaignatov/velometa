@@ -17,6 +17,7 @@ static std::optional<float> to_ms(std::optional<float> _dp, std::optional<float>
         float inlet = h * (30.0 / 100.0);
         float throat = h * (13.5 / 100.0);
         float ratio = inlet / throat;
+        float gain = 5.0;
         // float inlet = PI * pow(24.0 / 2, 2);
         // float throat = PI * pow(18.0 / 2, 2);
         // float ratio = inlet / throat;
@@ -24,8 +25,8 @@ static std::optional<float> to_ms(std::optional<float> _dp, std::optional<float>
         if (dp == 0)
             return 0;
         else if (dp < 0)
-            return sqrt(((2 * -(dp * 5)) / ((pow(ratio, 2) - 1) * density)));
-        return -sqrt(((2 * ((dp * 5)) / ((pow(ratio, 2) - 1) * density))));
+            return sqrt(((2 * -(dp * gain)) / ((pow(ratio, 2) - 1) * density)));
+        return -sqrt(((2 * ((dp * gain)) / ((pow(ratio, 2) - 1) * density))));
     }
     return std::optional<float>();
 }
@@ -33,7 +34,7 @@ static std::optional<float> to_ms(std::optional<float> _dp, std::optional<float>
 void sensor_reader_task_code(void *parameter)
 {
     ESP_LOGW(TAG, "sensor_reader_task_code");
-    vTaskDelay(50000000 / portTICK_PERIOD_MS);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     environmental.init(ENVIRONMENTAL_SENSOR_ADDRESS);
     auto Pa = environmental.get_air_pressure().value_or(-1);
     auto T = environmental.get_air_temperature().value_or(-1);
@@ -75,6 +76,7 @@ void sensor_reader_task_code(void *parameter)
             publish_measurement(environmental.get_air_pressure(), measurement_t::air_pressure_abs, measurement_ts);
             publish_measurement(environmental.get_air_temperature(), measurement_t::air_temperature, measurement_ts);
             publish_measurement(environmental.get_air_relative_humidity(), measurement_t::air_humidity, measurement_ts);
+            publish_measurement(environmental.get_elevation(), measurement_t::elevation, measurement_ts);
             publish_measurement(environmental.get_air_density(), measurement_t::air_density, measurement_ts);
             d = environmental.get_air_density();
 

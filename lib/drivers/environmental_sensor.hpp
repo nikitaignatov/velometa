@@ -22,5 +22,6 @@ public:
     std::optional<float> get_air_temperature();
     std::optional<float> get_air_relative_humidity();
     std::optional<float> get_air_density();
+    std::optional<float> get_elevation();
     void init(uint8_t address);
 };
