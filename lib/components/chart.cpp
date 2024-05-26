@@ -25,31 +25,30 @@ void Chart::event_cb(lv_event_t *e)
     auto powerm = activity->get_power(9);
     if (hr.count > 0)
     {
-        if (ser_hr_last == nullptr)
+        if (series_primary == nullptr)
         {
             ESP_LOGW("Chart", "update_event_cb.hr.ser_hr_last.null");
             return;
         }
 
-        lv_chart_set_next_value(obj, ser_hr_last, hr.get_last());
-        lv_chart_set_next_value(obj, ser_hr_avg, hr.get_avg());
+        lv_chart_set_next_value(obj, series_primary, hr.get_last());
+        lv_chart_set_next_value(obj, series_secondary, hr.get_avg());
 
         if (chart->ymin[0] > hrm.get_min() - offset || chart->ymax[0] < hrm.get_max() + offset)
         {
-            ESP_LOGW("Chart", "update_event_cb.stuff");
             lv_chart_set_range(obj, LV_CHART_AXIS_PRIMARY_Y, hrm.get_min() - offset, hrm.get_max() + offset);
         }
     }
-    if (power.count > 0)
-    {
-        lv_chart_set_next_value(obj, ser_p_last, power.get_avg());
-        lv_chart_set_next_value(obj, ser_p_avg, power.get_avg_w());
+    // if (power.count > 0)
+    // {
+    //     lv_chart_set_next_value(obj, ser_p_last, power.get_avg());
+    //     lv_chart_set_next_value(obj, ser_p_avg, power.get_avg_w());
 
-        if (chart->ymin[1] != powerm.get_min() - offset || chart->ymax[1] != powerm.get_max() + offset)
-        {
-            lv_chart_set_range(obj, LV_CHART_AXIS_SECONDARY_Y, powerm.get_min() - offset, powerm.get_max() + offset);
-        }
-    }
+    //     if (chart->ymin[1] != powerm.get_min() - offset || chart->ymax[1] != powerm.get_max() + offset)
+    //     {
+    //         lv_chart_set_range(obj, LV_CHART_AXIS_SECONDARY_Y, powerm.get_min() - offset, powerm.get_max() + offset);
+    //     }
+    // }
     ESP_LOGW("Chart", "update_event_cb.done");
 }
 
@@ -60,7 +59,6 @@ static void clear_default_style(lv_obj_t *chart)
     lv_obj_set_style_pad_all(chart, 0, 0);
     lv_obj_set_style_size(chart, 0, LV_PART_INDICATOR);
     lv_obj_refresh_ext_draw_size(chart);
-    // lv_chart_set_div_line_count(chart, 8, 10);
     lv_chart_set_div_line_count(chart, 0, 0);
 }
 
@@ -73,6 +71,18 @@ static void set_chart_line_width(lv_obj_t *chart, uint16_t width)
 void Chart::subscribe(measurement_t msg_id)
 {
     lv_msg_subsribe_obj(msg_id, obj, 0);
+}
+
+void Chart::add_primary_series(measurement_t msg_id, uint32_t color, uint16_t min, uint16_t max)
+{
+    series_primary = lv_chart_add_series(obj, lv_color_hex(color), LV_CHART_AXIS_PRIMARY_Y);
+    lv_chart_set_range(obj, LV_CHART_AXIS_PRIMARY_X, min, max);
+}
+
+void Chart::add_secondary_series(measurement_t msg_id, uint32_t color, uint16_t min, uint16_t max)
+{
+    series_secondary = lv_chart_add_series(obj, lv_color_hex(color), LV_CHART_AXIS_SECONDARY_Y);
+    lv_chart_set_range(obj, LV_CHART_AXIS_SECONDARY_Y, min, max);
 }
 
 Chart::Chart(lv_obj_t *parent, lv_coord_t width, lv_coord_t height, uint16_t points_pr_series) : UI_Base()
@@ -89,15 +99,10 @@ Chart::Chart(lv_obj_t *parent, lv_coord_t width, lv_coord_t height, uint16_t poi
     clear_default_style(obj);
     set_chart_line_width(obj, 4);
 
-    lv_chart_set_range(obj, LV_CHART_AXIS_PRIMARY_X, 0, 100);
-    lv_chart_set_range(obj, LV_CHART_AXIS_SECONDARY_Y, 100, 800);
     lv_chart_set_point_count(obj, points_pr_series);
 
-    ser_hr_last = lv_chart_add_series(obj, lv_color_hex(0x990000), LV_CHART_AXIS_PRIMARY_Y);
-    ser_p_last = lv_chart_add_series(obj, lv_color_hex(0x4C3D3D), LV_CHART_AXIS_SECONDARY_Y);
-
-    ser_hr_avg = lv_chart_add_series(obj, lv_color_hex(0xff0000), LV_CHART_AXIS_PRIMARY_Y);
-    ser_p_avg = lv_chart_add_series(obj, lv_color_hex(0xFFD95A), LV_CHART_AXIS_SECONDARY_Y);
+    add_secondary_series(measurement_t::heartrate, 0x990000, 0, 100);
+    add_primary_series(measurement_t::heartrate, 0xff0000, 0, 100);
 
     lv_obj_t *label = lv_label_create(parent);
     lv_label_set_recolor(label, true);
