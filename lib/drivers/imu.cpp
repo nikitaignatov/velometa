@@ -6,43 +6,32 @@ bool IMU::read_sensor()
 {
     if (dmpReady)
     {
-        // Wire.end();
-        // Wire.begin(IMU_SENSOR_SDA, IMU_SENSOR_SCL, 400000);
         if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer))
-        { // Get the Latest packet
-#ifdef OUTPUT_READABLE_QUATERNION
-          // display quaternion values in easy matrix form: w x y z
+        {
             mpu.dmpGetQuaternion(&q, fifoBuffer);
-            Serial.print("quat\t");
-            Serial.print(q.w);
-            Serial.print("\t");
-            Serial.print(q.x);
-            Serial.print("\t");
-            Serial.print(q.y);
-            Serial.print("\t");
-            Serial.println(q.z);
-#endif
 
-#ifdef OUTPUT_READABLE_EULER
-            // display Euler angles in degrees
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetEuler(euler, &q);
-            Serial.print("euler\t");
-            Serial.print(euler[0] * 180 / M_PI);
-            Serial.print("\t");
-            Serial.print(euler[1] * 180 / M_PI);
-            Serial.print("\t");
-            Serial.println(euler[2] * 180 / M_PI);
-#endif
+            auto q0 = q.w;
+            auto q1 = q.x;
+            auto q2 = q.y;
+            auto q3 = q.z;
+            // ESP_LOGW("Q", "%.3f %.3f %.3f", q1, q2, q3);
 
-#ifdef OUTPUT_READABLE_YAWPITCHROLL
-            // display Euler angles in degrees
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
+            auto yr = -atan2(-2 * q1 * q2 + 2 * q0 * q3, q2 * q2 - q3 * q3 - q1 * q1 + q0 * q0);
+            auto pr = asin(2 * q2 * q3 + 2 * q0 * q1);
+            auto rr = atan2(-2 * q1 * q3 + 2 * q0 * q2, q3 * q3 - q2 * q2 - q1 * q1 + q0 * q0);
+            // ESP_LOGW("YPR_R", "%.3f %.3f %.3f", yr, pr, rr);
+
+            _yaw =  yr * 180 / M_PI;
+            _pitch = pr * 180 / M_PI;
+            _roll = rr * 180 / M_PI;
+            // ESP_LOGW("YPR_D", "%.3f %.3f %.3f", _yaw.value(), _pitch.value(), _roll.value());
+
             mpu.dmpGetGravity(&gravity, &q);
             mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-            _yaw = ypr[0] * 180 / M_PI;
-            _pitch = ypr[1] * 180 / M_PI;
-            _roll = ypr[2] * 180 / M_PI;
+            // _yaw = ypr[0] * 180 / M_PI;
+            // _pitch = ypr[1] * 180 / M_PI;
+            // _roll = ypr[2] * 180 / M_PI;
+            // ESP_LOGW("IMU", "%.3f %.3f %.3f", _yaw, _pitch, _roll);
             mpu.dmpGetEuler(euler, &q);
 
             mpu.dmpGetAccel(&aa, fifoBuffer);
@@ -66,44 +55,6 @@ bool IMU::read_sensor()
             qx = q.x;
             qy = q.y;
             qz = q.z;
-
-            // Serial.print("ypr\t");
-            // Serial.print(_yaw.value());
-            // Serial.print("\t");
-            // Serial.print(_pitch.value());
-            // Serial.print("\t");
-            // Serial.println(_roll.value());
-#endif
-
-#ifdef OUTPUT_READABLE_REALACCEL
-            // display real acceleration, adjusted to remove gravity
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetAccel(&aa, fifoBuffer);
-            mpu.dmpGetGravity(&gravity, &q);
-            mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-            Serial.print("areal\t");
-            Serial.print(aaReal.x);
-            Serial.print("\t");
-            Serial.print(aaReal.y);
-            Serial.print("\t");
-            Serial.println(aaReal.z);
-#endif
-
-#ifdef OUTPUT_READABLE_WORLDACCEL
-            // display initial world-frame acceleration, adjusted to remove gravity
-            // and rotated based on known orientation from quaternion
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetAccel(&aa, fifoBuffer);
-            mpu.dmpGetGravity(&gravity, &q);
-            mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-            mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
-            Serial.print("aworld\t");
-            Serial.print(aaWorld.x);
-            Serial.print("\t");
-            Serial.print(aaWorld.y);
-            Serial.print("\t");
-            Serial.println(aaWorld.z);
-#endif
             return true;
         }
     }

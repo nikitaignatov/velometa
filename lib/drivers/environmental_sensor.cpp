@@ -5,7 +5,7 @@ static const char *TAG = "environmental_sensor";
 bool EnvironmentalSensor::read_sensor()
 {
     // init(_address);
-    return true;
+    return ready;
 }
 
 std::optional<float> EnvironmentalSensor::get_air_pressure()
@@ -22,6 +22,13 @@ std::optional<float> EnvironmentalSensor::get_air_pressure()
     if (p < min_pressure)
     {
         return invalid;
+    }
+    auto dt = 1 / 100;
+    auto cutoff = 30;
+    auto alpha = dt / (dt + 1 / (2 * M_PI * cutoff));
+    if (_pressure.has_value())
+    {
+        p = p * alpha + (1 - alpha) * _pressure.value();
     }
     _pressure = p;
     return p;
@@ -129,4 +136,6 @@ void EnvironmentalSensor::init(uint8_t address)
         Adafruit_BME280::SAMPLING_X4,  // humidity
         Adafruit_BME280::FILTER_X16,
         Adafruit_BME280::STANDBY_MS_0_5);
+
+    ready = true;
 }

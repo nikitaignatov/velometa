@@ -13,8 +13,9 @@ class EnvironmentalSensor
 {
 private:
     uint8_t _address;
+    bool ready = false;
     Adafruit_BME280 sensor;
-    std::optional<float> _pressure,_temperature,_humidity;
+    std::optional<float> _pressure, _temperature, _humidity;
 
 public:
     bool read_sensor();

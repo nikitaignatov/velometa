@@ -21,7 +21,7 @@ void Measurement::event_cb(lv_event_t *e)
         auto v = (raw_measurement_msg_t *)p;
         if (v)
         {
-            lv_label_set_text(e->current_target, fmt::format(value_text == nullptr ? "{}" : value_text, v->value).c_str());
+            lv_label_set_text(e->current_target, fmt::format(value_fmt == nullptr ? "{}" : value_fmt, v->value).c_str());
         }
         else
         {
@@ -67,6 +67,7 @@ Measurement::Measurement(lv_obj_t *parent, measurement_t event_id, const char *l
     lv_obj_set_style_text_font(value, font_large, 0);
     lv_obj_set_style_bg_opa(value, LV_OPA_0, 0);
     lv_label_set_text(value, value_text);
+    value_fmt = value_text;
     set_obj(value);
     set_callback([&](auto *e)
                  { event_cb(e); }, LV_EVENT_MSG_RECEIVED);

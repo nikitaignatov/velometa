@@ -20,6 +20,7 @@ class Measurement : public UI_Base
     lv_obj_t *obj;
     lv_obj_t *label;
     lv_obj_t *value;
+    const char *value_fmt = "{}";
     void event_cb(lv_event_t *e);
 
 public:
