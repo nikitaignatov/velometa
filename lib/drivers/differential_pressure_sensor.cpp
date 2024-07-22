@@ -51,7 +51,9 @@ bool DifferentialPressureSensor::read_sensor()
         ESP_LOGE(TAG, "Received pressure[%.2f] below min_operational[%.2f].", _pressure_raw, min_pressure);
         return false;
     }
+
     _pressure = _pressure_raw - _offset;
+    _pressure = kf.updateEstimate(_pressure.value_or(0));
 
     return true;
 }

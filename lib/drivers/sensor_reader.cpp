@@ -14,7 +14,7 @@ static std::optional<float> to_ms(std::optional<float> _dp, std::optional<float>
         float dp = _dp.value();
         float density = _density.value();
         float h = 0.010;
-        float inlet = h * (30.0 / 100.0);   
+        float inlet = h * (30.0 / 100.0);
         float throat = h * (13.5 / 100.0);
         float ratio = inlet / throat;
         float gain = 5.0;
@@ -35,19 +35,19 @@ void sensor_reader_task_code(void *parameter)
 {
     ESP_LOGW(TAG, "sensor_reader_task_code");
     vTaskDelay(500 / portTICK_PERIOD_MS);
-    // environmental.init(ENVIRONMENTAL_SENSOR_ADDRESS);
-    // auto Pa = environmental.get_air_pressure().value_or(-1);
-    // auto T = environmental.get_air_temperature().value_or(-1);
-    // auto h = environmental.get_air_relative_humidity().value_or(-1);
-    // ESP_LOGW(TAG, "Env sesnor reading: %.2f C; %.1f RH; %f Pa;\n", T, h, Pa);
+    environmental.init(ENVIRONMENTAL_SENSOR_ADDRESS);
+    auto Pa = environmental.get_air_pressure().value_or(-1);
+    auto T = environmental.get_air_temperature().value_or(-1);
+    auto h = environmental.get_air_relative_humidity().value_or(-1);
+    ESP_LOGW(TAG, "Env sesnor reading: %.2f C; %.1f RH; %f Pa;\n", T, h, Pa);
 
-    // diff_pressure_2.init(0);
-    // diff_pressure_1.init(1);
+    diff_pressure_2.init(0);
+    diff_pressure_1.init(1);
 
-    // ESP_LOGW(TAG, "Diff sesnor initialized.\n");
-    // position.init(POSITION_SENSOR_ADDRESS);
-    // ESP_LOGW(TAG, "Position sesnor initialized.\n");
-    imu.init();
+    ESP_LOGW(TAG, "Diff sesnor initialized.\n");
+    position.init(POSITION_SENSOR_ADDRESS);
+    ESP_LOGW(TAG, "Position sesnor initialized.\n");
+    // imu.init();
     ESP_LOGW(TAG, "IMU sesnor initialized.\n");
 
     std::optional<float> p;
@@ -68,7 +68,11 @@ void sensor_reader_task_code(void *parameter)
         {
             publish_measurement(diff_pressure_2.get_pressure(), measurement_t::diff_pressure_r_pa, measurement_ts);
             auto x = diff_pressure_2.get_pressure();
-            p = p.value_or(0) < x.value_or(0) ? p : x;
+            if (x.has_value() && p.has_value())
+            {
+                auto yaw = atan2(x.value_or(0.1), p.value_or(0.1)) * RAD_TO_DEG;
+                publish_measurement(yaw, measurement_t::yaw, measurement_ts);
+            }
         }
 
         if (environmental.read_sensor())
@@ -97,7 +101,7 @@ void sensor_reader_task_code(void *parameter)
         {
             publish_measurement(imu.get_roll(), measurement_t::roll, measurement_ts);
             publish_measurement(imu.get_pitch(), measurement_t::pitch, measurement_ts);
-            publish_measurement(imu.get_yaw(), measurement_t::yaw, measurement_ts, false);
+            // publish_measurement(imu.get_yaw(), measurement_t::yaw, measurement_ts, false);
 
             // publish_measurement(imu.aa.x, measurement_t::ax_ms2, measurement_ts, false);
             // publish_measurement(imu.aa.y, measurement_t::ay_ms2, measurement_ts, false);

@@ -8,12 +8,14 @@
 #include "Wire.h"
 #include <optional>
 #include <XGZP6897D.h>
+#include <SimpleKalmanFilter.h>
 
 #define SENSITIVITY_FACTOR 4096
 
 class DifferentialPressureSensor
 {
 private:
+    SimpleKalmanFilter kf = SimpleKalmanFilter(1, 1, 0.1);
     uint8_t address = 0;
     bool ready = false;
     float _pressure_raw, _temperature_raw, _offset;

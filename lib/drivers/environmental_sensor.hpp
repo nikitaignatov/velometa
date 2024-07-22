@@ -8,6 +8,8 @@
 #include "Wire.h"
 #include <Adafruit_BME280.h>
 #include <optional>
+#include <optional>
+
 
 class EnvironmentalSensor
 {
