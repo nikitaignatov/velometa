@@ -49,7 +49,7 @@ static void label_event_cb(lv_event_t *e)
         lv_label_set_text(alt, fmt::format("ALT : {}", v->height).c_str());
         lv_label_set_text(age, fmt::format("AGE : {}", v->age).c_str());
         lv_label_set_text(sat, fmt::format("SAT : {}", v->satelites).c_str());
-        lv_label_set_text(fix, fmt::format(v->has_fix ? "FIX : #009900 {}#" : "FIX : #990000 {}#", v->has_fix).c_str());
+        lv_label_set_text(fix, fmt::format("FIX : #009900 {}#", v->has_fix).c_str());
     }
     else
     {

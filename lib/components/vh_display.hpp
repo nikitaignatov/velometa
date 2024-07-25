@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lvgl.h>
+#include <lvgl>
 #include "esp32-hal-log.h"
 #include "types.hpp"
 

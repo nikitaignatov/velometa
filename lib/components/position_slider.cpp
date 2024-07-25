@@ -42,7 +42,7 @@ void PositionSlider::event_cb(lv_event_t *e)
                 lv_obj_set_style_bg_color(obj, lv_color_hsv_to_rgb(r, 100, 100), LV_PART_INDICATOR);
                 lv_bar_set_value(obj, (int32_t)v->value, LV_ANIM_OFF);
             }
-            lv_label_set_text(e->current_target, fmt::format(value_text == nullptr ? "{}" : value_text, v->value).c_str());
+            lv_label_set_text(e->current_target, fmt::format("{}", v->value).c_str());
         }
         else
         {
@@ -94,7 +94,7 @@ PositionSlider::PositionSlider(lv_obj_t *parent, measurement_t event_id, const c
 
     obj = lv_bar_create(parent);
     set_obj(obj);
-    
+
     lv_obj_set_size(obj, 280, 30);
     lv_obj_add_style(obj, &style_bg, 0);
     lv_obj_add_style(obj, &style_indic, LV_PART_INDICATOR);

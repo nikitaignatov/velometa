@@ -21,7 +21,7 @@ void Measurement::event_cb(lv_event_t *e)
         auto v = (raw_measurement_msg_t *)p;
         if (v)
         {
-            lv_label_set_text(e->current_target, fmt::format(value_fmt == nullptr ? "{}" : value_fmt, v->value).c_str());
+            lv_label_set_text(e->current_target, fmt::format("{}", v->value).c_str());
         }
         else
         {

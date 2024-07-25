@@ -1,6 +1,5 @@
 #pragma once
 
-#include <lvgl.h>
 #include "config.hpp"
 #include "types.hpp"
 #include "zones.hpp"

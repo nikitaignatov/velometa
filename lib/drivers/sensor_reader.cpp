@@ -1,13 +1,13 @@
 #include "sensor_reader.hpp"
+using namespace std;
 static const char *TAG = "sensor_reader";
-
 static EnvironmentalSensor environmental;
 static PositionTrackingSensor position;
 static DifferentialPressureSensor diff_pressure_1;
 static DifferentialPressureSensor diff_pressure_2;
 static IMU imu;
 
-static std::optional<float> to_ms(std::optional<float> _dp, std::optional<float> _density)
+static optional<float> to_ms(std::optional<float> _dp, std::optional<float> _density)
 {
     if (_dp.has_value() && _density.has_value())
     {
@@ -71,7 +71,7 @@ void sensor_reader_task_code(void *parameter)
             if (x.has_value() && p.has_value())
             {
                 auto yaw = atan2(x.value_or(0.1), p.value_or(0.1)) * RAD_TO_DEG;
-                publish_measurement(yaw, measurement_t::yaw, measurement_ts);
+                publish_measurement(yaw, measurement_t::roll, measurement_ts);
             }
         }
 
@@ -101,7 +101,7 @@ void sensor_reader_task_code(void *parameter)
         {
             publish_measurement(imu.get_roll(), measurement_t::roll, measurement_ts);
             publish_measurement(imu.get_pitch(), measurement_t::pitch, measurement_ts);
-            // publish_measurement(imu.get_yaw(), measurement_t::yaw, measurement_ts, false);
+            publish_measurement(imu.get_yaw(), measurement_t::yaw, measurement_ts, false);
 
             // publish_measurement(imu.aa.x, measurement_t::ax_ms2, measurement_ts, false);
             // publish_measurement(imu.aa.y, measurement_t::ay_ms2, measurement_ts, false);

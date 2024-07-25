@@ -10,6 +10,9 @@
 #include "activity.hpp"
 #include <ff.h>
 #include "sensor_reader.hpp"
+#include <iostream>
+#include "sdcard.hpp"
+#include <ranges>
 
 RTC_DATA_ATTR int start_count = 0;
 
@@ -46,6 +49,18 @@ void setup()
     Serial.begin(115200);
     delay(50);
     Serial.println("Velometa");
+
+    auto const ints = {0, 1, 2, 3, 4, 5};
+    auto even = [](int i)
+    { return 0 == i % 2; };
+    auto square = [](int i)
+    { return i * i; };
+
+    // the "pipe" syntax of composing the views:
+    for (int i : ints | std::views::filter(even) | std::views::transform(square))
+        std::cout << i << ' ';
+
+    std::cout << '\n';
 
     vh_display_semaphore = xSemaphoreCreateMutex();
     vm_sdcard_semaphor = xSemaphoreCreateMutex();
