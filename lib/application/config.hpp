@@ -30,7 +30,7 @@
 #define BOARD_LILY_154 2
 #define BOARD_WAVESHARE 3
 #define WTSC01_PLUS 4
-#define BOARD WTSC01_PLUS
+#define BOARD BOARD_LILY_154
 
 #define MSG_NEW_SPEED 1
 #define MSG_NEW_POWER 2
@@ -48,6 +48,36 @@
 
 #define VM_I2C_2_SDA 14
 #define VM_I2C_2_SCL 21
+#elif BOARD == BOARD_LILY_154
+#define VM_I2C_0_SDA 10
+#define VM_I2C_0_SCL 11
+
+#define VM_I2C_1_SDA 20
+#define VM_I2C_1_SCL 21
+
+#define VM_I2C_2_SDA 22
+#define VM_I2C_2_SCL 23
+#endif
+
+#if BOARD == BOARD_LILY_WRIST
+#define P_CS 15
+#define P_DC 2
+#define P_RST 17
+#define P_BUSY 16
+#define EPD_SCK_PIN 14
+#define EPD_MOSI_PIN 13
+#elif BOARD == BOARD_LILY_154
+#define P_CS 5
+#define P_DC 17
+#define P_RST 16
+#define P_BUSY 4
+#define EPD_SCK_PIN 18
+#define EPD_MOSI_PIN 23
+#elif BOARD == BOARD_WAVESHARE
+#define EPD_CS_PIN 15
+#define EPD_RST_PIN 26
+#define EPD_DC_PIN 27
+#define EPD_BUSY_PIN 25
 #endif
 
 #define POSITION_SENSOR_ADDRESS 0x29

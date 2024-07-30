@@ -1,27 +1,43 @@
-#include "display_420.h"
+#include "display_420.hpp"
 
-GxEPD2_BW<GxEPD2_420_M01, GxEPD2_420_M01::HEIGHT> display(GxEPD2_420_M01(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
-const int SCRN_SPI_CHAN = 2;                                                                                                           // HSPI
+#ifdef EPD_75bwr
+GxEPD2_3C<SCREEN, SCREEN::HEIGHT / 24> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
+
+#endif
+
+#ifdef EPD_213bw
+GxEPD2_BW<SCREEN, SCREEN::HEIGHT> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
+#endif
+
+#ifdef EPD_420bw
+GxEPD2_BW<SCREEN, SCREEN::HEIGHT / 2> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
+#endif
+
+#ifdef EPD_583bw
+GxEPD2_BW<SCREEN, SCREEN::HEIGHT > display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
+#endif
+
+const int SCRN_SPI_CHAN = 2; // HSPI
 SPIClass hspi(HSPI);
-
+static bool refresh = false;
 void display_layout()
 {
     display.setRotation(0);
     // status
-    display.drawFastHLine(0, 20, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
+    display.drawFastHLine(0, 20, display.width(), GxEPD_BLACK);
     display.drawFastVLine(85, 0, 20, GxEPD_BLACK);
 
     // sensor
-    display.drawFastHLine(0, 60, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
-    display.drawFastHLine(0, 140, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
+    display.drawFastHLine(0, 60, display.width(), GxEPD_BLACK);
+    display.drawFastHLine(0, 140, display.width(), GxEPD_BLACK);
     display.drawFastVLine(200, 0, 140, GxEPD_BLACK);
 
     // map
     display.drawFastVLine(0, 140, 100, GxEPD_BLACK);
     display.drawFastVLine(display.epd2.WIDTH - 1, 140, 100, GxEPD_BLACK);
-    display.drawFastHLine(0, 240, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
+    display.drawFastHLine(0, 240, display.width(), GxEPD_BLACK);
 
-    display.drawFastHLine(0, GxEPD2_420_M01::HEIGHT - 20, GxEPD2_420_M01::WIDTH, GxEPD_BLACK);
+    display.drawFastHLine(0, display.height() - 20, display.width(), GxEPD_BLACK);
 }
 
 void display_time(int secs)
@@ -38,13 +54,11 @@ void display_time(int secs)
     display.print(temp_str);
 }
 
-
 void display_status_bar_content(int secs)
 {
     display.setFont(&FreeMono9pt7b);
     display_time(secs);
 }
-
 
 void display_chart(Queue *queue, int x)
 {
@@ -67,52 +81,41 @@ void display_chart(Queue *queue, int x)
             int y = screen_height - scaled * height;
 
             int xx = i + x;
-            display.drawLine(xx,p,xx+1,y,GxEPD_BLACK);
+            display.drawLine(xx, p, xx + 1, y, GxEPD_BLACK);
             p = y;
         }
     }
 }
 
-void display_map_dark(int16_t offset_x, int16_t offset_y)
-{
-    int y_offset = 120;
-    if (offset_x >= 0)
-    {
-        display.fillTriangle(190, y_offset + 78, 200, y_offset + 50, 210, y_offset + 78, GxEPD_WHITE);
-        display.epd2.drawImagePart(display_map_tile_1, offset_x, offset_y, map_w, map_h, 0, (int16_t)142, (int16_t)400, (int16_t)140, false, false, false);
-        // display.drawBitmap(0, 140+offset_x, display_map_tile_1, map_w, map_h, GxEPD_BLACK);
-        display.refresh(true);
-    }
-    else
-    {
-    }
-}
-
-void render(int secs, HR *hr, Power *power, Speed *speed, int offset_x)
+void render(int secs, float hr, float power, float speed, int offset_x)
 {
     // // clear();
-    display.setPartialWindow(0, 0, 400, 142);
-
+    display.setPartialWindow(0, 0, display.width(), 400);
     display.fillScreen(GxEPD_WHITE);
-    // // int a = system_bar_h + Font12.Height + Font24.Height;
-    display_status_bar_content(secs);
-    display.setCursor(90, 12);
-    display.print(String(String(speed->last())+String("km/h")).c_str());
-    display.setCursor(0, 55);
+    display.setTextColor(GxEPD_BLACK);
+    Serial.println("fill white");
+    Serial.println(display.width());
+    Serial.println(display.height());
+    display_layout();
+    Serial.println("layout");
+    // // // int a = system_bar_h + Font12.Height + Font24.Height;
+    // display_status_bar_content(secs);
+    display.setCursor(90, 100);
+    display.print(String(String(speed, 1) + String("km/h")).c_str());
+    display.setCursor(10, 50);
 
     display.setFont(&FreeMonoBold24pt7b);
-    display.print(String(hr->last()).c_str());
-    display.setCursor(202, 55);
-    display.print(String(power->last()).c_str());
+    display.print(String(hr, 0).c_str());
+    display.setCursor(202, 200);
+    display.print(String(power, 0).c_str());
     // display.print(String(198).c_str());
 
-    display.setFont(&FreeMonoBold9pt7b);
-    display_chart(hr->queue,0);
-    display_chart(power->queue,201);
-    display_layout();
-    display.displayWindow(0, 0, 400, 142);
+    // display.setFont(&FreeMonoBold9pt7b);
+    // // display_chart(hr->queue, 0);
+    // // display_chart(power->queue, 201);
 
-    // display.display(true);
+    display.displayWindow(0, 0, display.width(), 400);
+    display.display(true);
     // display_map_dark(offset_x);
 
     // Paint_DrawLine(0, a - 1, screen_width, a - 1, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
@@ -150,8 +153,6 @@ void display_init()
     display.init(115200, true, 2, false, hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0)); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
 }
 
-
-
 void display_task_code(void *parameter)
 {
     Serial.println("display_task_code");
@@ -164,6 +165,10 @@ void display_task_code(void *parameter)
             // refresh_screen();
             refresh = false;
         }
-        render(secs / 1000, &hr_monitor, &power_monitor, &speed_monitor, counter);
+
+        // auto a = current_activity();
+        // render(secs / 1000, a->get_hr(1).last, a->get_power(1).last, a->get_speed().last, 2);
+        render(secs / 1000, 98.f, 2.f, 2.f, 2);
+        Serial.println("render done");
     }
 }

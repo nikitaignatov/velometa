@@ -4,7 +4,6 @@
 #include <fmt/ranges.h>
 #include "config.hpp"
 #include "types.hpp"
-#include "vh_display.hpp" // TODO: this should not be here
 #include <tuple>
 #include <float.h>
 #include <math.h>

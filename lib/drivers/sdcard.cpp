@@ -1,4 +1,6 @@
 #include "sdcard.hpp"
+#ifdef USE_LCD
+
 extern FATFS fatfs;
 static const char *TAG = "write_task_code";
 
@@ -276,3 +278,4 @@ void write_task_code(void *parameter)
 
     vTaskDelete(NULL);
 }
+#endif

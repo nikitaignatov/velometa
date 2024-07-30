@@ -1,6 +1,6 @@
 #ifndef _VH_DRIVERS_SDCARD_HPP_
 #define _VH_DRIVERS_SDCARD_HPP_
-
+#ifdef USE_LCD
 #include "types.hpp"
 
 #define MOUNT_POINT "/sdcard"
@@ -34,4 +34,5 @@ static sdmmc_card_t *sdcard;
 bool init_sdspi();
 FATFS *fs_mount_sd_card();
 void write_task_code(void *parameter);
+#endif
 #endif

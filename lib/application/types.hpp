@@ -11,7 +11,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/event_groups.h"
-#include "semphr.h"
 #include "window_counter.hpp"
 
 #define VH_SENSOR_BIT_MOCK_DATA 1

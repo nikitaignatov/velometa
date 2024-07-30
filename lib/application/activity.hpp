@@ -4,16 +4,18 @@
 #include "types.hpp"
 #include "zones.hpp"
 #include "esp_log.h"
-#include "task.h"
 #include <algorithm>
 #include <map>
-#include "vh_display.hpp"
 #include "gps.hpp"
 #include "system.hpp"
 
 const uint16_t H_SECONDS = 3600;
-const uint8_t RIDE_HOURS_MAX = 4;
+const uint8_t RIDE_HOURS_MAX = 1;
 const uint8_t H_MINUTES = 60;
+
+extern void publish(uint32_t topic, window_counter_t payload);
+extern void publish(uint32_t topic, gps_data_t payload);
+extern void publish(uint32_t topic, raw_measurement_msg_t payload);
 
 class Activity
 {
