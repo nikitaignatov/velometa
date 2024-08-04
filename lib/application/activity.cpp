@@ -13,24 +13,24 @@ void Activity::init()
 {
     auto size = RIDE_HOURS_MAX * H_SECONDS;
 
-    // telemetry = (ride_data_t){
-    //     .lat = (float *)ps_malloc(size * sizeof(float)),
-    //     .lon = (float *)ps_malloc(size * sizeof(float)),
-    //     .elevation = (uint16_t *)ps_malloc(size * sizeof(uint16_t)),
-    //     .pressure = (uint16_t *)ps_malloc(size * sizeof(uint16_t)),
-    //     .power = (uint16_t *)ps_malloc(size * sizeof(uint16_t)),
-    //     .speed = (uint16_t *)ps_malloc(size * sizeof(uint16_t)),
-    //     .hr = (uint16_t *)ps_malloc(size * sizeof(uint16_t)),
-    //     .cadence = (uint16_t *)ps_malloc(size * sizeof(uint16_t)),
-    //     .slope = (uint16_t *)ps_malloc(size * sizeof(uint16_t)),
-    // };
-    // memset(telemetry.elevation, 0, size * sizeof(*telemetry.elevation));
-    // memset(telemetry.pressure, 0, size * sizeof(*telemetry.pressure));
-    // memset(telemetry.power, 0, size * sizeof(*telemetry.power));
-    // memset(telemetry.speed, 0, size * sizeof(*telemetry.speed));
-    // memset(telemetry.hr, 0, size * sizeof(*telemetry.hr));
-    // memset(telemetry.cadence, 0, size * sizeof(*telemetry.cadence));
-    // memset(telemetry.slope, 0, size * sizeof(*telemetry.slope));
+    telemetry = (ride_data_t){
+        .lat = (float *)malloc(size * sizeof(float)),
+        .lon = (float *)malloc(size * sizeof(float)),
+        .elevation = (uint16_t *)malloc(size * sizeof(uint16_t)),
+        .pressure = (uint16_t *)malloc(size * sizeof(uint16_t)),
+        .power = (uint16_t *)malloc(size * sizeof(uint16_t)),
+        .speed = (uint16_t *)malloc(size * sizeof(uint16_t)),
+        .hr = (uint16_t *)malloc(size * sizeof(uint16_t)),
+        .cadence = (uint16_t *)malloc(size * sizeof(uint16_t)),
+        .slope = (uint16_t *)malloc(size * sizeof(uint16_t)),
+    };
+    memset(telemetry.elevation, 0, size * sizeof(*telemetry.elevation));
+    memset(telemetry.pressure, 0, size * sizeof(*telemetry.pressure));
+    memset(telemetry.power, 0, size * sizeof(*telemetry.power));
+    memset(telemetry.speed, 0, size * sizeof(*telemetry.speed));
+    memset(telemetry.hr, 0, size * sizeof(*telemetry.hr));
+    memset(telemetry.cadence, 0, size * sizeof(*telemetry.cadence));
+    memset(telemetry.slope, 0, size * sizeof(*telemetry.slope));
 }
 
 uint16_t Activity::get_tick()
@@ -172,6 +172,7 @@ void activity_task_code(void *parameter)
     spinlock_initialize(&spin_lock);
     raw_measurement_msg_t msg;
     xSemaphore = xSemaphoreCreateMutex();
+    
 
     if (xSemaphore == NULL)
     {

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <cstdlib>
+#include <ctime>
+
 // #include "activity.hpp"
 #include <Fonts/FreeMonoBold24pt7b.h>
 #include <Fonts/FreeMono24pt7b.h>

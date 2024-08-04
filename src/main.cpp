@@ -50,20 +50,21 @@ uint64_t ts();
 void setup()
 {
     Serial.begin(115200);
-    delay(5000);
     Serial.println("Velometa");
 
-    auto const ints = {0, 1, 2, 3, 4, 5};
-    auto even = [](int i)
-    { return 0 == i % 2; };
-    auto square = [](int i)
-    { return i * i; };
+#ifdef USE_EPAPER
+    display_init();
+    // delay(5000);
 
-    // the "pipe" syntax of composing the views:
-    for (int i : ints | std::views::filter(even) | std::views::transform(square))
-        std::cout << i << ' ';
-
-    std::cout << '\n';
+    xTaskCreatePinnedToCore(
+        display_task_code,   /* Function to implement the task */
+        "display_task_code", /* Name of the task */
+        10 * 1024,           /* Stack size in words */
+        NULL,                /* Task input parameter */
+        0,                   /* Priority of the task */
+        &display_task,       /* Task handle. */
+        1);                  /* Core where the task should run */
+#endif
 
     vh_display_semaphore = xSemaphoreCreateMutex();
     vm_sdcard_semaphor = xSemaphoreCreateMutex();
@@ -108,17 +109,7 @@ void setup()
     Serial.println(" init_sdspi");
 #endif
 
-#ifdef USE_EPAPER
-    display_init();
-    xTaskCreatePinnedToCore(
-        display_task_code,   /* Function to implement the task */
-        "display_task_code", /* Name of the task */
-        10 * 1024,           /* Stack size in words */
-        NULL,                /* Task input parameter */
-        0,                   /* Priority of the task */
-        &display_task,       /* Task handle. */
-        1);                  /* Core where the task should run */
-#else
+#if USE_LCD
     xTaskCreatePinnedToCore(
         display_task_code, /* Function to implement the task */
         "display_task",    /* Name of the task */
@@ -229,52 +220,52 @@ void setup()
         0);              /* Core where the task should run */
 
 #endif
-//     xTaskCreatePinnedToCore(
-//         ble_task_code,   /* Function to implement the task */
-//         "ble_task_code", /* Name of the task */
-//         16 * 1024,       /* Stack size in words */
-//         NULL,            /* Task input parameter */
-//         0,               /* Priority of the task */
-//         &ble_task,       /* Task handle. */
-//         0);              /* Core where the task should run */
+    //     xTaskCreatePinnedToCore(
+    //         ble_task_code,   /* Function to implement the task */
+    //         "ble_task_code", /* Name of the task */
+    //         16 * 1024,       /* Stack size in words */
+    //         NULL,            /* Task input parameter */
+    //         0,               /* Priority of the task */
+    //         &ble_task,       /* Task handle. */
+    //         0);              /* Core where the task should run */
 
-//     xTaskCreatePinnedToCore(
-//         sensor_reader_task_code, /* Function to implement the task */
-//         "sensor_reader",         /* Name of the task */
-//         4 * 1024,                /* Stack size in words */
-//         NULL,                    /* Task input parameter */
-//         0,                       /* Priority of the task */
-//         &sensor_reader,          /* Task handle. */
-//         0);                      /* Core where the task should run */
+    //     xTaskCreatePinnedToCore(
+    //         sensor_reader_task_code, /* Function to implement the task */
+    //         "sensor_reader",         /* Name of the task */
+    //         4 * 1024,                /* Stack size in words */
+    //         NULL,                    /* Task input parameter */
+    //         0,                       /* Priority of the task */
+    //         &sensor_reader,          /* Task handle. */
+    //         0);                      /* Core where the task should run */
 
-//     xTaskCreatePinnedToCore(
-//         activity_task_code,   /* Function to implement the task */
-//         "activity_task_code", /* Name of the task */
-//         24 * 1024,            /* Stack size in words */
-//         NULL,                 /* Task input parameter */
-//         0,                    /* Priority of the task */
-//         &activity_task,       /* Task handle. */
-//         0);                   /* Core where the task should run */
+    xTaskCreatePinnedToCore(
+        activity_task_code,   /* Function to implement the task */
+        "activity_task_code", /* Name of the task */
+        4 * 1024,            /* Stack size in words */
+        NULL,                 /* Task input parameter */
+        0,                    /* Priority of the task */
+        &activity_task,       /* Task handle. */
+        1);                   /* Core where the task should run */
 
-// #ifdef FEATURE_GPS_ENABLED
-//     xTaskCreatePinnedToCore(
-//         gps_task_code,   /* Function to implement the task */
-//         "gps_task_code", /* Name of the task */
-//         4 * 1024,        /* Stack size in words */
-//         NULL,            /* Task input parameter */
-//         0,               /* Priority of the task */
-//         &gps_task,       /* Task handle. */
-//         0);              /* Core where the task should run */
+    // #ifdef FEATURE_GPS_ENABLED
+    //     xTaskCreatePinnedToCore(
+    //         gps_task_code,   /* Function to implement the task */
+    //         "gps_task_code", /* Name of the task */
+    //         4 * 1024,        /* Stack size in words */
+    //         NULL,            /* Task input parameter */
+    //         0,               /* Priority of the task */
+    //         &gps_task,       /* Task handle. */
+    //         0);              /* Core where the task should run */
 
-//     xTaskCreatePinnedToCore(
-//         gps_process_task_code,   /* Function to implement the task */
-//         "gps_process_task_code", /* Name of the task */
-//         4 * 1024,                /* Stack size in words */
-//         NULL,                    /* Task input parameter */
-//         0,                       /* Priority of the task */
-//         NULL,                    /* Task handle. */
-//         0);                      /* Core where the task should run */
-// #endif
+    //     xTaskCreatePinnedToCore(
+    //         gps_process_task_code,   /* Function to implement the task */
+    //         "gps_process_task_code", /* Name of the task */
+    //         4 * 1024,                /* Stack size in words */
+    //         NULL,                    /* Task input parameter */
+    //         0,                       /* Priority of the task */
+    //         NULL,                    /* Task handle. */
+    //         0);                      /* Core where the task should run */
+    // #endif
 
     vTaskDelete(NULL);
 }

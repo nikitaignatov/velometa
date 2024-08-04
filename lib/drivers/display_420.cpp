@@ -14,7 +14,7 @@ GxEPD2_BW<SCREEN, SCREEN::HEIGHT / 2> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC,
 #endif
 
 #ifdef EPD_583bw
-GxEPD2_BW<SCREEN, SCREEN::HEIGHT > display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
+GxEPD2_BW<SCREEN, SCREEN::HEIGHT> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
 #endif
 
 const int SCRN_SPI_CHAN = 2; // HSPI
@@ -49,7 +49,7 @@ void display_time(int secs)
     int h = hour;
     char temp_str[20];
 
-    sprintf(temp_str, "%01d:%02d:%02d\0", h, m, s);
+    sprintf(temp_str, "%01d:%02d:%02d\\0", h, m, s);
     display.setCursor(4, 12);
     display.print(temp_str);
 }
@@ -86,7 +86,7 @@ void display_chart(Queue *queue, int x)
         }
     }
 }
-
+int pixels[32][32];
 void render(int secs, float hr, float power, float speed, int offset_x)
 {
     // // clear();
@@ -101,7 +101,7 @@ void render(int secs, float hr, float power, float speed, int offset_x)
     // // // int a = system_bar_h + Font12.Height + Font24.Height;
     // display_status_bar_content(secs);
     display.setCursor(90, 100);
-    display.print(String(String(speed, 1) + String("km/h")).c_str());
+    // display.print(String(String(speed, 1) + String("km/h")).c_str());
     display.setCursor(10, 50);
 
     display.setFont(&FreeMonoBold24pt7b);
@@ -109,6 +109,13 @@ void render(int secs, float hr, float power, float speed, int offset_x)
     display.setCursor(202, 200);
     display.print(String(power, 0).c_str());
     // display.print(String(198).c_str());
+
+    auto xx = 300;
+    auto yy = 300;
+    display.drawFastHLine(xx, yy, 10, GxEPD_BLACK);
+    display.drawFastHLine(xx, yy + 10, 10, GxEPD_BLACK);
+    display.drawFastVLine(xx, yy, 10, GxEPD_BLACK);
+    display.drawFastVLine(xx + 10, yy, 10, GxEPD_BLACK);
 
     // display.setFont(&FreeMonoBold9pt7b);
     // // display_chart(hr->queue, 0);
@@ -137,11 +144,11 @@ void refresh_screen()
 
 void partial_update(String k)
 {
-    display.setFullWindow();
+    display.setPartialWindow(0, 0, display.width(), 480);
     display.setFont(&FreeMonoBold9pt7b);
     display.setTextColor(GxEPD_BLACK);
     display.fillScreen(GxEPD_WHITE);
-    display.setCursor(0, 50);
+    display.setCursor(0, 20);
     display.print(k.c_str());
     display.display(true); // partial update
     Serial.println("partial_update done");
@@ -151,12 +158,30 @@ void display_init()
 {
     hspi.begin(EPD_SCK_PIN, 12, EPD_MOSI_PIN, 15);                                         // remap hspi for EPD (swap pins)
     display.init(115200, true, 2, false, hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0)); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
+
+    // partial_update(
+    //     String("██╗   ██╗███████╗██╗      ██████╗   ") +
+    //     String("██║   ██║██╔════╝██║     ██╔═══██╗  ") +
+    //     String("██║   ██║█████╗  ██║     ██║   ██║  ") +
+    //     String("╚██╗ ██╔╝██╔══╝  ██║     ██║   ██║  ") +
+    //     String(" ╚████╔╝ ███████╗███████╗╚██████╔╝  ") +
+    //     String("  ╚═══╝  ╚══════╝╚══════╝ ╚═════╝   ") +
+    //     String("                                    ") +
+    //     String("███╗   ███╗███████╗████████╗ █████╗ ") +
+    //     String("████╗ ████║██╔════╝╚══██╔══╝██╔══██╗") +
+    //     String("██╔████╔██║█████╗     ██║   ███████║") +
+    //     String("██║╚██╔╝██║██╔══╝     ██║   ██╔══██║") +
+    //     String("██║ ╚═╝ ██║███████╗   ██║   ██║  ██║") +
+    //     String("╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝"));
 }
 
 void display_task_code(void *parameter)
 {
     Serial.println("display_task_code");
     long last = 0;
+
+    std::srand(std::time(nullptr)); // use current time as seed for random generator
+
     for (;;)
     {
         long secs = millis();
@@ -168,7 +193,8 @@ void display_task_code(void *parameter)
 
         // auto a = current_activity();
         // render(secs / 1000, a->get_hr(1).last, a->get_power(1).last, a->get_speed().last, 2);
-        render(secs / 1000, 98.f, 2.f, 2.f, 2);
+
+        render(secs / 1000, (std::rand() % 100) / 1.0f, 2.f, 2.f, 2);
         Serial.println("render done");
     }
 }

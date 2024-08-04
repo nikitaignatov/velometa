@@ -1,5 +1,4 @@
 #include "window_counter.hpp"
-#include <iostream>
 
 inline void window_counter_t::add_deque_min(std::deque<uint32_t> *deque, uint32_t value) { add_deque(deque, value, std::less{}); }
 inline void window_counter_t::add_deque_max(std::deque<uint32_t> *deque, uint32_t value) { add_deque(deque, value, std::greater{}); }

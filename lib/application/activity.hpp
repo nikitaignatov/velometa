@@ -9,7 +9,7 @@
 #include "gps.hpp"
 #include "system.hpp"
 
-const uint16_t H_SECONDS = 3600;
+const uint16_t H_SECONDS = 10;
 const uint8_t RIDE_HOURS_MAX = 1;
 const uint8_t H_MINUTES = 60;
 
@@ -43,10 +43,10 @@ class Activity
     };
 
     // 5s,15s,30s,60s,90s,120s,300s,600s,900s
-    std::map<measurement_t, std::array<window_counter_t, 16>> counters{
+    std::map<measurement_t, std::array<window_counter_t, 12>> counters{
         {
             measurement_t::heartrate,
-            std::array<window_counter_t, 16>{{
+            std::array<window_counter_t, 12>{{
                 {.duration = 1},
                 {.duration = 3},
                 {.duration = 5},
@@ -54,20 +54,16 @@ class Activity
                 {.duration = 15},
                 {.duration = 30},
                 {.duration = 60},
-                {.duration = 90},
                 {.duration = 120},
                 {.duration = 300},
                 {.duration = 600},
-                {.duration = 900},
                 {.duration = 1200},
-                {.duration = 1800},
                 {.duration = 3600},
-                {.duration = 2 * 3600},
             }},
         },
         {
             measurement_t::power,
-            std::array<window_counter_t, 16>{{
+            std::array<window_counter_t, 12>{{
                 {.duration = 1},
                 {.duration = 3},
                 {.duration = 5},
@@ -75,36 +71,11 @@ class Activity
                 {.duration = 15},
                 {.duration = 30},
                 {.duration = 60},
-                {.duration = 90},
                 {.duration = 120},
                 {.duration = 300},
                 {.duration = 600},
-                {.duration = 900},
                 {.duration = 1200},
-                {.duration = 1800},
                 {.duration = 3600},
-                {.duration = 2 * 3600},
-            }},
-        },
-        {
-            measurement_t::speed,
-            std::array<window_counter_t, 16>{{
-                {.duration = 1},
-                {.duration = 3},
-                {.duration = 5},
-                {.duration = 10},
-                {.duration = 15},
-                {.duration = 30},
-                {.duration = 60},
-                {.duration = 90},
-                {.duration = 120},
-                {.duration = 300},
-                {.duration = 600},
-                {.duration = 900},
-                {.duration = 1200},
-                {.duration = 1800},
-                {.duration = 3600},
-                {.duration = 2 * 3600},
             }},
         },
     };
