@@ -54,10 +54,10 @@ void sensor_reader_task_code(void *parameter)
     std::optional<float> d;
     std::optional<float> ms;
     uint64_t duration_ms = 0;
+
     for (;;)
     {
         auto measurement_ts = ts();
-
         if (diff_pressure_1.read_sensor())
         {
             publish_measurement(diff_pressure_1.get_pressure(), measurement_t::diff_pressure_l_pa, measurement_ts);

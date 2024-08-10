@@ -18,11 +18,7 @@ SemaphoreHandle_t vh_display_semaphore;
 SemaphoreHandle_t vm_sdcard_semaphor;
 
 FATFS *fatfs;
-#if USE_EPAPER
-#include "display_420.hpp"
-#elif USE_LCD
 #include "wt32sc01plus.hpp"
-#endif
 
 TaskHandle_t ble_task;
 TaskHandle_t sensor_reader;
@@ -44,36 +40,36 @@ static const char *TAG = "main.cpp";
 void setup()
 {
     Serial.begin(115200);
-    delay(50);
+    delay(5000);
     Serial.println("Velometa");
+    sensor_status_bits = xEventGroupCreate();
 
     vh_display_semaphore = xSemaphoreCreateMutex();
-    vm_sdcard_semaphor = xSemaphoreCreateMutex();
-    sensor_status_bits = xEventGroupCreate();
-    vh_raw_measurement_queue = xQueueCreate(200, sizeof(raw_measurement_msg_t));
-    vh_gps_queue = xQueueCreate(100, sizeof(gps_data_t));
-    vh_gps_csv_queue = xQueueCreate(400, sizeof(gps_data_t));
-    vm_csv_queue = xQueueCreate(2000, sizeof(raw_measurement_msg_t));
-
     if (vh_display_semaphore == NULL)
     {
         ESP_LOGE(TAG, "Failed to create display semaphore");
     }
 
-    if (vh_display_semaphore == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to create display semaphore");
-    }
-
+    vh_gps_queue = xQueueCreate(1000, sizeof(gps_data_t));
     if (vh_gps_queue == NULL)
     {
         ESP_LOGE(TAG, "Failed to create vh_gps_queue");
     }
 
+    vm_csv_queue = xQueueCreate(200, sizeof(raw_measurement_msg_t));
     if (vm_csv_queue == NULL)
     {
         ESP_LOGE(TAG, "Failed to create vm_csv_queue");
     }
+
+    vh_gps_csv_queue = xQueueCreate(400, sizeof(gps_data_t));
+    if (vh_gps_csv_queue == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create vh_gps_csv_queue");
+    }
+
+    vm_sdcard_semaphor = xSemaphoreCreateMutex();
+    vh_raw_measurement_queue = xQueueCreate(200, sizeof(raw_measurement_msg_t));
 
     if (psramInit())
     {
@@ -89,17 +85,6 @@ void setup()
     Serial.print(fatfs->fsize);
     Serial.println(" init_sdspi");
 
-#ifdef USE_EPAPER
-    display_init();
-    xTaskCreatePinnedToCore(
-        display_task_code,   /* Function to implement the task */
-        "display_task_code", /* Name of the task */
-        10 * 1024,           /* Stack size in words */
-        NULL,                /* Task input parameter */
-        0,                   /* Priority of the task */
-        &display_task,       /* Task handle. */
-        1);                  /* Core where the task should run */
-#else
     xTaskCreatePinnedToCore(
         display_task_code, /* Function to implement the task */
         "display_task",    /* Name of the task */
@@ -108,8 +93,7 @@ void setup()
         0,                 /* Priority of the task */
         &display_task,     /* Task handle. */
         1);                /* Core where the task should run */
-#endif
-
+        
     // PSRAM Initialisation
     if (psramInit())
     {
@@ -159,31 +143,6 @@ void setup()
         .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
         .has_notification = true,
     });
-    // ble_sensors.push_back((sensor_definition_t){
-    //     .device_name = DEVICE_NAME_SPEED,
-    //     .metric = metric_type_t::SPEED_WHEEL_RPM,
-    //     .service_id = BLEUUID("00001816-0000-1000-8000-00805f9b34fb"),
-    //     .characteristic_id = {{measurement_t::speed, BLEUUID((uint16_t)0x2A5B)}},
-    //     .address = missing_address,
-    //     .client = nullptr,
-    //     .parse_data = ble_parse_speed_wheel_rpm_data,
-    //     .enabled = false,
-    //     .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_RANDOM,
-    //     .has_notification = true,
-    // });
-
-    // ble_sensors.push_back((sensor_definition_t){
-    //     .device_name = DEVICE_NAME_AIRSPEED,
-    //     .metric = metric_type_t::AIRSPEED_KMH,
-    //     .service_id = BLEUUID("0895EC4E-F5A8-47AD-BDDE-FDEBB46D6F93"),
-    //     .characteristic_id = airspeed_metrics_def,
-    //     .address = missing_address,
-    //     .client = nullptr,
-    //     .parse_data = ble_parse_airspeed,
-    //     .enabled = true,
-    //     .address_type = esp_ble_addr_type_t::BLE_ADDR_TYPE_PUBLIC,
-    //     .has_notification = true,
-    // });
 
     // xTaskCreatePinnedToCore(
     //     mock_task_code, /* Function to implement the task */

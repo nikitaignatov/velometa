@@ -26,8 +26,8 @@ void vm_show_cda_panel(lv_obj_t *parent)
   auto rh = new Measurement(cont, measurement_t::air_humidity, "RH\n%", "{:.2f}");
   auto r = new Measurement(cont, measurement_t::roll, "Roll", "{:.1f}");
   auto p = new Measurement(cont, measurement_t::pitch, "Pitch", "{:.1f}");
-  auto d = new Measurement(cont, measurement_t::position_mm, "Dist\nmm", "{:.1f}");
   auto pos = new PositionSlider(cont, measurement_t::position_mm, "Dist\nmm", "{:.1f}");
+  // auto pos = new DistanceMap(cont, 1337, "Dist\nmm", "{:.1f}");
 
   // auto wy = create_metric(cont, "Wind Yaw: ", "Wind Yaw: {} %", measurement_t::wind_yaw);
   // auto a = create_metric(cont, "Altitude: ", "Altitude: {} m", measurement_t::elevation);
