@@ -8,7 +8,6 @@ static const int RXPin = 21, TXPin = 22;
 static const int RXPin = 44, TXPin = 14;
 #endif
 static const uint32_t GPSBaud = 115200;
-// TinyGPSPlus gps;
 HardwareSerial ss(1);
 
 static const char *TAG = "gps";

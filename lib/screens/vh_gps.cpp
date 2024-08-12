@@ -1,5 +1,4 @@
 #include "vh_gps.hpp"
-#include "TinyGPSPlus.h"
 
 static const char *TAG = "vh_gps";
 
