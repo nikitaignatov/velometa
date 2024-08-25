@@ -18,8 +18,8 @@
 // #define EPD_75bwr
 // #define EPD_75bw
 // #define EPD_420bw
-#define EPD_583bw
-
+// #define EPD_583bw
+#define EPD_579bw
 
 #ifdef EPD_213bw
 #include <GxEPD2_BW.h>
@@ -40,6 +40,12 @@ extern GxEPD2_BW<SCREEN, SCREEN::HEIGHT / 2> display;
 #ifdef EPD_583bw
 #include <GxEPD2_BW.h>
 #define SCREEN GxEPD2_583_T8
+extern GxEPD2_BW<SCREEN, SCREEN::HEIGHT > display;
+#endif
+
+#ifdef EPD_579bw
+#include <GxEPD2_BW.h>
+#define SCREEN GxEPD2_579_GDEY0579T93
 extern GxEPD2_BW<SCREEN, SCREEN::HEIGHT > display;
 #endif
 

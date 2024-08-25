@@ -17,6 +17,10 @@ GxEPD2_BW<SCREEN, SCREEN::HEIGHT / 2> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC,
 GxEPD2_BW<SCREEN, SCREEN::HEIGHT> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); // GDEW042M01 400x300, UC8176 (IL0398)
 #endif
 
+#ifdef EPD_579bw
+GxEPD2_BW<SCREEN, SCREEN::HEIGHT> display(SCREEN(/*CS=5*/ P_CS, /*DC=*/P_DC, /*RST=*/P_RST, /*BUSY=*/P_BUSY)); 
+#endif
+
 const int SCRN_SPI_CHAN = 2; // HSPI
 SPIClass hspi(HSPI);
 static bool refresh = false;
@@ -89,10 +93,11 @@ void display_chart(Queue *queue, int x)
 int pixels[32][32];
 void render(int secs, float hr, float power, float speed, int offset_x)
 {
-    // // clear();
-    display.setPartialWindow(0, 0, display.width(), 400);
+    // clear();
+    display.setPartialWindow(0, 0, display.width(), display.height());
     display.fillScreen(GxEPD_WHITE);
     display.setTextColor(GxEPD_BLACK);
+
     Serial.println("fill white");
     Serial.println(display.width());
     Serial.println(display.height());
@@ -100,9 +105,9 @@ void render(int secs, float hr, float power, float speed, int offset_x)
     Serial.println("layout");
     // // // int a = system_bar_h + Font12.Height + Font24.Height;
     // display_status_bar_content(secs);
-    display.setCursor(90, 100);
+    display.setCursor(display.width()/2, 100);
     // display.print(String(String(speed, 1) + String("km/h")).c_str());
-    display.setCursor(10, 50);
+    display.setCursor(display.width()/2, 50);
 
     display.setFont(&FreeMonoBold24pt7b);
     display.print(String(hr, 0).c_str());
@@ -121,7 +126,7 @@ void render(int secs, float hr, float power, float speed, int offset_x)
     // // display_chart(hr->queue, 0);
     // // display_chart(power->queue, 201);
 
-    display.displayWindow(0, 0, display.width(), 400);
+    display.displayWindow(0, 0, display.width(), display.height());
     display.display(true);
     // display_map_dark(offset_x);
 
@@ -138,7 +143,7 @@ void render(int secs, float hr, float power, float speed, int offset_x)
 }
 void refresh_screen()
 {
-    display.fillScreen(GxEPD_WHITE);
+    display.fillScreen(GxEPD_BLACK);
     display.display();
 }
 
@@ -179,7 +184,7 @@ void display_task_code(void *parameter)
 {
     Serial.println("display_task_code");
     long last = 0;
-
+refresh_screen();
     std::srand(std::time(nullptr)); // use current time as seed for random generator
 
     for (;;)
